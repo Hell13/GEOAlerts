@@ -84,6 +84,9 @@ function exportStaticData() {
 
   fs.writeFileSync(path.join(outDir, 'overview.json'), JSON.stringify(overviewPayload));
   fs.writeFileSync(path.join(outDir, 'countries_details.json'), JSON.stringify(detailsByIso));
+  try {
+    db.exec('PRAGMA wal_checkpoint(TRUNCATE);');
+  } catch (_) {}
 }
 
 module.exports = { exportStaticData };
