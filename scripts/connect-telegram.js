@@ -1,6 +1,13 @@
 const fs = require('fs');
 const path = require('path');
-const { pollTelegramBotUpdates, callTelegramApi, buildMainMenuText, getMainMenuKeyboard } = require('../server/telegram');
+const {
+  pollTelegramBotUpdates,
+  registerBotMenuCommands,
+  PERSISTENT_BOTTOM_KEYBOARD,
+  callTelegramApi,
+  buildMainMenuText,
+  getMainMenuKeyboard
+} = require('../server/telegram');
 const { db } = require('../server/db');
 
 // Load .env
@@ -26,30 +33,29 @@ async function run() {
     process.exit(1);
   }
 
-  // 1. Check bot identity via getMe
-  const meRes = await fetch(`https://api.telegram.org/bot${token}/getMe`);
-  const meData = await meRes.json();
-  if (!meData.ok) {
-    console.error('❌ Invalid Telegram token:', meData.description);
-    process.exit(1);
-  }
-  const botUser = meData.result;
-  console.log(`🤖 Bot verified: @${botUser.username} (${botUser.first_name}, ID: ${botUser.id})`);
+  // 1. Register native Telegram [ ☰ Menu ] button & commands
+  await registerBotMenuCommands();
+  console.log('✅ Registered native Telegram [ ☰ Menu ] button (/menu, /status, /summary).');
 
-  // 2. Process any pending button clicks or messages
-  const processed = await pollTelegramBotUpdates();
-  console.log(`📥 Processed ${processed} pending Telegram updates.`);
+  // 2. Process any pending updates
+  await pollTelegramBotUpdates();
 
-  // 3. Send updated Control Center menu to active subscribers
+  // 3. Send persistent bottom reply keyboard + inline Control Center menu to subscribers
   const subs = db.prepare(`SELECT * FROM telegram_subscribers WHERE chat_id != 'admin_profile' AND active = 1`).all();
   for (const sub of subs) {
+    await callTelegramApi('sendMessage', {
+      chat_id: sub.chat_id,
+      text: '👇 <b>Закреплена постоянная нижняя панель кнопок!</b>\nТеперь вы можете в любой момент нажать <b>«🛡 Меню настроек»</b>, <b>«🔍 Узнать статус страны»</b> или <b>«📊 Сводка L4 & L5»</b> прямо над строкой ввода сообщения (или через синюю кнопку <b>Menu</b> слева):',
+      parse_mode: 'HTML',
+      reply_markup: PERSISTENT_BOTTOM_KEYBOARD
+    });
     await callTelegramApi('sendMessage', {
       chat_id: sub.chat_id,
       text: buildMainMenuText(sub),
       parse_mode: 'HTML',
       reply_markup: getMainMenuKeyboard(sub)
     });
-    console.log(`📨 Sent updated Control Center menu to chat ${sub.chat_id}!`);
+    console.log(`📨 Sent persistent bottom menu bar to chat ${sub.chat_id}!`);
   }
 }
 

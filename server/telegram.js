@@ -389,6 +389,63 @@ function getRegionCountriesKeyboard(regionName, sub) {
   return { inline_keyboard: rows };
 }
 
+const PERSISTENT_BOTTOM_KEYBOARD = {
+  keyboard: [
+    [
+      { text: '🛡 Меню настроек' },
+      { text: '🔍 Узнать статус страны' },
+      { text: '📊 Сводка L4 & L5' }
+    ]
+  ],
+  resize_keyboard: true,
+  is_persistent: true
+};
+
+function buildSummaryMessage() {
+  const l5List = db.prepare(`
+    SELECT iso2, name, resonance_count FROM countries
+    WHERE overall_level = 5 ORDER BY resonance_count DESC, name ASC
+  `).all();
+  const l4List = db.prepare(`
+    SELECT iso2, name, resonance_count FROM countries
+    WHERE overall_level = 4 ORDER BY resonance_count DESC, name ASC LIMIT 12
+  `).all();
+  const totalL4 = db.prepare(`SELECT COUNT(*) as c FROM countries WHERE overall_level = 4`).get().c;
+
+  const l5Str = l5List.map(c => `• <b>${escapeHtml(c.name)}</b> (<code>${c.iso2}</code>) — ${c.resonance_count} src`).join('\n');
+  const l4Str = l4List.map(c => `• <b>${escapeHtml(c.name)}</b> (<code>${c.iso2}</code>)`).join('\n');
+
+  return {
+    text:
+      `📊 <b>Compact Level 4 & 5 Flashpoints</b>\n` +
+      `━━━━━━━━━━━━━━━━━━━━\n` +
+      `⚫️ <b>Level 5 Critical (${l5List.length}):</b>\n${l5Str || 'None'}\n\n` +
+      `🔴 <b>Top Level 4 Red Flag (showing 12 of ${totalL4}):</b>\n${l4Str || 'None'}\n\n` +
+      `💡 <i>Tap <b>🔍 Check Country Status</b> below or type any country name in chat to inspect all 8 sources for a specific country.</i>`,
+    keyboard: {
+      inline_keyboard: [
+        [
+          { text: '🔍 Check Country Status', callback_data: 'action:lookup_menu' },
+          { text: '⬅️ Main Menu', callback_data: 'menu:main' }
+        ]
+      ]
+    }
+  };
+}
+
+async function registerBotMenuCommands() {
+  await callTelegramApi('setMyCommands', {
+    commands: [
+      { command: 'menu', description: '🛡 Открыть главное меню и настройки (Control Center)' },
+      { command: 'status', description: '🔍 Узнать статус страны (Check Country Status)' },
+      { command: 'summary', description: '📊 Сводка горячих точек L4 & L5 (Flashpoints Summary)' }
+    ]
+  });
+  await callTelegramApi('setChatMenuButton', {
+    menu_button: { type: 'commands' }
+  });
+}
+
 async function handleTelegramUpdate(update) {
   const now = new Date().toISOString();
 
@@ -396,6 +453,7 @@ async function handleTelegramUpdate(update) {
     const msg = update.message;
     const chatId = String(msg.chat.id);
     const text = (msg.text || '').trim();
+    const textLower = text.toLowerCase();
     if (!text) return;
 
     db.prepare(`
@@ -410,12 +468,61 @@ async function handleTelegramUpdate(update) {
 
     const sub = db.prepare(`SELECT * FROM telegram_subscribers WHERE chat_id = ?`).get(chatId);
 
-    if (text.startsWith('/start') || text.startsWith('/settings') || text.startsWith('/menu')) {
+    if (
+      text.startsWith('/start') ||
+      text.startsWith('/settings') ||
+      text.startsWith('/menu') ||
+      text === '🛡 Меню настроек' ||
+      textLower === 'меню' ||
+      textLower === 'menu'
+    ) {
+      // Pin persistent bottom bar if /start
+      if (text.startsWith('/start')) {
+        await callTelegramApi('sendMessage', {
+          chat_id: chatId,
+          text: '⌨️ <b>Нижняя панель быстрого вызова меню закреплена!</b> Используйте кнопки внизу экрана в любой момент:',
+          parse_mode: 'HTML',
+          reply_markup: PERSISTENT_BOTTOM_KEYBOARD
+        });
+      }
       await callTelegramApi('sendMessage', {
         chat_id: chatId,
         text: buildMainMenuText(sub),
         parse_mode: 'HTML',
         reply_markup: getMainMenuKeyboard(sub)
+      });
+      return;
+    }
+
+    if (
+      text === '/status' ||
+      text === '🔍 Узнать статус страны' ||
+      textLower === 'статус' ||
+      textLower === 'узнать статус страны'
+    ) {
+      await callTelegramApi('sendMessage', {
+        chat_id: chatId,
+        text:
+          `🔍 <b>Check Country Intelligence Status</b>\n\n` +
+          `1️⃣ <b>By Text:</b> Simply type and send any country name or ISO code right into this chat (in Russian or English, e.g. <code>Израиль</code>, <code>Taiwan</code>, <code>Таиланд</code>, <code>UA</code>).\n\n` +
+          `2️⃣ <b>From List:</b> Or choose a region below to pick a country with one tap:`,
+        parse_mode: 'HTML',
+        reply_markup: getLookupMenuKeyboard()
+      });
+      return;
+    }
+
+    if (
+      text.startsWith('/summary') ||
+      text === '📊 Сводка L4 & L5' ||
+      textLower === 'сводка'
+    ) {
+      const sum = buildSummaryMessage();
+      await callTelegramApi('sendMessage', {
+        chat_id: chatId,
+        text: sum.text,
+        parse_mode: 'HTML',
+        reply_markup: sum.keyboard
       });
       return;
     }
@@ -681,6 +788,8 @@ module.exports = {
   broadcastCriticalEvents,
   handleTelegramUpdate,
   pollTelegramBotUpdates,
+  registerBotMenuCommands,
+  PERSISTENT_BOTTOM_KEYBOARD,
   buildMainMenuText,
   getMainMenuKeyboard,
   callTelegramApi
