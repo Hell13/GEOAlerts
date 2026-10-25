@@ -386,9 +386,17 @@ const server = http.createServer(async (req, res) => {
     console.log(`[GEOAlerts] Geopolitical Early Warning Platform running at http://localhost:${PORT}`);
     if (process.env.TELEGRAM_BOT_TOKEN && process.env.TELEGRAM_BOT_TOKEN !== 'your_telegram_bot_token_here') {
       console.log('[GEOAlerts] Starting real-time Telegram Bot interactive listener (@GeoAlerts13Bot)...');
-      setInterval(() => {
-        pollTelegramBotUpdates().catch(() => {});
-      }, 3000);
+      let tgBusy = false;
+      setInterval(async () => {
+        if (tgBusy) return;
+        tgBusy = true;
+        try {
+          await pollTelegramBotUpdates();
+        } catch (_) {
+        } finally {
+          tgBusy = false;
+        }
+      }, 1500);
     }
   });
 })();
