@@ -688,7 +688,6 @@ async function loadTelegramSettings() {
         state.tgChatId = sub.chat_id;
         state.tgMode = sub.mode || 'all';
         state.watchedCountries = new Set(sub.selectedCountries || []);
-        document.getElementById('tgChatIdInput').value = sub.chat_id === 'admin_profile' ? '' : sub.chat_id;
         document.querySelectorAll('input[name="tgMode"]').forEach(r => {
           r.checked = r.value === state.tgMode;
         });
@@ -705,6 +704,9 @@ async function loadTelegramSettings() {
       state.tgChatId = parsed.chatId || 'admin_profile';
       state.tgMode = parsed.mode || 'all';
       state.watchedCountries = new Set(parsed.selectedCountries || ['UA', 'IL', 'TW', 'LB', 'IR']);
+      document.querySelectorAll('input[name="tgMode"]').forEach(r => {
+        r.checked = r.value === state.tgMode;
+      });
     } catch {}
   }
 }
@@ -733,12 +735,14 @@ function renderTelegramModalTags() {
 
 async function saveTelegramSettings() {
   const selectedMode = document.querySelector('input[name="tgMode"]:checked')?.value || 'all';
-  const chatIdInput = document.getElementById('tgChatIdInput').value.trim() || state.tgChatId || 'admin_profile';
   state.tgMode = selectedMode;
-  state.tgChatId = chatIdInput;
 
   await persistTelegramSettingsQuietly();
   document.getElementById('modalTelegram').classList.add('hidden');
+
+  const codes = [...state.watchedCountries].slice(0, 18).join('_');
+  const startParam = (selectedMode === 'selected' && codes) ? `watch_${codes}` : 'all';
+  window.open(`https://t.me/GeoAlerts13Bot?start=${startParam}`, '_blank', 'noopener,noreferrer');
 }
 
 async function persistTelegramSettingsQuietly() {

@@ -466,7 +466,7 @@ async function handleTelegramUpdate(update) {
         updated_at = excluded.updated_at
     `).run(chatId, msg.from?.username || '', msg.from?.first_name || 'User', now, now);
 
-    const sub = db.prepare(`SELECT * FROM telegram_subscribers WHERE chat_id = ?`).get(chatId);
+    let sub = db.prepare(`SELECT * FROM telegram_subscribers WHERE chat_id = ?`).get(chatId);
 
     if (
       text.startsWith('/start') ||
@@ -476,8 +476,19 @@ async function handleTelegramUpdate(update) {
       textLower === 'меню' ||
       textLower === 'menu'
     ) {
-      // Pin persistent bottom bar if /start
       if (text.startsWith('/start')) {
+        const startArg = text.slice(6).trim();
+        if (startArg === 'all') {
+          db.prepare(`UPDATE telegram_subscribers SET mode = 'all', updated_at = ? WHERE chat_id = ?`).run(now, chatId);
+          sub = db.prepare(`SELECT * FROM telegram_subscribers WHERE chat_id = ?`).get(chatId);
+        } else if (startArg.startsWith('watch_')) {
+          const codes = startArg.slice(6).toUpperCase().split('_').filter(c => countriesData[c]);
+          if (codes.length > 0) {
+            db.prepare(`UPDATE telegram_subscribers SET mode = 'selected', selected_countries_json = ?, updated_at = ? WHERE chat_id = ?`)
+              .run(JSON.stringify(codes), now, chatId);
+            sub = db.prepare(`SELECT * FROM telegram_subscribers WHERE chat_id = ?`).get(chatId);
+          }
+        }
         await callTelegramApi('sendMessage', {
           chat_id: chatId,
           text: '⌨️ <b>Нижняя панель быстрого вызова меню закреплена!</b> Используйте кнопки внизу экрана в любой момент:',
