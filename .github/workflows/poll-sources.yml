@@ -12,9 +12,16 @@ permissions:
   pages: write
   id-token: write
 
+concurrency:
+  group: "pages-and-poll"
+  cancel-in-progress: false
+
 jobs:
   poll-and-publish:
     runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
     steps:
       - name: Checkout Repository
         uses: actions/checkout@v4
@@ -39,3 +46,15 @@ jobs:
           git config user.email "bot@geoalerts.local"
           git add data/ public/data/
           git diff --staged --quiet || (git commit -m "chore(intel): automated multi-source advisory update [skip ci]" && git push)
+
+      - name: Setup GitHub Pages
+        uses: actions/configure-pages@v5
+
+      - name: Upload Static Web Map Artifact (public/)
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: './public'
+
+      - name: Deploy to GitHub Pages (geoalerts.inteligentevolutionplatform.com)
+        id: deployment
+        uses: actions/deploy-pages@v4
