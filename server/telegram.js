@@ -291,9 +291,42 @@ async function handleTelegramUpdate(update) {
   }
 }
 
+async function pollTelegramBotUpdates() {
+  const offsetRow = db.prepare(`SELECT value FROM system_meta WHERE key = 'tg_update_offset'`).get();
+  const offset = offsetRow ? Number(offsetRow.value) : 0;
+
+  const res = await callTelegramApi('getUpdates', {
+    offset,
+    timeout: 1,
+    allowed_updates: ['message', 'callback_query']
+  });
+
+  if (!res.ok || !Array.isArray(res.result)) return 0;
+
+  let maxUpdateId = offset;
+  for (const update of res.result) {
+    await handleTelegramUpdate(update);
+    if (update.update_id >= maxUpdateId) {
+      maxUpdateId = update.update_id + 1;
+    }
+  }
+
+  if (maxUpdateId > offset) {
+    db.prepare(`
+      INSERT INTO system_meta (key, value) VALUES ('tg_update_offset', ?)
+      ON CONFLICT(key) DO UPDATE SET value = excluded.value
+    `).run(String(maxUpdateId));
+  }
+
+  return res.result.length;
+}
+
 module.exports = {
   formatAlertMessage,
   broadcastCriticalEvents,
   handleTelegramUpdate,
+  pollTelegramBotUpdates,
+  getMainMenuKeyboard,
   callTelegramApi
 };
+

@@ -2,7 +2,7 @@
 /**
  * Standalone CLI / GitHub Actions Cron Runner for GEOAlerts
  * Polls all 8 diplomatic, embassy, aviation, maritime, and UN sources,
- * computes text diffs, calls OpenAI gpt-4o-mini ONLY on changed wording,
+ * computes text diffs, calls OpenAI gpt-4.1-mini ONLY on changed wording,
  * and dispatches Level 4 (Red) & Level 5 (Black) alerts to Telegram.
  */
 const fs = require('node:fs');
@@ -20,8 +20,13 @@ if (fs.existsSync(envPath)) {
 }
 
 const { runFullIngestion } = require('../server/parsers');
+const { pollTelegramBotUpdates } = require('../server/telegram');
 
 (async () => {
+  console.log('[GEOAlerts Cron] Syncing Telegram Bot subscribers & menu commands...');
+  const tgUpdates = await pollTelegramBotUpdates();
+  console.log(`[GEOAlerts Cron] Processed ${tgUpdates} Telegram bot updates.`);
+
   console.log('[GEOAlerts Cron] Starting global multi-source intelligence poll...');
   const result = await runFullIngestion({ sendTelegramAlerts: true });
   console.log('[GEOAlerts Cron] Completed:', JSON.stringify(result, null, 2));

@@ -18,7 +18,7 @@ if (fs.existsSync(envPath)) {
 const { db } = require('./db');
 const { runFullIngestion, recomputeCountryAggregates } = require('./parsers');
 const { analyzeChangeWithAI } = require('./analyzer');
-const { broadcastCriticalEvents, formatAlertMessage, handleTelegramUpdate } = require('./telegram');
+const { broadcastCriticalEvents, formatAlertMessage, handleTelegramUpdate, pollTelegramBotUpdates } = require('./telegram');
 
 const PORT = Number(process.env.PORT) || 3080;
 const PUBLIC_DIR = path.join(__dirname, '../public');
@@ -384,5 +384,11 @@ const server = http.createServer(async (req, res) => {
 
   server.listen(PORT, () => {
     console.log(`[GEOAlerts] Geopolitical Early Warning Platform running at http://localhost:${PORT}`);
+    if (process.env.TELEGRAM_BOT_TOKEN && process.env.TELEGRAM_BOT_TOKEN !== 'your_telegram_bot_token_here') {
+      console.log('[GEOAlerts] Starting real-time Telegram Bot interactive listener (@GeoAlerts13Bot)...');
+      setInterval(() => {
+        pollTelegramBotUpdates().catch(() => {});
+      }, 3000);
+    }
   });
 })();
