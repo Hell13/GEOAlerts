@@ -1,0 +1,21 @@
+{
+  "name": "geoalerts",
+  "version": "1.0.0",
+  "description": "Geopolitical Early Warning & Diplomatic Intelligence Platform",
+  "main": "server/index.js",
+  "scripts": {
+    "start": "node server/index.js",
+    "dev": "node --watch server/index.js",
+    "poll": "node scripts/run-poll.js"
+  },
+  "dependencies": {
+    "@supabase/supabase-js": "^2.45.0",
+    "cheerio": "^1.0.0",
+    "cors": "^2.8.5",
+    "diff": "^5.2.0",
+    "dotenv": "^16.4.5",
+    "express": "^4.19.2",
+    "fast-xml-parser": "^4.4.1",
+    "openai": "^4.56.0"
+  }
+}

@@ -1,0 +1,41 @@
+name: GEOAlerts 30-Min Intelligence Poll & Deploy
+
+on:
+  schedule:
+    - cron: '*/30 * * * *'
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: write
+  pages: write
+  id-token: write
+
+jobs:
+  poll-and-publish:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js 22+ (with native node:sqlite)
+        uses: actions/setup-node@v4
+        with:
+          node-version: '22.x'
+
+      - name: Run Multi-Source Diplomatic & Airspace Poll
+        env:
+          OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
+          OPENAI_MODEL: gpt-4.1-mini
+          TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
+          SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
+          SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
+        run: node --no-warnings scripts/run-poll.js
+
+      - name: Persist Updated Intelligence State & Static Snapshots
+        run: |
+          git config user.name "geoalerts-bot"
+          git config user.email "bot@geoalerts.local"
+          git add data/ public/data/
+          git diff --staged --quiet || (git commit -m "chore(intel): automated multi-source advisory update [skip ci]" && git push)

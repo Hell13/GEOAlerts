@@ -1,0 +1,323 @@
+<!DOCTYPE html>
+<html lang="en" class="dark">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>GEOAlerts — Geopolitical Early Warning & Diplomatic Intelligence</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <script src="https://d3js.org/d3.v7.min.js"></script>
+  <script src="https://unpkg.com/topojson-client@3"></script>
+  <link rel="stylesheet" href="/styles.css" />
+</head>
+<body>
+  <!-- TOP COMMAND HEADER -->
+  <header class="top-bar">
+    <div class="brand-block">
+      <div class="radar-logo">
+        <span class="radar-Sweep"></span>
+        <span class="radar-core"></span>
+      </div>
+      <div>
+        <div class="brand-title">
+          GEO<span>ALERTS</span>
+          <span class="version-pill">OSINT EARLY WARNING</span>
+        </div>
+        <div class="brand-subtitle">Multi-Agency Diplomatic Wording Diff, Embassy Security Alerts & Airspace Conflict Monitor</div>
+      </div>
+    </div>
+
+    <!-- MAP MODE SWITCHER (BOTH MODES REQUESTED) -->
+    <div class="mode-switcher" role="tablist">
+      <button id="btnModeStatus" class="mode-btn active" data-mode="status">
+        <span class="mode-dot status-dot"></span>
+        Global Threat Status (All 203)
+      </button>
+      <button id="btnModeRadar" class="mode-btn" data-mode="radar">
+        <span class="mode-dot radar-dot"></span>
+        Escalation Radar (Recent Wording Shifts)
+      </button>
+    </div>
+
+    <!-- ACTION CONTROLS -->
+    <div class="top-actions">
+      <div class="poll-meta">
+        <span class="live-indicator"></span>
+        <span id="lastPollLabel">Synced: Just now</span>
+      </div>
+      <button id="btnPollNow" class="action-btn secondary" title="Poll all 8 diplomatic & aviation sources now">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M21 12a9 9 0 0 0-9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"/><path d="M3 3v5h5"/><path d="M3 12a9 9 0 0 0 9 9 9.75 9.75 0 0 0 6.74-2.74L21 16"/><path d="M16 16h5v5"/></svg>
+        <span>Poll Sources</span>
+      </button>
+      <button id="btnOpenSimulator" class="action-btn warning" title="Simulate a Red/Black Flag diplomatic wording change to test Diff + OpenAI + Telegram">
+        <span>⚡ Simulate Crisis Diff</span>
+      </button>
+      <button id="btnOpenTelegram" class="action-btn primary" title="Configure Telegram Red & Black Flag notifications & country watchlist">
+        <span>✈️ Telegram Alerts</span>
+      </button>
+    </div>
+  </header>
+
+  <!-- THREAT LEVEL RIBBON & FILTER BAR -->
+  <section class="stats-ribbon">
+    <div class="level-cards">
+      <button class="lvl-card active" data-filter-level="all">
+        <span class="lvl-name">WORLDWIDE MONITORED</span>
+        <span class="lvl-count" id="countAll">203</span>
+      </button>
+      <button class="lvl-card lvl-5" data-filter-level="5">
+        <div class="lvl-header">
+          <span class="lvl-dot l5"></span>
+          <span class="lvl-name">LVL 5 • CRITICAL / IMMINENT WAR</span>
+          <span class="tg-badge">📲 TG ALERT</span>
+        </div>
+        <div class="lvl-bottom">
+          <span class="lvl-count" id="countL5">0</span>
+          <span class="lvl-desc">Ordered Departure • Leave Immediately • Multi-Agency Resonance</span>
+        </div>
+      </button>
+      <button class="lvl-card lvl-4" data-filter-level="4">
+        <div class="lvl-header">
+          <span class="lvl-dot l4"></span>
+          <span class="lvl-name">LVL 4 • RED FLAG / PRE-EVACUATION</span>
+          <span class="tg-badge">📲 TG ALERT</span>
+        </div>
+        <div class="lvl-bottom">
+          <span class="lvl-count" id="countL4">0</span>
+          <span class="lvl-desc">Authorized Family Departure • Conflict Airspace • Shelter Orders</span>
+        </div>
+      </button>
+      <button class="lvl-card lvl-3" data-filter-level="3">
+        <div class="lvl-header">
+          <span class="lvl-dot l3"></span>
+          <span class="lvl-name">LVL 3 • HIGH RISK</span>
+          <span class="silent-badge">SILENT ON TG</span>
+        </div>
+        <div class="lvl-bottom">
+          <span class="lvl-count" id="countL3">0</span>
+          <span class="lvl-desc">Reconsider Travel • Regional Advisories</span>
+        </div>
+      </button>
+      <button class="lvl-card lvl-2" data-filter-level="2">
+        <div class="lvl-header">
+          <span class="lvl-dot l2"></span>
+          <span class="lvl-name">LVL 2 • CAUTION</span>
+          <span class="silent-badge">SILENT ON TG</span>
+        </div>
+        <div class="lvl-bottom">
+          <span class="lvl-count" id="countL2">0</span>
+          <span class="lvl-desc">Routine Protests • Increased Caution</span>
+        </div>
+      </button>
+      <button class="lvl-card lvl-1" data-filter-level="1">
+        <div class="lvl-header">
+          <span class="lvl-dot l1"></span>
+          <span class="lvl-name">LVL 1 • NORMAL</span>
+        </div>
+        <div class="lvl-bottom">
+          <span class="lvl-count" id="countL1">0</span>
+          <span class="lvl-desc">Normal Security Precautions</span>
+        </div>
+      </button>
+    </div>
+  </section>
+
+  <!-- MAIN WORKSPACE: LEFT FEED | CENTER INTERACTIVE MAP | RIGHT COUNTRY DOSSIER -->
+  <main class="workspace">
+    <!-- LEFT PANEL: COUNTRY DIRECTORY & LIVE ESCALATION FEED -->
+    <aside class="left-panel">
+      <div class="panel-tabs">
+        <button class="panel-tab active" data-left-tab="countries">🌍 Countries (<span id="filteredCountLabel">203</span>)</button>
+        <button class="panel-tab" data-left-tab="feed">🚨 Wording Diff Feed</button>
+      </div>
+
+      <div class="search-box">
+        <input type="text" id="countrySearchInput" placeholder="Search country, ISO code, or Red Flag..." autocomplete="off" />
+      </div>
+
+      <!-- TAB 1: COUNTRIES LIST -->
+      <div id="leftTabCountries" class="scroll-list"></div>
+
+      <!-- TAB 2: LIVE DIFF & ESCALATION FEED -->
+      <div id="leftTabFeed" class="scroll-list hidden"></div>
+    </aside>
+
+    <!-- CENTER: INTERACTIVE VECTOR WORLD MAP -->
+    <section class="map-stage">
+      <div class="map-toolbar">
+        <div class="map-mode-banner" id="mapModeBanner">
+          <strong>MODE: GLOBAL THREAT STATUS</strong> — Color-coded composite threat index across 8 diplomatic & aviation agencies. Click any country for per-source breakdown.
+        </div>
+        <div class="map-zoom-controls">
+          <button id="btnZoomIn" title="Zoom In">+</button>
+          <button id="btnZoomOut" title="Zoom Out">−</button>
+          <button id="btnZoomReset" title="Reset View">⟲</button>
+        </div>
+      </div>
+
+      <div id="mapContainer" class="map-canvas">
+        <svg id="worldMapSvg"></svg>
+        <div id="mapTooltip" class="map-tooltip hidden"></div>
+      </div>
+
+      <!-- BOTTOM SOURCE MATRIX LEGEND -->
+      <div class="source-footer-bar">
+        <div class="source-chip">🇺🇸 US State Dept Advisories</div>
+        <div class="source-chip">🏛 US Embassy Security Alerts</div>
+        <div class="source-chip">🇬🇧 UK FCDO Content API</div>
+        <div class="source-chip">🇮🇱 Israel NSC (Malag)</div>
+        <div class="source-chip">🇨🇦 Canada Global Affairs</div>
+        <div class="source-chip">🇩🇪 Germany Auswärtiges Amt</div>
+        <div class="source-chip">✈️ SafeAirspace & EASA CZIB</div>
+        <div class="source-chip">⚓️ NGA Maritime & UN OCHA</div>
+      </div>
+    </section>
+
+    <!-- RIGHT PANEL: CONSOLIDATED STATUS BY EACH SOURCE SEPARATELY -->
+    <aside class="right-panel" id="countryDossierPanel">
+      <div id="dossierEmptyState" class="dossier-empty">
+        <div class="empty-icon">🛰</div>
+        <h3>Select Any Country on the Map</h3>
+        <p>Click a country on the map or list to inspect its <strong>Consolidated Status by Each Source Separately</strong>, active Red Flags, and historical wording diffs.</p>
+      </div>
+
+      <div id="dossierContent" class="dossier-content hidden">
+        <div class="dossier-header">
+          <div class="dossier-title-row">
+            <div>
+              <span class="country-iso-badge" id="dossierIso">UA</span>
+              <span class="country-region-badge" id="dossierRegion">Europe</span>
+              <h2 id="dossierCountryName">Ukraine</h2>
+            </div>
+            <div class="dossier-Watch-wrap">
+              <button id="btnToggleWatchCountry" class="watch-btn" title="Toggle Telegram Red/Black Flag alerts for this country">
+                ⭐ Watch in Telegram
+              </button>
+            </div>
+          </div>
+
+          <div id="dossierLevelBanner" class="dossier-level-banner l5">
+            <div class="banner-left">
+              <span class="banner-lvl-num" id="dossierLevelNum">LEVEL 5</span>
+              <span class="banner-lvl-label" id="dossierLevelText">CRITICAL / IMMINENT CRISIS</span>
+            </div>
+            <div class="banner-right" id="dossierResonanceBadge">
+              4 Agencies @ L4+
+            </div>
+          </div>
+
+          <p id="dossierExecSummary" class="dossier-exec-summary"></p>
+        </div>
+
+        <!-- CONSOLIDATED STATUS BY EACH SOURCE SEPARATELY -->
+        <div class="dossier-section-title">
+          <span>CONSOLIDATED STATUS BY SOURCE</span>
+          <span class="source-count-pill" id="dossierSourceCount">8 Sources</span>
+        </div>
+        <div id="dossierSourcesList" class="dossier-sources-list"></div>
+
+        <!-- WORDING DIFF & ESCALATION TIMELINE -->
+        <div class="dossier-section-title">
+          <span>WORDING DIFF & ESCALATION LOG</span>
+        </div>
+        <div id="dossierEventsList" class="dossier-events-list"></div>
+      </div>
+    </aside>
+  </main>
+
+  <!-- MODAL 1: SIMULATE CRISIS WORDING DIFF ("TIME IS DOWN TO DAYS") -->
+  <div id="modalSimulator" class="modal-backdrop hidden">
+    <div class="modal-card">
+      <div class="modal-header">
+        <h3>⚡ Crisis Wording Diff & Red Flag Simulator</h3>
+        <button class="modal-close" data-close="modalSimulator">✕</button>
+      </div>
+      <div class="modal-body">
+        <p class="modal-lead">
+          Test how GEOAlerts detects subtle diplomatic wording shifts (like <em>Ordered Departure</em> or emergency airspace closures), runs <strong>OpenAI gpt-4o-mini</strong> analysis, updates the Escalation Radar, and triggers a <strong>🔴 Level 4 / ⚫️ Level 5 Telegram Alert</strong>.
+        </p>
+
+        <div class="form-group">
+          <label>Target Country</label>
+          <select id="simCountrySelect" class="form-input"></select>
+        </div>
+
+        <div class="form-group">
+          <label>Red Flag Crisis Scenario ("Time is down to days")</label>
+          <select id="simScenarioSelect" class="form-input">
+            <option value="ordered_departure">⚫️ Level 5: Ordered Departure of Diplomats + "Leave Immediately via Commercial Flights"</option>
+            <option value="authorized_departure">🔴 Level 4: Authorized Departure of Embassy Families & Non-Emergency Staff</option>
+            <option value="airspace_closure">🔴 Level 4: Emergency Airspace Conflict Zone Prohibition (FAA / EASA CZIB Do Not Fly)</option>
+          </select>
+        </div>
+
+        <div class="modal-actions">
+          <button id="btnRunSimulation" class="action-btn warning full-width">
+            🚀 Inject Wording Change & Run AI + Telegram Alert
+          </button>
+        </div>
+
+        <div id="simResultBox" class="sim-result-box hidden">
+          <div class="sim-result-title">✅ Simulation Processed — Telegram Payload Preview:</div>
+          <div id="simTelegramPreview" class="tg-preview-card"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- MODAL 2: TELEGRAM BOT & WATCHLIST CONFIGURATION -->
+  <div id="modalTelegram" class="modal-backdrop hidden">
+    <div class="modal-card">
+      <div class="modal-header">
+        <h3>✈️ Telegram Red & Black Flag Alert Settings</h3>
+        <button class="modal-close" data-close="modalTelegram">✕</button>
+      </div>
+      <div class="modal-body">
+        <div class="tg-policy-banner">
+          <strong>Strict Anti-Spam Filter Active:</strong>
+          🟢 Level 1, 🟡 Level 2, and 🟠 Level 3 updates are <u>never</u> sent to Telegram. Only <strong>🔴 Level 4 (Red Flag)</strong> and <strong>⚫️ Level 5 (Critical / Imminent War)</strong> trigger notifications.
+        </div>
+
+        <div class="form-group">
+          <label>Notification Scope (Option 1 from Specification)</label>
+          <div class="radio-cards">
+            <label class="radio-card">
+              <input type="radio" name="tgMode" value="all" checked />
+              <div>
+                <strong>🌍 All Countries Worldwide (Default)</strong>
+                <span>Receive every 🔴 Level 4 and ⚫️ Level 5 escalation globally</span>
+              </div>
+            </label>
+            <label class="radio-card">
+              <input type="radio" name="tgMode" value="selected" />
+              <div>
+                <strong>⭐ Selected Countries Only</strong>
+                <span>Only notify when a watched country below hits Level 4 or Level 5</span>
+              </div>
+            </label>
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label>Watched Countries (Click countries or add ISO2 codes)</label>
+          <div id="tgSelectedTags" class="tag-cloud"></div>
+        </div>
+
+        <div class="form-group">
+          <label>Telegram Chat ID (Optional — for direct web-to-bot sync)</label>
+          <input type="text" id="tgChatIdInput" class="form-input" placeholder="e.g. 123456789 (or message /start to your bot)" />
+        </div>
+
+        <div class="modal-actions">
+          <button id="btnSaveTelegramSettings" class="action-btn primary full-width">
+            💾 Save Notification Preferences
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script src="/app.js"></script>
+</body>
+</html>

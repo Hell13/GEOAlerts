@@ -1,0 +1,13 @@
+# Environment variables & API keys (NEVER COMMIT)
+.env
+.env.local
+.env.*.local
+
+# OS & Editor files
+.DS_Store
+node_modules/
+npm-debug.log*
+
+# SQLite WAL/SHM temporary lock files (keep main geoalerts.db & JSON snapshots)
+data/*.db-wal
+data/*.db-shm

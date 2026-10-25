@@ -1,0 +1,241 @@
+[
+  {
+    "model": "gpt-5-nano",
+    "accuracy": "4/4 (100%)",
+    "avgLatencyMs": 8927,
+    "avgInTokens": 408,
+    "avgOutTokens": 1292,
+    "estMonthlyUsd": "$0.4030/mo",
+    "details": [
+      {
+        "id": "routine_green",
+        "expected": 1,
+        "predicted": 1,
+        "isExact": true,
+        "ms": 12952,
+        "summary": "The FCDO Japan update removes the prior note that short-term tourist stays up to 90 days do not require a visa and adds information on Visit Japan Web QR customs declarations and new Shinkansen baggage rules. This appears to be routine editorial/operational content changes with practical implications for travelers but no elevated geopolitical risk.",
+        "redFlags": [
+          "visa_info_removed",
+          "shinkansen_baggage_update"
+        ]
+      },
+      {
+        "id": "protest_yellow",
+        "expected": 2,
+        "predicted": 2,
+        "isExact": true,
+        "ms": 6837,
+        "summary": "The update shifts from a general caution about terrorism and civil unrest to a specific demonstration alert: labor unions have called a nationwide transport strike and peaceful march in Paris from Place de la République on Oct 29, with expected metro disruptions and heavy police presence. This matters for travel planning, embassy operations, and security posture due to potential crowding, transit delays, and increased law enforcement activity.",
+        "redFlags": [
+          "demonstrations",
+          "labor-union-strike",
+          "transit-disruption",
+          "police-presence"
+        ]
+      },
+      {
+        "id": "subtle_red_flag_l4",
+        "expected": 4,
+        "predicted": 4,
+        "isExact": true,
+        "ms": 6005,
+        "summary": "The update shifts from a generic travel advisory to authorized departure for family members and non-emergency U.S. government personnel from Beirut, accompanied by suspension of overnight flights into Beirut. This signifies escalating security risk and potential pre-evacuation conditions, with implications for embassy operations and civilian travel.",
+        "redFlags": [
+          "Authorized_Departure",
+          "Flight_Suspension",
+          "Unpredictable_Security"
+        ]
+      },
+      {
+        "id": "imminent_war_black_l5",
+        "expected": 5,
+        "predicted": 5,
+        "isExact": true,
+        "ms": 9912,
+        "summary": "U.S. Department of State escalates to a red-alert posture for Ukraine, issuing an Ordered Departure for most U.S. direct-hire staff and suspending consular services from Embassy Kyiv. It explicitly urges U.S. citizens to depart immediately via commercial/private means and warns the government cannot guarantee evacuation, indicating imminent risk and potential closure of embassy operations.",
+        "redFlags": [
+          "Ordered Departure",
+          "Suspended consular services"
+        ]
+      }
+    ]
+  },
+  {
+    "model": "gpt-4.1-nano",
+    "error": "HTTP 404: {\n    \"error\": {\n        \"message\": \"The model `gpt-4.1-nano` has been deprecated, learn more here: https://platform.openai.com/docs/depreca"
+  },
+  {
+    "model": "gpt-4o-mini",
+    "accuracy": "4/4 (100%)",
+    "avgLatencyMs": 1472,
+    "avgInTokens": 409,
+    "avgOutTokens": 92,
+    "estMonthlyUsd": "$0.0875/mo",
+    "details": [
+      {
+        "id": "routine_green",
+        "expected": 1,
+        "predicted": 1,
+        "isExact": true,
+        "ms": 1374,
+        "summary": "The update reflects routine changes in travel advice, specifically regarding customs declaration QR codes and new baggage rules for Shinkansen trains. The removal of visa requirements for short-term stays remains unchanged, indicating stable travel conditions.",
+        "redFlags": []
+      },
+      {
+        "id": "protest_yellow",
+        "expected": 2,
+        "predicted": 2,
+        "isExact": true,
+        "ms": 1144,
+        "summary": "The update reflects a shift from general caution due to terrorism and civil unrest to a specific alert regarding a nationwide transport strike and peaceful march. This indicates a heightened likelihood of disruptions in public transport and increased police presence, necessitating vigilance among travelers.",
+        "redFlags": [
+          "transport strike",
+          "peaceful march"
+        ]
+      },
+      {
+        "id": "subtle_red_flag_l4",
+        "expected": 4,
+        "predicted": 4,
+        "isExact": true,
+        "ms": 1290,
+        "summary": "The U.S. Department of State has authorized the voluntary departure of family members and non-emergency personnel from the U.S. Embassy in Beirut due to unpredictable security developments. Additionally, major airlines have suspended overnight flights into Beirut, indicating a significant deterioration in the security situation.",
+        "redFlags": [
+          "Authorized Departure",
+          "Flight Suspensions"
+        ]
+      },
+      {
+        "id": "imminent_war_black_l5",
+        "expected": 5,
+        "predicted": 5,
+        "isExact": true,
+        "ms": 2081,
+        "summary": "The U.S. Department of State has escalated its warning regarding Ukraine by ordering the mandatory departure of most U.S. direct hire employees and advising citizens to leave immediately, indicating a significant increase in the threat of imminent military action. This shift underscores the urgency of the situation and the inability of the U.S. government to facilitate evacuations in the event of conflict.",
+        "redFlags": [
+          "Ordered Departure",
+          "Immediate Evacuation Warning"
+        ]
+      }
+    ]
+  },
+  {
+    "model": "gpt-5-mini",
+    "accuracy": "4/4 (100%)",
+    "avgLatencyMs": 6739,
+    "avgInTokens": 408,
+    "avgOutTokens": 534,
+    "estMonthlyUsd": "$0.8770/mo",
+    "details": [
+      {
+        "id": "routine_green",
+        "expected": 1,
+        "predicted": 1,
+        "isExact": true,
+        "ms": 8577,
+        "summary": "FCDO updated the Japan travel advice to add information on customs declaration QR codes (Visit Japan Web) and new baggage rules for Shinkansen high-speed trains, while removing a previous visa sentence. These are routine administrative and transport-policy updates affecting traveler procedures and luggage planning, with no security or evacuation implications.",
+        "redFlags": [
+          "customs-declaration",
+          "shinkansen-baggage"
+        ]
+      },
+      {
+        "id": "protest_yellow",
+        "expected": 2,
+        "predicted": 2,
+        "isExact": true,
+        "ms": 7083,
+        "summary": "The embassy alert was updated from a generic caution about terrorism and civil unrest to a demonstration-specific advisory noting a nationwide transport strike and a peaceful march from Place de la République on 29 October. This matters because metro disruptions and heavy police presence could cause travel delays, localized crowding, and elevated policing risks—travelers should avoid protest areas and plan alternate routes.",
+        "redFlags": [
+          "transport_strike",
+          "peaceful_protest",
+          "transit_disruption",
+          "heavy_police_presence"
+        ]
+      },
+      {
+        "id": "subtle_red_flag_l4",
+        "expected": 4,
+        "predicted": 4,
+        "isExact": true,
+        "ms": 5558,
+        "summary": "The State Department has authorized the voluntary departure of family members and non-emergency U.S. government personnel from Embassy Beirut due to unpredictable security developments, and Lufthansa and Air France have suspended overnight flights into Beirut. These actions indicate a pre-evacuation posture and meaningful degradation of security and commercial air access, increasing risk to diplomatic operations and U.S. citizens in-country.",
+        "redFlags": [
+          "Authorized_Departure",
+          "Flight_Suspensions",
+          "Unpredictable_Security",
+          "Pre-Evacuation_Posture"
+        ]
+      },
+      {
+        "id": "imminent_war_black_l5",
+        "expected": 5,
+        "predicted": 5,
+        "isExact": true,
+        "ms": 5739,
+        "summary": "On February 12 the State Department issued an Ordered Departure for most U.S. direct-hire employees from Embassy Kyiv, suspended consular services, and urged U.S. citizens to depart Ukraine immediately via commercial or private means. This reflects a credible, imminent threat of Russian military action and signals that the U.S. cannot guarantee evacuation assistance, drastically raising personal risk for anyone remaining.",
+        "redFlags": [
+          "ordered_departure",
+          "suspended_consular_services",
+          "no_govt_evacuation",
+          "imminent_military_threat"
+        ]
+      }
+    ]
+  },
+  {
+    "model": "gpt-4.1-mini",
+    "accuracy": "4/4 (100%)",
+    "avgLatencyMs": 1192,
+    "avgInTokens": 409,
+    "avgOutTokens": 92,
+    "estMonthlyUsd": "$0.2330/mo",
+    "details": [
+      {
+        "id": "routine_green",
+        "expected": 1,
+        "predicted": 1,
+        "isExact": true,
+        "ms": 1323,
+        "summary": "The update reflects routine changes to travel advice for Japan, specifically regarding customs declaration QR codes and new baggage rules for Shinkansen trains. These are standard procedural updates with no indication of increased geopolitical or security risks.",
+        "redFlags": []
+      },
+      {
+        "id": "protest_yellow",
+        "expected": 2,
+        "predicted": 2,
+        "isExact": true,
+        "ms": 953,
+        "summary": "The update shifts focus from general terrorism and civil unrest caution to a specific, peaceful nationwide transport strike and demonstration organized by labor unions on October 29. This signals expected metro disruptions and a heavy police presence, indicating localized operational impacts but no elevated security threat or travel restrictions.",
+        "redFlags": [
+          "transport_strike",
+          "public_demonstration"
+        ]
+      },
+      {
+        "id": "subtle_red_flag_l4",
+        "expected": 4,
+        "predicted": 4,
+        "isExact": true,
+        "ms": 1370,
+        "summary": "The Department of State has authorized the voluntary departure of family members and non-emergency personnel from the U.S. Embassy in Beirut, signaling elevated security concerns. Additionally, the suspension of overnight flights by Lufthansa and Air France to Beirut airport indicates significant disruptions to normal operations and potential escalation in instability.",
+        "redFlags": [
+          "AuthorizedDeparture",
+          "FlightSuspensions"
+        ]
+      },
+      {
+        "id": "imminent_war_black_l5",
+        "expected": 5,
+        "predicted": 5,
+        "isExact": true,
+        "ms": 1123,
+        "summary": "The update escalates the threat level by ordering the mandatory departure of most U.S. direct hire employees and suspending consular services, signaling imminent military conflict. The explicit warning that the U.S. government cannot evacuate citizens underscores the urgency for immediate departure and the high likelihood of rapid escalation.",
+        "redFlags": [
+          "OrderedDeparture",
+          "SuspensionOfConsularServices"
+        ]
+      }
+    ]
+  }
+]
