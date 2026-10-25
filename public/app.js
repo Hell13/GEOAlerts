@@ -358,7 +358,7 @@ async function loadOverviewData() {
     if (!res.ok) throw new Error('Static fallback');
     data = await res.json();
   } catch (_) {
-    const res = await fetch('/data/overview.json');
+    const res = await fetch('./data/overview.json');
     data = await res.json();
   }
 
@@ -470,7 +470,7 @@ async function selectCountry(iso2) {
     payload = await res.json();
   } catch (_) {
     if (!state.staticDetailsCache) {
-      const r = await fetch('/data/countries_details.json');
+      const r = await fetch('./data/countries_details.json');
       state.staticDetailsCache = await r.json();
     }
     payload = state.staticDetailsCache[iso2];
