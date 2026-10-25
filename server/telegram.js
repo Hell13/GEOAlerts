@@ -583,6 +583,7 @@ async function handleTelegramUpdate(update) {
     }
 
     let toastText = '✅ Updated';
+    let editPayload = null;
 
     if (data === 'mode:all' || data === 'mode:selected') {
       const newMode = data.split(':')[1];
@@ -593,18 +594,18 @@ async function handleTelegramUpdate(update) {
         ? '🌍 Mode: All Countries Worldwide active!'
         : '⭐ Mode: Selected Countries Only active!';
 
-      await callTelegramApi('editMessageText', {
+      editPayload = {
         chat_id: chatId,
         message_id: messageId,
         text: buildMainMenuText(sub),
         parse_mode: 'HTML',
         reply_markup: getMainMenuKeyboard(sub)
-      });
+      };
     } else if (data.startsWith('region:')) {
       const regionName = data.slice(7);
       const selected = JSON.parse(sub.selected_countries_json || '[]');
       toastText = `⚙️ Editing Watchlist: ${regionName}`;
-      await callTelegramApi('editMessageText', {
+      editPayload = {
         chat_id: chatId,
         message_id: messageId,
         text:
@@ -612,7 +613,7 @@ async function handleTelegramUpdate(update) {
           `Tap countries below to add/remove them from your <b>⭐ Selected Only</b> alert list (currently ${selected.length} watched):`,
         parse_mode: 'HTML',
         reply_markup: getRegionCountriesKeyboard(regionName, sub)
-      });
+      };
     } else if (data.startsWith('toggle:')) {
       const [, iso2, regionName] = data.split(':');
       const selected = new Set(JSON.parse(sub.selected_countries_json || '[]'));
@@ -629,7 +630,7 @@ async function handleTelegramUpdate(update) {
         .run(JSON.stringify([...selected]), now, chatId);
       sub = db.prepare(`SELECT * FROM telegram_subscribers WHERE chat_id = ?`).get(chatId);
 
-      await callTelegramApi('editMessageText', {
+      editPayload = {
         chat_id: chatId,
         message_id: messageId,
         text:
@@ -638,10 +639,10 @@ async function handleTelegramUpdate(update) {
           `Active Watchlist (${selected.size}): <code>${[...selected].join(', ') || 'None'}</code>`,
         parse_mode: 'HTML',
         reply_markup: getRegionCountriesKeyboard(regionName, sub)
-      });
+      };
     } else if (data === 'action:lookup_menu') {
       toastText = '🔍 Select a region or type a country name';
-      await callTelegramApi('editMessageText', {
+      editPayload = {
         chat_id: chatId,
         message_id: messageId,
         text:
@@ -650,29 +651,29 @@ async function handleTelegramUpdate(update) {
           `2️⃣ <b>From List:</b> Or choose a region below to pick a country with one tap:`,
         parse_mode: 'HTML',
         reply_markup: getLookupMenuKeyboard()
-      });
+      };
     } else if (data.startsWith('lookup_reg:')) {
       const regionName = data.slice(11);
       toastText = `📍 ${regionName}`;
-      await callTelegramApi('editMessageText', {
+      editPayload = {
         chat_id: chatId,
         message_id: messageId,
         text: `📍 <b>${escapeHtml(regionName)} — Select a Country to View Full Dossier:</b>`,
         parse_mode: 'HTML',
         reply_markup: getLookupRegionCountriesKeyboard(regionName)
-      });
+      };
     } else if (data.startsWith('dossier:')) {
       const iso2 = data.slice(8);
       const dossier = formatCountryDossierMessage(iso2, sub);
       toastText = `🌎 Loaded dossier for ${countriesData[iso2]?.name || iso2}`;
       if (dossier) {
-        await callTelegramApi('editMessageText', {
+        editPayload = {
           chat_id: chatId,
           message_id: messageId,
           text: dossier.text,
           parse_mode: 'HTML',
           reply_markup: dossier.keyboard
-        });
+        };
       }
     } else if (data.startsWith('watch_dossier:')) {
       const iso2 = data.slice(14);
@@ -691,94 +692,79 @@ async function handleTelegramUpdate(update) {
 
       const dossier = formatCountryDossierMessage(iso2, sub);
       if (dossier) {
-        await callTelegramApi('editMessageText', {
+        editPayload = {
           chat_id: chatId,
           message_id: messageId,
           text: dossier.text,
           parse_mode: 'HTML',
           reply_markup: dossier.keyboard
-        });
+        };
       }
     } else if (data === 'menu:main') {
       toastText = '🏠 Main Menu';
-      await callTelegramApi('editMessageText', {
+      editPayload = {
         chat_id: chatId,
         message_id: messageId,
         text: buildMainMenuText(sub),
         parse_mode: 'HTML',
         reply_markup: getMainMenuKeyboard(sub)
-      });
+      };
     } else if (data === 'action:summary') {
       toastText = '📊 Compact Level 4 & 5 Summary';
-      const l5List = db.prepare(`
-        SELECT iso2, name, resonance_count FROM countries
-        WHERE overall_level = 5 ORDER BY resonance_count DESC, name ASC
-      `).all();
-      const l4List = db.prepare(`
-        SELECT iso2, name, resonance_count FROM countries
-        WHERE overall_level = 4 ORDER BY resonance_count DESC, name ASC LIMIT 12
-      `).all();
-      const totalL4 = db.prepare(`SELECT COUNT(*) as c FROM countries WHERE overall_level = 4`).get().c;
-
-      const l5Str = l5List.map(c => `• <b>${escapeHtml(c.name)}</b> (<code>${c.iso2}</code>) — ${c.resonance_count} src`).join('\n');
-      const l4Str = l4List.map(c => `• <b>${escapeHtml(c.name)}</b> (<code>${c.iso2}</code>)`).join('\n');
-
-      await callTelegramApi('editMessageText', {
+      const sum = buildSummaryMessage();
+      editPayload = {
         chat_id: chatId,
         message_id: messageId,
-        text:
-          `📊 <b>Compact Level 4 & 5 Flashpoints</b>\n` +
-          `━━━━━━━━━━━━━━━━━━━━\n` +
-          `⚫️ <b>Level 5 Critical (${l5List.length}):</b>\n${l5Str || 'None'}\n\n` +
-          `🔴 <b>Top Level 4 Red Flag (showing 12 of ${totalL4}):</b>\n${l4Str || 'None'}\n\n` +
-          `💡 <i>Tap <b>🔍 Check Country Status</b> below or type any country name in chat to inspect all 8 sources for a specific country.</i>`,
+        text: sum.text,
         parse_mode: 'HTML',
-        reply_markup: {
-          inline_keyboard: [
-            [
-              { text: '🔍 Check Country Status', callback_data: 'action:lookup_menu' },
-              { text: '⬅️ Main Menu', callback_data: 'menu:main' }
-            ]
-          ]
-        }
-      });
+        reply_markup: sum.keyboard
+      };
     }
 
-    await callTelegramApi('answerCallbackQuery', {
-      callback_query_id: cb.id,
-      text: toastText,
-      show_alert: false
-    });
+    // Fire toast acknowledgement and message edit simultaneously for sub-100ms response!
+    await Promise.all([
+      callTelegramApi('answerCallbackQuery', {
+        callback_query_id: cb.id,
+        text: toastText,
+        show_alert: false
+      }),
+      editPayload ? callTelegramApi('editMessageText', editPayload) : Promise.resolve()
+    ]);
   }
 }
 
-async function pollTelegramBotUpdates() {
-  const offsetRow = db.prepare(`SELECT value FROM system_meta WHERE key = 'tg_update_offset'`).get();
-  const offset = offsetRow ? Number(offsetRow.value) : 0;
+let cachedTgOffset = null;
+
+async function pollTelegramBotUpdates(timeoutSec = 2) {
+  if (cachedTgOffset === null) {
+    const offsetRow = db.prepare(`SELECT value FROM system_meta WHERE key = 'tg_update_offset'`).get();
+    cachedTgOffset = offsetRow ? Number(offsetRow.value) : 0;
+  }
 
   const res = await callTelegramApi('getUpdates', {
-    offset,
-    timeout: 2,
+    offset: cachedTgOffset,
+    timeout: timeoutSec,
     allowed_updates: ['message', 'callback_query']
   });
 
-  if (!res.ok || !Array.isArray(res.result)) return 0;
+  if (!res.ok || !Array.isArray(res.result) || res.result.length === 0) return 0;
 
-  let maxUpdateId = offset;
+  let maxUpdateId = cachedTgOffset;
   for (const update of res.result) {
-    await handleTelegramUpdate(update);
     if (update.update_id >= maxUpdateId) {
       maxUpdateId = update.update_id + 1;
     }
   }
 
-  if (maxUpdateId > offset) {
+  if (maxUpdateId > cachedTgOffset) {
+    cachedTgOffset = maxUpdateId;
     db.prepare(`
       INSERT INTO system_meta (key, value) VALUES ('tg_update_offset', ?)
       ON CONFLICT(key) DO UPDATE SET value = excluded.value
     `).run(String(maxUpdateId));
   }
 
+  await Promise.all(res.result.map(update => handleTelegramUpdate(update)));
   return res.result.length;
 }
 

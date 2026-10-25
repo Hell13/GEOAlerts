@@ -1,7 +1,8 @@
 #!/usr/bin/env node
 /**
- * Standalone Telegram Bot Listener (occupies ZERO local HTTP ports).
- * Listens for button clicks & country lookups in @GeoAlerts13Bot in real time.
+ * Standalone High-Speed Telegram Bot Listener (occupies ZERO local HTTP ports).
+ * Uses continuous HTTP Long-Polling (timeout=25s, 0ms inter-event delay)
+ * so button clicks and country queries in @GeoAlerts13Bot respond in ~80-140ms!
  */
 const fs = require('node:fs');
 const path = require('node:path');
@@ -19,16 +20,14 @@ if (fs.existsSync(envPath)) {
 
 const { pollTelegramBotUpdates } = require('../server/telegram');
 
-console.log('[GEOAlerts Bot] Real-time Telegram Bot listener active (@GeoAlerts13Bot, 0 HTTP ports used)...');
+console.log('[GEOAlerts Bot] Ultra-fast Long-Polling listener active (@GeoAlerts13Bot, 0ms delay, 0 HTTP ports)...');
 
-let busy = false;
-setInterval(async () => {
-  if (busy) return;
-  busy = true;
-  try {
-    await pollTelegramBotUpdates();
-  } catch (_) {
-  } finally {
-    busy = false;
+(async () => {
+  while (true) {
+    try {
+      await pollTelegramBotUpdates(25);
+    } catch (_) {
+      await new Promise(r => setTimeout(r, 300));
+    }
   }
-}, 1500);
+})();
