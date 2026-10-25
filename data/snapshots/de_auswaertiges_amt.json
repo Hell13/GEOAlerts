@@ -1333,18 +1333,6 @@
       "situationWarning": false,
       "situationPartWarning": false
     },
-    "204130": {
-      "lastModified": 1792756401,
-      "effective": 1792755900,
-      "title": "Kuwait: Reise- und Sicherheitshinweise",
-      "countryCode": "KW",
-      "iso3CountryCode": "KWT",
-      "countryName": "Kuwait",
-      "warning": false,
-      "partialWarning": false,
-      "situationWarning": false,
-      "situationPartWarning": false
-    },
     "207694": {
       "lastModified": 1791882713,
       "effective": 1790863200,
@@ -2401,6 +2389,18 @@
       "situationWarning": false,
       "situationPartWarning": false
     },
+    "204130": {
+      "lastModified": 1792965416,
+      "effective": 1792961700,
+      "title": "Kuwait: Reise- und Sicherheitshinweise",
+      "countryCode": "KW",
+      "iso3CountryCode": "KWT",
+      "countryName": "Kuwait",
+      "warning": false,
+      "partialWarning": false,
+      "situationWarning": false,
+      "situationPartWarning": false
+    },
     "contentList": [
       "226268",
       "210708",
@@ -2513,7 +2513,6 @@
       "206378",
       "206146",
       "208058",
-      "204130",
       "207694",
       "206342",
       "203674",
@@ -2601,7 +2600,8 @@
       "210534",
       "213920",
       "213032",
-      "202298"
+      "202298",
+      "204130"
     ]
   }
 }
