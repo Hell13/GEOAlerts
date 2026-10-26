@@ -1,0 +1,42 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 128 128" width="128" height="128">
+  <defs>
+    <radialGradient id="bgGrad" cx="50%" cy="50%" r="50%">
+      <stop offset="0%" stop-color="#0f1b33"/>
+      <stop offset="100%" stop-color="#060a14"/>
+    </radialGradient>
+    <linearGradient id="sweepGrad" x1="50%" y1="50%" x2="95%" y2="15%">
+      <stop offset="0%" stop-color="#38bdf8" stop-opacity="0.05"/>
+      <stop offset="100%" stop-color="#38bdf8" stop-opacity="0.55"/>
+    </linearGradient>
+    <radialGradient id="pingGrad" cx="50%" cy="50%" r="50%">
+      <stop offset="0%" stop-color="#ff4d4d"/>
+      <stop offset="60%" stop-color="#ef4444"/>
+      <stop offset="100%" stop-color="#ef4444" stop-opacity="0"/>
+    </radialGradient>
+  </defs>
+
+  <!-- Rounded dark tactical background -->
+  <rect width="128" height="128" rx="28" fill="url(#bgGrad)"/>
+
+  <!-- Outer radar ring -->
+  <circle cx="64" cy="64" r="50" fill="none" stroke="#1e3a5f" stroke-width="2.5"/>
+  <circle cx="64" cy="64" r="36" fill="none" stroke="#1e3a5f" stroke-width="1.5" stroke-dasharray="4 4"/>
+  <circle cx="64" cy="64" r="20" fill="none" stroke="#1e3a5f" stroke-width="1.5"/>
+
+  <!-- Globe meridians & parallels -->
+  <ellipse cx="64" cy="64" rx="26" ry="50" fill="none" stroke="#0284c7" stroke-width="1.6" stroke-opacity="0.55"/>
+  <line x1="14" y1="64" x2="114" y2="64" stroke="#0284c7" stroke-width="1.6" stroke-opacity="0.55"/>
+  <line x1="64" y1="14" x2="64" y2="114" stroke="#0284c7" stroke-width="1.6" stroke-opacity="0.55"/>
+
+  <!-- Radar sweep sector -->
+  <path d="M64,64 L64,14 A50,50 0 0,1 107.3,39 Z" fill="url(#sweepGrad)"/>
+  <line x1="64" y1="64" x2="107.3" y2="39" stroke="#38bdf8" stroke-width="2.8" stroke-linecap="round"/>
+
+  <!-- Center core -->
+  <circle cx="64" cy="64" r="4.5" fill="#38bdf8"/>
+
+  <!-- Red Flag Alert Ping (Top-Right Sector) -->
+  <circle cx="86" cy="38" r="14" fill="url(#pingGrad)"/>
+  <circle cx="86" cy="38" r="8.5" fill="none" stroke="#f87171" stroke-width="1.8" stroke-opacity="0.85"/>
+  <circle cx="86" cy="38" r="5" fill="#ef4444" stroke="#ffffff" stroke-width="1.5"/>
+</svg>
