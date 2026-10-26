@@ -1501,18 +1501,6 @@
       "situationWarning": false,
       "situationPartWarning": false
     },
-    "202298": {
-      "lastModified": 1792928254,
-      "effective": 1792924500,
-      "title": "Saudi-Arabien: Reise- und Sicherheitshinweise",
-      "countryCode": "SA",
-      "iso3CountryCode": "SAU",
-      "countryName": "Saudi-Arabien",
-      "warning": true,
-      "partialWarning": false,
-      "situationWarning": false,
-      "situationPartWarning": false
-    },
     "211084": {
       "lastModified": 1791881707,
       "effective": 1789128000,
@@ -1750,18 +1738,6 @@
       "countryName": "Georgien",
       "warning": false,
       "partialWarning": false,
-      "situationWarning": false,
-      "situationPartWarning": false
-    },
-    "201558": {
-      "lastModified": 1791886267,
-      "effective": 1790584200,
-      "title": "Thailand: Reise- und Sicherheitshinweise",
-      "countryCode": "TH",
-      "iso3CountryCode": "THA",
-      "countryName": "Thailand",
-      "warning": false,
-      "partialWarning": true,
       "situationWarning": false,
       "situationPartWarning": false
     },
@@ -2401,6 +2377,30 @@
       "situationWarning": false,
       "situationPartWarning": false
     },
+    "202298": {
+      "lastModified": 1793004828,
+      "effective": 1792920900,
+      "title": "Saudi-Arabien: Reise- und Sicherheitshinweise",
+      "countryCode": "SA",
+      "iso3CountryCode": "SAU",
+      "countryName": "Saudi-Arabien",
+      "warning": true,
+      "partialWarning": false,
+      "situationWarning": false,
+      "situationPartWarning": false
+    },
+    "201558": {
+      "lastModified": 1793007307,
+      "effective": 1793007000,
+      "title": "Thailand: Reise- und Sicherheitshinweise",
+      "countryCode": "TH",
+      "iso3CountryCode": "THA",
+      "countryName": "Thailand",
+      "warning": false,
+      "partialWarning": true,
+      "situationWarning": false,
+      "situationPartWarning": false
+    },
     "contentList": [
       "226268",
       "210708",
@@ -2527,7 +2527,6 @@
       "205878",
       "224080",
       "204112",
-      "202298",
       "211084",
       "213648",
       "208058",
@@ -2548,7 +2547,6 @@
       "221216",
       "218008",
       "201918",
-      "201558",
       "201516",
       "212396",
       "202332",
@@ -2601,7 +2599,9 @@
       "199124",
       "200466",
       "201946",
-      "201962"
+      "201962",
+      "202298",
+      "201558"
     ]
   }
 }
