@@ -312,6 +312,9 @@ function getMainMenuKeyboard(sub) {
       { text: '⚙️ Asia-Pacific', callback_data: 'region:Asia-Pacific' },
       { text: '⚙️ Africa', callback_data: 'region:Africa' },
       { text: '⚙️ Americas', callback_data: 'region:Americas' }
+    ],
+    [
+      { text: '❤️ DONATE / Support Project', url: 'https://pay.monobank.ua/2610266gGwa5F3i8tyG6' }
     ]
   ];
   return { inline_keyboard: buttons };
