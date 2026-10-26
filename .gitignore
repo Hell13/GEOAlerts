@@ -11,3 +11,7 @@ npm-debug.log*
 # SQLite WAL/SHM temporary lock files (keep main geoalerts.db & JSON snapshots)
 data/*.db-wal
 data/*.db-shm
+
+# Cloudflare Wrangler local cache
+.wrangler/
+
