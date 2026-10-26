@@ -113,32 +113,20 @@ function bindUIEvents() {
   document.getElementById('btnOpenSimulator').addEventListener('click', () => {
     document.getElementById('modalSimulator').classList.remove('hidden');
   });
-  document.getElementById('btnOpenTelegram').addEventListener('click', () => {
-    renderTelegramModalTags();
-    document.getElementById('modalTelegram').classList.remove('hidden');
-  });
   document.querySelectorAll('.modal-close').forEach(btn => {
     btn.addEventListener('click', () => {
-      document.getElementById(btn.dataset.close).classList.add('hidden');
+      document.getElementById(btn.dataset.close)?.classList.add('hidden');
     });
   });
 
   // Run Simulation
   document.getElementById('btnRunSimulation').addEventListener('click', runCrisisSimulation);
 
-  // Save Telegram Settings
-  document.getElementById('btnSaveTelegramSettings').addEventListener('click', saveTelegramSettings);
-
-  // Watch button in Dossier
-  document.getElementById('btnToggleWatchCountry').addEventListener('click', async () => {
-    if (!state.selectedIso2) return;
-    if (state.watchedCountries.has(state.selectedIso2)) {
-      state.watchedCountries.delete(state.selectedIso2);
-    } else {
-      state.watchedCountries.add(state.selectedIso2);
-    }
-    updateWatchButtonUI();
-    await persistTelegramSettingsQuietly();
+  // Watch button in Dossier -> opens Telegram Bot directly for that country
+  document.getElementById('btnToggleWatchCountry').addEventListener('click', () => {
+    const code = state.selectedIso2 || '';
+    const url = code ? `https://t.me/GeoAlerts13Bot?start=watch_${code}` : 'https://t.me/GeoAlerts13Bot';
+    window.open(url, '_blank', 'noopener,noreferrer');
   });
 }
 
@@ -568,10 +556,8 @@ async function selectCountry(iso2) {
 
 function updateWatchButtonUI() {
   const btn = document.getElementById('btnToggleWatchCountry');
-  if (!state.selectedIso2) return;
-  const isWatched = state.watchedCountries.has(state.selectedIso2);
-  btn.classList.toggle('watched', isWatched);
-  btn.textContent = isWatched ? '⭐ Watched in Telegram' : '☆ Add to Telegram Watchlist';
+  if (!btn || !state.selectedIso2) return;
+  btn.textContent = '✈️ Watch in Telegram ↗';
 }
 
 function populateSimulatorSelect() {

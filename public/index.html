@@ -53,9 +53,9 @@
       <button id="btnOpenSimulator" class="action-btn warning" title="Simulate a Red/Black Flag diplomatic wording change to test Diff + OpenAI + Telegram">
         <span>⚡ Simulate Crisis Diff</span>
       </button>
-      <button id="btnOpenTelegram" class="action-btn primary" title="Configure Telegram Red & Black Flag notifications & country watchlist">
-        <span>✈️ Telegram Alerts</span>
-      </button>
+      <a href="https://t.me/GeoAlerts13Bot" target="_blank" rel="noopener noreferrer" id="btnOpenTelegram" class="action-btn primary" style="text-decoration:none;" title="Open @GeoAlerts13Bot in Telegram">
+        <span>✈️ Telegram Bot</span>
+      </a>
     </div>
   </header>
 
@@ -261,53 +261,6 @@
         <div id="simResultBox" class="sim-result-box hidden">
           <div class="sim-result-title">✅ Simulation Processed — Telegram Payload Preview:</div>
           <div id="simTelegramPreview" class="tg-preview-card"></div>
-        </div>
-      </div>
-    </div>
-  </div>
-
-  <!-- MODAL 2: TELEGRAM BOT & WATCHLIST CONFIGURATION -->
-  <div id="modalTelegram" class="modal-backdrop hidden">
-    <div class="modal-card">
-      <div class="modal-header">
-        <h3>✈️ Telegram Red & Black Flag Alert Settings</h3>
-        <button class="modal-close" data-close="modalTelegram">✕</button>
-      </div>
-      <div class="modal-body">
-        <div class="tg-policy-banner">
-          <strong>Strict Anti-Spam Filter Active:</strong>
-          🟢 Level 1, 🟡 Level 2, and 🟠 Level 3 updates are <u>never</u> sent to Telegram. Only <strong>🔴 Level 4 (Red Flag)</strong> and <strong>⚫️ Level 5 (Critical / Imminent War)</strong> trigger notifications.
-        </div>
-
-        <div class="form-group">
-          <label>Notification Scope (Option 1 from Specification)</label>
-          <div class="radio-cards">
-            <label class="radio-card">
-              <input type="radio" name="tgMode" value="all" checked />
-              <div>
-                <strong>🌍 All Countries Worldwide (Default)</strong>
-                <span>Receive every 🔴 Level 4 and ⚫️ Level 5 escalation globally</span>
-              </div>
-            </label>
-            <label class="radio-card">
-              <input type="radio" name="tgMode" value="selected" />
-              <div>
-                <strong>⭐ Selected Countries Only</strong>
-                <span>Only notify when a watched country below hits Level 4 or Level 5</span>
-              </div>
-            </label>
-          </div>
-        </div>
-
-        <div class="form-group">
-          <label>Watched Countries (Click countries or add ISO2 codes)</label>
-          <div id="tgSelectedTags" class="tag-cloud"></div>
-        </div>
-
-        <div class="modal-actions" style="margin-top:16px;">
-          <button id="btnSaveTelegramSettings" class="action-btn primary full-width">
-            ✈️ Subscribe in Telegram (@GeoAlerts13Bot) ↗
-          </button>
         </div>
       </div>
     </div>
