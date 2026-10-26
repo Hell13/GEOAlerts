@@ -421,18 +421,6 @@
       "situationWarning": false,
       "situationPartWarning": false
     },
-    "202260": {
-      "lastModified": 1791884478,
-      "effective": 1788966900,
-      "title": "Jemen: Reise- und Sicherheitshinweise",
-      "countryCode": "YE",
-      "iso3CountryCode": "YEM",
-      "countryName": "Jemen",
-      "warning": true,
-      "partialWarning": false,
-      "situationWarning": false,
-      "situationPartWarning": false
-    },
     "219190": {
       "lastModified": 1791885159,
       "effective": 1786523400,
@@ -2041,6 +2029,30 @@
       "situationWarning": false,
       "situationPartWarning": false
     },
+    "202298": {
+      "lastModified": 1793004828,
+      "effective": 1792920900,
+      "title": "Saudi-Arabien: Reise- und Sicherheitshinweise",
+      "countryCode": "SA",
+      "iso3CountryCode": "SAU",
+      "countryName": "Saudi-Arabien",
+      "warning": true,
+      "partialWarning": false,
+      "situationWarning": false,
+      "situationPartWarning": false
+    },
+    "201558": {
+      "lastModified": 1793007307,
+      "effective": 1793007000,
+      "title": "Thailand: Reise- und Sicherheitshinweise",
+      "countryCode": "TH",
+      "iso3CountryCode": "THA",
+      "countryName": "Thailand",
+      "warning": false,
+      "partialWarning": true,
+      "situationWarning": false,
+      "situationPartWarning": false
+    },
     "204130": {
       "lastModified": 1792965416,
       "effective": 1792961700,
@@ -2317,18 +2329,6 @@
       "situationWarning": false,
       "situationPartWarning": false
     },
-    "202396": {
-      "lastModified": 1792763971,
-      "effective": 1792756800,
-      "title": "Iran: Reise- und Sicherheitshinweise",
-      "countryCode": "IR",
-      "iso3CountryCode": "IRN",
-      "countryName": "Iran",
-      "warning": true,
-      "partialWarning": false,
-      "situationWarning": false,
-      "situationPartWarning": false
-    },
     "199124": {
       "lastModified": 1792485931,
       "effective": 1792485900,
@@ -2377,27 +2377,27 @@
       "situationWarning": false,
       "situationPartWarning": false
     },
-    "202298": {
-      "lastModified": 1793004828,
-      "effective": 1792920900,
-      "title": "Saudi-Arabien: Reise- und Sicherheitshinweise",
-      "countryCode": "SA",
-      "iso3CountryCode": "SAU",
-      "countryName": "Saudi-Arabien",
+    "202396": {
+      "lastModified": 1793022640,
+      "effective": 1793022300,
+      "title": "Iran: Reise- und Sicherheitshinweise",
+      "countryCode": "IR",
+      "iso3CountryCode": "IRN",
+      "countryName": "Iran",
       "warning": true,
       "partialWarning": false,
       "situationWarning": false,
       "situationPartWarning": false
     },
-    "201558": {
-      "lastModified": 1793007307,
-      "effective": 1793007000,
-      "title": "Thailand: Reise- und Sicherheitshinweise",
-      "countryCode": "TH",
-      "iso3CountryCode": "THA",
-      "countryName": "Thailand",
-      "warning": false,
-      "partialWarning": true,
+    "202260": {
+      "lastModified": 1793022878,
+      "effective": 1793022300,
+      "title": "Jemen: Reise- und Sicherheitshinweise",
+      "countryCode": "YE",
+      "iso3CountryCode": "YEM",
+      "countryName": "Jemen",
+      "warning": true,
+      "partialWarning": false,
       "situationWarning": false,
       "situationPartWarning": false
     },
@@ -2437,7 +2437,6 @@
       "220348",
       "221078",
       "208874",
-      "202260",
       "219190",
       "222842",
       "208258",
@@ -2572,6 +2571,8 @@
       "220382",
       "220008",
       "223616",
+      "202298",
+      "201558",
       "204130",
       "201536",
       "204692",
@@ -2595,13 +2596,12 @@
       "206408",
       "210534",
       "201888",
-      "202396",
       "199124",
       "200466",
       "201946",
       "201962",
-      "202298",
-      "201558"
+      "202396",
+      "202260"
     ]
   }
 }
