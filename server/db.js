@@ -4,12 +4,16 @@ const fs = require('fs');
 
 const DB_PATH = path.join(__dirname, '../data/geoalerts.db');
 fs.mkdirSync(path.dirname(DB_PATH), { recursive: true });
+try {
+  if (fs.existsSync(DB_PATH + '-wal')) fs.unlinkSync(DB_PATH + '-wal');
+  if (fs.existsSync(DB_PATH + '-shm')) fs.unlinkSync(DB_PATH + '-shm');
+} catch (_) {}
 
 const db = new DatabaseSync(DB_PATH);
 
 // Initialize schema
 db.exec(`
-  PRAGMA journal_mode = WAL;
+  PRAGMA journal_mode = DELETE;
 
   CREATE TABLE IF NOT EXISTS countries (
     iso2 TEXT PRIMARY KEY,
