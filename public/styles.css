@@ -578,35 +578,40 @@ body {
 }
 
 .country-path {
-  stroke: #0b1120;
-  stroke-width: 0.5px;
+  stroke: rgba(9, 14, 26, 0.88);
+  stroke-width: 0.65px;
+  vector-effect: non-scaling-stroke;
+  stroke-linejoin: round;
+  stroke-linecap: round;
   transition: fill 0.25s ease, opacity 0.25s ease;
   cursor: pointer;
 }
 
 .country-path:hover {
-  stroke: #ffffff;
-  stroke-width: 1.2px;
-  filter: brightness(1.22);
+  stroke: rgba(255, 255, 255, 0.9);
+  stroke-width: 1.1px;
+  vector-effect: non-scaling-stroke;
+  filter: brightness(1.18);
 }
 
 .country-path.selected-country {
   stroke: #38bdf8;
-  stroke-width: 1.8px;
+  stroke-width: 1.5px;
+  vector-effect: non-scaling-stroke;
 }
 
 /* Radar Pulse Rings */
 .radar-pulse-circle {
   fill: none;
   stroke: #f43f5e;
-  stroke-width: 1.8px;
+  stroke-width: 1.1px;
   pointer-events: none;
-  animation: radarRing 2.2s infinite ease-out;
+  animation: radarRing 2.4s infinite ease-out;
 }
 
 @keyframes radarRing {
-  0% { r: 3px; opacity: 0.95; }
-  100% { r: 22px; opacity: 0; }
+  0% { r: 2px; opacity: 0.85; }
+  100% { r: 11px; opacity: 0; }
 }
 
 .map-tooltip {

@@ -33,6 +33,7 @@ const LEVEL_LABELS = {
 };
 
 let svg, gMap, gPulses, projection, pathGenerator, zoomBehavior;
+let currentZoomK = 1;
 
 document.addEventListener('DOMContentLoaded', async () => {
   bindUIEvents();
@@ -227,16 +228,20 @@ async function initMapGeometry() {
   svg = d3.select('#worldMapSvg')
     .attr('viewBox', `0 0 ${width} ${height}`);
 
-  // Define glow filter for Level 5 critical countries
+  // Define fine, non-scaling diagonal hatching for Level 5 critical countries
   const defs = svg.append('defs');
   const pattern = defs.append('pattern')
     .attr('id', 'criticalStripe')
     .attr('patternUnits', 'userSpaceOnUse')
-    .attr('width', 6)
-    .attr('height', 6)
-    .attr('patternTransform', 'rotate(45)');
-  pattern.append('rect').attr('width', 6).attr('height', 6).attr('fill', '#991b1b');
-  pattern.append('line').attr('x1', 0).attr('y1', 0).attr('x2', 0).attr('y2', 6).attr('stroke', '#f43f5e').attr('stroke-width', 3);
+    .attr('width', 4.5)
+    .attr('height', 4.5)
+    .attr('patternTransform', `rotate(45) scale(${1 / currentZoomK})`);
+  pattern.append('rect').attr('width', 4.5).attr('height', 4.5).attr('fill', '#991b1b');
+  pattern.append('line')
+    .attr('x1', 0).attr('y1', 0).attr('x2', 0).attr('y2', 4.5)
+    .attr('stroke', '#dc2626')
+    .attr('stroke-width', 1.2)
+    .attr('stroke-opacity', 0.65);
 
   const rootG = svg.append('g');
   gMap = rootG.append('g').attr('class', 'countries-layer');
@@ -247,9 +252,18 @@ async function initMapGeometry() {
   refitMapProjection();
 
   zoomBehavior = d3.zoom()
-    .scaleExtent([1, 12])
+    .scaleExtent([1, 14])
     .on('zoom', (event) => {
+      currentZoomK = event.transform.k || 1;
       rootG.attr('transform', event.transform);
+      // Keep hatching pattern & radar dots at constant crisp screen size regardless of zoom
+      svg.select('#criticalStripe').attr('patternTransform', `rotate(45) scale(${1 / currentZoomK})`);
+      if (gPulses) {
+        gPulses.selectAll('g.pulse-marker').attr(
+          'transform',
+          d => `translate(${d.x}, ${d.y}) scale(${1 / currentZoomK})`
+        );
+      }
     });
 
   svg.call(zoomBehavior);
@@ -258,9 +272,12 @@ async function initMapGeometry() {
   document.getElementById('btnZoomOut').addEventListener('click', () => svg.transition().duration(250).call(zoomBehavior.scaleBy, 0.7));
   document.getElementById('btnZoomReset').addEventListener('click', () => svg.transition().duration(350).call(zoomBehavior.transform, d3.zoomIdentity));
 
-  // Fetch world topology from CDN
+  // Fetch higher-precision 50m world topology from CDN (fallback to 110m)
   try {
-    const res = await fetch('https://cdn.jsdelivr.net/npm/world-atlas@2/countries-110m.json');
+    let res = await fetch('https://cdn.jsdelivr.net/npm/world-atlas@2/countries-50m.json');
+    if (!res.ok) {
+      res = await fetch('https://cdn.jsdelivr.net/npm/world-atlas@2/countries-110m.json');
+    }
     const worldTopo = await res.json();
     const features = topojson.feature(worldTopo, worldTopo.objects.countries).features;
     state.worldFeatures = features;
@@ -373,13 +390,16 @@ function updateMapColors() {
       }
       return 0.92;
     });
+
+  // Ensure selected country border sits on top of neighboring country borders
+  gMap.selectAll('path.selected-country').raise();
 }
 
 function renderRadarPulses() {
   if (!gPulses || !projection) return;
   gPulses.selectAll('*').remove();
 
-  // Show radar pulses on countries with recent escalations or Level 5 status (especially prominent in Radar Mode)
+  // Show radar pulses on countries with recent escalations or Level 5 status
   const escalatedIsoSet = new Set(state.recentEvents.map(e => e.iso2));
   const pulseCountries = state.countries.filter(c => {
     if (!c.lat || !c.lon) return false;
@@ -393,18 +413,25 @@ function renderRadarPulses() {
     const coords = projection([c.lon, c.lat]);
     if (!coords) continue;
 
-    gPulses.append('circle')
-      .attr('cx', coords[0])
-      .attr('cy', coords[1])
-      .attr('r', 4)
+    const markerG = gPulses.append('g')
+      .datum({ x: coords[0], y: coords[1], iso2: c.iso2 })
+      .attr('class', 'pulse-marker')
+      .attr('transform', `translate(${coords[0]}, ${coords[1]}) scale(${1 / currentZoomK})`);
+
+    markerG.append('circle')
+      .attr('cx', 0)
+      .attr('cy', 0)
+      .attr('r', 2)
       .attr('class', 'radar-pulse-circle')
       .style('stroke', c.overall_level === 5 ? '#f43f5e' : '#fb923c');
 
-    gPulses.append('circle')
-      .attr('cx', coords[0])
-      .attr('cy', coords[1])
-      .attr('r', 3.2)
+    markerG.append('circle')
+      .attr('cx', 0)
+      .attr('cy', 0)
+      .attr('r', 1.9)
       .attr('fill', c.overall_level === 5 ? '#fda4af' : '#fdba74')
+      .attr('stroke', '#090d18')
+      .attr('stroke-width', 0.7)
       .style('cursor', 'pointer')
       .on('click', () => selectCountry(c.iso2));
   }
