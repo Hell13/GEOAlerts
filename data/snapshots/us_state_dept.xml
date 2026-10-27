@@ -4,20 +4,8 @@
     <title>travel.state.gov: Travel Advisories</title>
     <link>https://travel.state.gov/content/travel/en/traveladvisories/traveladvisories.html</link>
     <description>As a first step in planning any trip abroad, check the Travel Advisories for your intended destination.</description>
-    <pubDate>Tue, 27 Oct 2026 15:58:01 GMT</pubDate>
-    <dc:date>2026-10-27T15:58:01Z</dc:date>
-    <item>
-      <title>French Polynesia - Level 1: Exercise Normal Precautions</title>
-      <link>https://travel.state.gov/content/tsg_aem/us/en/home/international-travel/travel-advisories/destination.pyf.html</link>
-      <pubDate>Wed, 02 Dec 2026</pubDate>
-      <description><![CDATA[Exercise normal precaution<p>in <b>French Polynesia</b>.</p>
-<p>Review the <a title='Travel guidance for French Polynesia' href='/en/international-travel/travel-advisories/french-polynesia.html#requirements'>travel guidance</a>&nbsp;section for additional information on travel to French Polynesia.</p>]]></description>
-      <category domain="Threat-Level">Level 1: Exercise Normal Precautions</category>
-      <category domain="Country-Tag">FP</category>
-      <category domain="Keyword">advisory</category>
-      <guid>https://travel.state.gov/content/tsg_aem/us/en/home/international-travel/travel-advisories/destination.pyf.html</guid>
-      <dc:identifier>FP,advisory</dc:identifier>
-    </item>
+    <pubDate>Tue, 27 Oct 2026 20:06:01 GMT</pubDate>
+    <dc:date>2026-10-27T20:06:01Z</dc:date>
     <item>
       <title>The West Bank - Level 3: Reconsider Travel</title>
       <link>https://travel.state.gov/content/tsg_aem/us/en/home/international-travel/travel-advisories/destination.xwb.html</link>
@@ -5552,6 +5540,18 @@ The Gambia’s health infrastructure is inadequate. Health services, hygiene, an
       <category domain="Keyword">advisory</category>
       <guid>https://travel.state.gov/content/tsg_aem/us/en/home/international-travel/travel-advisories/destination.ton.html</guid>
       <dc:identifier>TA,advisory</dc:identifier>
+    </item>
+    <item>
+      <title>French Polynesia - Level 1: Exercise Normal Precautions</title>
+      <link>https://travel.state.gov/content/tsg_aem/us/en/home/international-travel/travel-advisories/destination.pyf.html</link>
+      <pubDate>Mon, 02 Dec 2024</pubDate>
+      <description><![CDATA[Exercise normal precaution<p>in <b>French Polynesia</b>.</p>
+<p>Review the <a title='Travel guidance for French Polynesia' href='/en/international-travel/travel-advisories/french-polynesia.html#requirements'>travel guidance</a> section for additional information on travel to French Polynesia.</p>]]></description>
+      <category domain="Threat-Level">Level 1: Exercise Normal Precautions</category>
+      <category domain="Country-Tag">FP</category>
+      <category domain="Keyword">advisory</category>
+      <guid>https://travel.state.gov/content/tsg_aem/us/en/home/international-travel/travel-advisories/destination.pyf.html</guid>
+      <dc:identifier>FP,advisory</dc:identifier>
     </item>
     <item>
       <title>Kiribati - Level 1: Exercise Normal Precautions</title>
