@@ -11,13 +11,13 @@
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
   <script src="https://d3js.org/d3.v7.min.js"></script>
   <script src="https://unpkg.com/topojson-client@3"></script>
-  <link rel="stylesheet" href="./styles.css?v=5" />
+  <link rel="stylesheet" href="./styles.css?v=6" />
 </head>
 <body>
   <!-- TOP COMMAND HEADER -->
   <header class="top-bar">
     <div class="brand-block">
-      <img src="./logo.png?v=3" alt="GEOAlerts" style="width:40px;height:40px;border-radius:10px;border:1px solid rgba(56,189,248,0.45);box-shadow:0 0 14px rgba(239,68,68,0.35);object-fit:cover;flex-shrink:0;" />
+      <img src="./logo.png?v=3" alt="GEOAlerts" class="brand-logo-img" style="width:40px;height:40px;border-radius:10px;border:1px solid rgba(56,189,248,0.45);box-shadow:0 0 14px rgba(239,68,68,0.35);object-fit:cover;flex-shrink:0;" />
       <div>
         <div class="brand-title">
           GEO<span>ALERTS</span>
@@ -31,11 +31,13 @@
     <div class="mode-switcher" role="tablist">
       <button id="btnModeStatus" class="mode-btn active" data-mode="status">
         <span class="mode-dot status-dot"></span>
-        Global Threat Status (All 203)
+        <span class="mode-text-full">Global Threat Status (All 203)</span>
+        <span class="mode-text-short">Threat Map (203)</span>
       </button>
       <button id="btnModeRadar" class="mode-btn" data-mode="radar">
         <span class="mode-dot radar-dot"></span>
-        Escalation Radar (Recent Wording Shifts)
+        <span class="mode-text-full">Escalation Radar (Recent Wording Shifts)</span>
+        <span class="mode-text-short">Escalation Radar</span>
       </button>
     </div>
 
@@ -47,13 +49,15 @@
       </div>
       <button id="btnPollNow" class="action-btn secondary" title="Poll all 8 diplomatic & aviation sources now">
         <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M21 12a9 9 0 0 0-9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"/><path d="M3 3v5h5"/><path d="M3 12a9 9 0 0 0 9 9 9.75 9.75 0 0 0 6.74-2.74L21 16"/><path d="M16 16h5v5"/></svg>
-        <span>Poll Sources</span>
+        <span class="btn-label-desktop">Poll Sources</span>
       </button>
       <button id="btnOpenSimulator" class="action-btn warning" title="Simulate a Red/Black Flag diplomatic wording change to test Diff + OpenAI + Telegram">
-        <span>⚡ Simulate Crisis Diff</span>
+        <span class="btn-label-desktop">⚡ Simulate Crisis Diff</span>
+        <span class="btn-label-mobile">⚡ Sim</span>
       </button>
       <a href="https://t.me/GeoAlerts13Bot" target="_blank" rel="noopener noreferrer" id="btnOpenTelegram" class="action-btn primary" style="text-decoration:none;color:#ffffff;" title="Open @GeoAlerts13Bot in Telegram">
-        <span>✈️ Telegram Bot</span>
+        <span class="btn-label-desktop">✈️ Telegram Bot</span>
+        <span class="btn-label-mobile">✈️ Bot</span>
       </a>
       <a href="https://pay.monobank.ua/2610266gGwa5F3i8tyG6" target="_blank" rel="noopener noreferrer" id="btnDonate" class="action-btn donate" style="text-decoration:none;background:linear-gradient(135deg,#f59e0b 0%,#ea580c 100%);border:1px solid #fde047;color:#ffffff;font-weight:800;letter-spacing:0.5px;box-shadow:0 0 14px rgba(245,158,11,0.45);" title="Support GEOAlerts Project">
         <span>❤️ DONATE</span>
@@ -65,13 +69,13 @@
   <section class="stats-ribbon">
     <div class="level-cards">
       <button class="lvl-card active" data-filter-level="all">
-        <span class="lvl-name">WORLDWIDE MONITORED</span>
+        <span class="lvl-name">ALL MONITORED</span>
         <span class="lvl-count" id="countAll">203</span>
       </button>
       <button class="lvl-card lvl-5" data-filter-level="5">
         <div class="lvl-header">
           <span class="lvl-dot l5"></span>
-          <span class="lvl-name">LVL 5 • CRITICAL / IMMINENT WAR</span>
+          <span class="lvl-name">LVL 5 • CRITICAL</span>
           <span class="tg-badge">📲 TG ALERT</span>
         </div>
         <div class="lvl-bottom">
@@ -82,7 +86,7 @@
       <button class="lvl-card lvl-4" data-filter-level="4">
         <div class="lvl-header">
           <span class="lvl-dot l4"></span>
-          <span class="lvl-name">LVL 4 • RED FLAG / PRE-EVACUATION</span>
+          <span class="lvl-name">LVL 4 • RED FLAG</span>
           <span class="tg-badge">📲 TG ALERT</span>
         </div>
         <div class="lvl-bottom">
@@ -126,9 +130,9 @@
   </section>
 
   <!-- MAIN WORKSPACE: LEFT FEED | CENTER INTERACTIVE MAP | RIGHT COUNTRY DOSSIER -->
-  <main class="workspace">
+  <main class="workspace" data-active-mobile-view="map">
     <!-- LEFT PANEL: COUNTRY DIRECTORY & LIVE ESCALATION FEED -->
-    <aside class="left-panel">
+    <aside class="left-panel" id="leftDirectoryPanel">
       <div class="panel-tabs">
         <button class="panel-tab active" data-left-tab="countries">🌍 Countries (<span id="filteredCountLabel">203</span>)</button>
         <button class="panel-tab" data-left-tab="feed">🚨 Wording Diff Feed</button>
@@ -146,10 +150,10 @@
     </aside>
 
     <!-- CENTER: INTERACTIVE VECTOR WORLD MAP -->
-    <section class="map-stage">
+    <section class="map-stage" id="centerMapStage">
       <div class="map-toolbar">
         <div class="map-mode-banner" id="mapModeBanner">
-          <strong>MODE: GLOBAL THREAT STATUS</strong> — Color-coded composite threat index across 8 diplomatic & aviation agencies. Click any country for per-source breakdown.
+          <strong>MODE: GLOBAL THREAT STATUS</strong> — Color-coded composite threat index across 8 diplomatic & aviation agencies. Tap any country for breakdown.
         </div>
         <div class="map-zoom-controls">
           <button id="btnZoomIn" title="Zoom In">+</button>
@@ -161,6 +165,20 @@
       <div id="mapContainer" class="map-canvas">
         <svg id="worldMapSvg"></svg>
         <div id="mapTooltip" class="map-tooltip hidden"></div>
+      </div>
+
+      <!-- MOBILE FLOATING QUICK-PREVIEW BAR ON MAP -->
+      <div id="mobileMapQuickCard" class="mobile-map-quick-card hidden">
+        <div class="mmq-left">
+          <div class="mmq-title-row">
+            <strong id="mmqCountryName">Israel (IL)</strong>
+            <span id="mmqLevelBadge" class="c-row-badge badge-l4">LEVEL 4</span>
+          </div>
+          <div id="mmqSummary" class="mmq-summary">Tap to inspect 8 official sources & wording diffs</div>
+        </div>
+        <button id="btnMobileOpenDossier" class="mmq-btn">
+          Sources ↗
+        </button>
       </div>
 
       <!-- BOTTOM SOURCE MATRIX LEGEND -->
@@ -178,6 +196,11 @@
 
     <!-- RIGHT PANEL: CONSOLIDATED STATUS BY EACH SOURCE SEPARATELY -->
     <aside class="right-panel" id="countryDossierPanel">
+      <div class="mobile-dossier-nav">
+        <button id="btnMobileBackMap" class="mobile-back-btn">← Back to Map</button>
+        <button id="btnMobileBackList" class="mobile-back-btn">🌍 Countries List</button>
+      </div>
+
       <div id="dossierEmptyState" class="dossier-empty">
         <div class="empty-icon">🛰</div>
         <h3>Select Any Country on the Map</h3>
@@ -228,6 +251,22 @@
     </aside>
   </main>
 
+  <!-- MOBILE BOTTOM NAVIGATION BAR -->
+  <nav class="mobile-bottom-nav" id="mobileBottomNav">
+    <button class="mob-nav-btn active" data-mobile-view="map">
+      <span class="mob-nav-icon">🗺</span>
+      <span class="mob-nav-label">World Map</span>
+    </button>
+    <button class="mob-nav-btn" data-mobile-view="list">
+      <span class="mob-nav-icon">🌍</span>
+      <span class="mob-nav-label">Countries & Feed</span>
+    </button>
+    <button class="mob-nav-btn" data-mobile-view="dossier">
+      <span class="mob-nav-icon">📑</span>
+      <span class="mob-nav-label">Dossier <span id="mobNavIsoPill" class="mob-nav-iso">IL</span></span>
+    </button>
+  </nav>
+
   <!-- MODAL 1: SIMULATE CRISIS WORDING DIFF ("TIME IS DOWN TO DAYS") -->
   <div id="modalSimulator" class="modal-backdrop hidden">
     <div class="modal-card">
@@ -268,6 +307,6 @@
     </div>
   </div>
 
-  <script src="./app.js"></script>
+  <script src="./app.js?v=6"></script>
 </body>
 </html>

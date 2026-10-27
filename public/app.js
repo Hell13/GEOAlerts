@@ -128,6 +128,52 @@ function bindUIEvents() {
     const url = code ? `https://t.me/GeoAlerts13Bot?start=watch_${code}` : 'https://t.me/GeoAlerts13Bot';
     window.open(url, '_blank', 'noopener,noreferrer');
   });
+
+  // Mobile Bottom Navigation Bar
+  document.querySelectorAll('#mobileBottomNav .mob-nav-btn').forEach(btn => {
+    btn.addEventListener('click', () => {
+      setMobileView(btn.dataset.mobileView);
+    });
+  });
+
+  // Mobile Map Quick-Card & Back Buttons
+  document.getElementById('btnMobileOpenDossier')?.addEventListener('click', (e) => {
+    e.stopPropagation();
+    setMobileView('dossier');
+  });
+  document.getElementById('mobileMapQuickCard')?.addEventListener('click', () => {
+    setMobileView('dossier');
+  });
+  document.getElementById('btnMobileBackMap')?.addEventListener('click', () => {
+    setMobileView('map');
+  });
+  document.getElementById('btnMobileBackList')?.addEventListener('click', () => {
+    setMobileView('list');
+  });
+
+  // Refit map on orientation change or window resize
+  let resizeTimer;
+  window.addEventListener('resize', () => {
+    clearTimeout(resizeTimer);
+    resizeTimer = setTimeout(() => refitMapProjection(), 150);
+  });
+}
+
+function setMobileView(view) {
+  const workspace = document.querySelector('.workspace');
+  if (!workspace) return;
+  workspace.dataset.activeMobileView = view;
+
+  document.querySelectorAll('#mobileBottomNav .mob-nav-btn').forEach(btn => {
+    btn.classList.toggle('active', btn.dataset.mobileView === view);
+  });
+
+  if (view === 'map') {
+    setTimeout(() => refitMapProjection(), 40);
+  } else if (view === 'dossier') {
+    const panel = document.getElementById('countryDossierPanel');
+    if (panel) panel.scrollTop = 0;
+  }
 }
 
 function setMapMode(mode) {
@@ -144,6 +190,33 @@ function setMapMode(mode) {
 
   updateMapColors();
   renderRadarPulses();
+}
+
+function refitMapProjection() {
+  const container = document.getElementById('mapContainer');
+  if (!container || !svg || !projection || !pathGenerator) return;
+  const width = container.clientWidth || window.innerWidth || 900;
+  const height = container.clientHeight || 520;
+  if (width < 50 || height < 50) return;
+
+  svg.attr('viewBox', `0 0 ${width} ${height}`);
+
+  if (width <= 900) {
+    projection.fitExtent(
+      [[6, 52], [width - 6, Math.max(height - 76, 180)]],
+      { type: 'Sphere' }
+    );
+  } else {
+    projection
+      .scale(width / 5.6)
+      .translate([width / 2, height / 1.88]);
+  }
+
+  pathGenerator = d3.geoPath().projection(projection);
+  if (gMap && state.worldFeatures.length > 0) {
+    gMap.selectAll('path.country-path').attr('d', pathGenerator);
+    renderRadarPulses();
+  }
 }
 
 async function initMapGeometry() {
@@ -169,14 +242,12 @@ async function initMapGeometry() {
   gMap = rootG.append('g').attr('class', 'countries-layer');
   gPulses = rootG.append('g').attr('class', 'pulses-layer');
 
-  projection = d3.geoNaturalEarth1()
-    .scale(width / 5.6)
-    .translate([width / 2, height / 1.88]);
-
+  projection = d3.geoNaturalEarth1();
   pathGenerator = d3.geoPath().projection(projection);
+  refitMapProjection();
 
   zoomBehavior = d3.zoom()
-    .scaleExtent([1, 10])
+    .scaleExtent([1, 12])
     .on('zoom', (event) => {
       rootG.attr('transform', event.transform);
     });
@@ -414,7 +485,7 @@ function renderCountriesList() {
   }).join('');
 
   container.querySelectorAll('.country-row').forEach(row => {
-    row.addEventListener('click', () => selectCountry(row.dataset.iso));
+    row.addEventListener('click', () => selectCountry(row.dataset.iso, { openMobileDossier: true }));
   });
 }
 
@@ -442,14 +513,21 @@ function renderFeedList() {
   }).join('');
 
   container.querySelectorAll('.event-card').forEach(card => {
-    card.addEventListener('click', () => selectCountry(card.dataset.iso));
+    card.addEventListener('click', () => selectCountry(card.dataset.iso, { openMobileDossier: true }));
   });
 }
 
-async function selectCountry(iso2) {
+async function selectCountry(iso2, opts = {}) {
   state.selectedIso2 = iso2;
   renderCountriesList();
   updateMapColors();
+
+  const mobNavIso = document.getElementById('mobNavIsoPill');
+  if (mobNavIso) mobNavIso.textContent = iso2;
+
+  if (opts.openMobileDossier && window.innerWidth <= 900) {
+    setMobileView('dossier');
+  }
 
   let payload;
   try {
@@ -485,6 +563,18 @@ async function selectCountry(iso2) {
 
   document.getElementById('dossierExecSummary').textContent = country.ai_executive_summary || '';
   document.getElementById('dossierSourceCount').textContent = `${sources.length} Official Sources`;
+
+  // Update Mobile Floating Map Quick-Preview Card
+  const mmqCard = document.getElementById('mobileMapQuickCard');
+  if (mmqCard) {
+    mmqCard.classList.remove('hidden');
+    document.getElementById('mmqCountryName').textContent = `${country.name} (${country.iso2})`;
+    const mmqBadge = document.getElementById('mmqLevelBadge');
+    mmqBadge.className = `c-row-badge badge-l${lvl}`;
+    mmqBadge.textContent = `LEVEL ${lvl}`;
+    document.getElementById('mmqSummary').textContent =
+      country.ai_executive_summary || `${sources.length} official sources monitored • Tap to view dossier`;
+  }
 
   // Render Consolidated Status by Each Source Separately
   const sourcesContainer = document.getElementById('dossierSourcesList');
@@ -642,9 +732,8 @@ async function runCrisisSimulation() {
       data = {
         previewTelegramHtml: `<b>${newLvl === 5 ? '⚫️' : '🔴'} GEOAlerts | LEVEL ${newLvl} CRITICAL ESCALATION</b>\n\n<b>Country:</b> #${iso2} <b>${escapeHtml(c?.name || iso2)}</b>\n<b>Source:</b> U.S. Embassy Local Security Alerts\n<b>Level Shift:</b> Level ${oldLvl} ➡️ <b>Level ${newLvl}</b>\n\n<b>🚩 Red Flags Detected:</b>\n${flags.map(f => `  • 🚩 <b>${escapeHtml(f)}</b>`).join('\n')}\n\n<b>🧠 AI Intelligence Brief:</b>\n${escapeHtml(simSummary)}`
       };
-      renderStatsAndCounts();
       renderCountriesList();
-      renderEventsFeed();
+      renderFeedList();
       updateMapColors();
       renderRadarPulses();
     } else {
