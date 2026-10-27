@@ -421,17 +421,17 @@ function renderRadarPulses() {
     markerG.append('circle')
       .attr('cx', 0)
       .attr('cy', 0)
-      .attr('r', 2)
+      .attr('r', 4.5)
       .attr('class', 'radar-pulse-circle')
       .style('stroke', c.overall_level === 5 ? '#f43f5e' : '#fb923c');
 
     markerG.append('circle')
       .attr('cx', 0)
       .attr('cy', 0)
-      .attr('r', 1.9)
+      .attr('r', 4.5)
       .attr('fill', c.overall_level === 5 ? '#fda4af' : '#fdba74')
       .attr('stroke', '#090d18')
-      .attr('stroke-width', 0.7)
+      .attr('stroke-width', 1.2)
       .style('cursor', 'pointer')
       .on('click', () => selectCountry(c.iso2));
   }
