@@ -202,15 +202,25 @@ function refitMapProjection() {
 
   svg.attr('viewBox', `0 0 ${width} ${height}`);
 
-  if (width <= 900) {
-    projection.fitExtent(
-      [[6, 52], [width - 6, Math.max(height - 76, 180)]],
-      { type: 'Sphere' }
-    );
-  } else {
+  const isMobileTabbed = window.innerWidth <= 900;
+  const topPad = 40;
+  const bottomPad = isMobileTabbed ? 64 : 10;
+  const availH = Math.max(height - topPad - bottomPad, 180);
+
+  projection.fitExtent(
+    [[6, topPad], [width - 6, topPad + availH]],
+    { type: 'Sphere' }
+  );
+
+  // On square or portrait viewports (iPad Landscape center pane, iPad Portrait, Phones),
+  // boost scale so inhabited continents fill the vertical canvas instead of leaving empty black margins
+  const aspect = width / availH;
+  if (aspect < 1.85) {
+    const boost = Math.min(1.36, Math.max(1.12, 1.62 / Math.sqrt(aspect)));
+    const [tx, ty] = projection.translate();
     projection
-      .scale(width / 5.6)
-      .translate([width / 2, height / 1.88]);
+      .scale(projection.scale() * boost)
+      .translate([tx, ty + availH * 0.045]);
   }
 
   pathGenerator = d3.geoPath().projection(projection);

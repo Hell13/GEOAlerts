@@ -1086,7 +1086,24 @@ body {
   color: #fff;
 }
 
-/* DESKTOP DEFAULTS FOR MOBILE-ONLY HELPERS */
+/* GLOBAL NO-WRAP GUARDS FOR BUTTONS, PILLS & BADGES */
+.brand-title,
+.version-pill,
+.mode-btn,
+.action-btn,
+.lvl-name,
+.tg-badge,
+.silent-badge,
+.panel-tab,
+.watch-btn,
+.source-count-pill,
+.banner-right,
+.c-row-badge {
+  white-space: nowrap;
+  flex-shrink: 0;
+}
+
+/* DESKTOP DEFAULTS FOR MOBILE/TABLET HELPERS */
 .mode-text-short,
 .btn-label-mobile,
 .mobile-bottom-nav,
@@ -1096,55 +1113,14 @@ body {
 }
 
 /* =========================================================
-   TABLET & MEDIUM DESKTOP BREAKPOINT (<= 1200px)
+   TABLET LANDSCAPE & COMPACT LAPTOP (<= 1380px)
+   Covers iPad Mini (1024-1133px), iPad Air (1180px), iPad Pro (1366px)
    ========================================================= */
-@media (max-width: 1200px) {
-  .brand-subtitle,
-  .poll-meta {
-    display: none;
-  }
-
-  .workspace {
-    grid-template-columns: 260px 1fr 340px;
-  }
-
-  .lvl-desc,
-  .silent-badge {
-    display: none;
-  }
-}
-
-/* =========================================================
-   MOBILE & SMALL TABLET OPTIMIZATION (<= 900px)
-   ========================================================= */
-@media (max-width: 900px) {
-  body {
-    height: 100vh;
-    height: 100dvh;
-    overflow: hidden;
-  }
-
-  /* 1. COMPACT TWO-ROW HEADER */
+@media (max-width: 1380px) {
   .top-bar {
-    height: auto;
-    padding: 8px 10px;
-    flex-wrap: wrap;
-    gap: 8px;
-  }
-
-  .brand-block {
-    gap: 8px;
-  }
-
-  .brand-logo-img {
-    width: 32px !important;
-    height: 32px !important;
-    border-radius: 8px !important;
-  }
-
-  .brand-title {
-    font-size: 15px;
-    gap: 4px;
+    height: 54px;
+    padding: 0 12px;
+    gap: 10px;
   }
 
   .version-pill,
@@ -1160,58 +1136,36 @@ body {
     display: inline !important;
   }
 
+  .mode-btn {
+    padding: 6px 12px;
+    font-size: 12px;
+  }
+
   .top-actions {
-    gap: 5px;
-    margin-left: auto;
+    gap: 6px;
   }
 
   .action-btn {
-    padding: 6px 9px;
-    font-size: 11px;
-    border-radius: 6px;
-  }
-
-  /* Segmented Mode Switcher on Row 2 */
-  .mode-switcher {
-    order: 3;
-    width: 100%;
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    padding: 2px;
-    gap: 3px;
-  }
-
-  .mode-btn {
-    justify-content: center;
-    padding: 6px 8px;
+    padding: 6px 11px;
     font-size: 11.5px;
-    gap: 6px;
   }
 
-  /* 2. HORIZONTAL SWIPEABLE THREAT FILTER RIBBON */
+  /* Compact Single-Line Threat Level Ribbon */
   .stats-ribbon {
-    padding: 6px 10px;
-    overflow-x: auto;
-    -webkit-overflow-scrolling: touch;
-    scrollbar-width: none;
-  }
-  .stats-ribbon::-webkit-scrollbar {
-    display: none;
+    padding: 6px 12px;
   }
 
   .level-cards {
-    display: flex;
+    grid-template-columns: repeat(6, 1fr);
     gap: 6px;
-    width: max-content;
   }
 
   .lvl-card {
-    flex: 0 0 auto;
     flex-direction: row;
     align-items: center;
-    gap: 7px;
-    padding: 5px 10px;
-    border-radius: 99px;
+    justify-content: space-between;
+    padding: 6px 10px;
+    gap: 6px;
   }
 
   .lvl-header {
@@ -1223,13 +1177,8 @@ body {
     margin-top: 0;
   }
 
-  .lvl-name {
-    font-size: 10px;
-    white-space: nowrap;
-  }
-
   .lvl-count {
-    font-size: 13px;
+    font-size: 15px;
   }
 
   .lvl-desc,
@@ -1238,7 +1187,162 @@ body {
     display: none !important;
   }
 
-  /* 3. SINGLE-VIEW WORKSPACE SWITCHED BY BOTTOM NAV */
+  /* Balanced 3-Column Workspace for Tablet Landscape */
+  .workspace {
+    grid-template-columns: 230px 1fr 305px;
+  }
+
+  .panel-tab {
+    font-size: 11px;
+    padding: 9px 4px;
+  }
+
+  .map-mode-banner {
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    padding: 5px 10px;
+    font-size: 11px;
+    max-width: calc(100% - 44px);
+  }
+
+  .source-footer-bar {
+    flex-wrap: nowrap;
+    justify-content: flex-start;
+    overflow-x: auto;
+    padding: 5px 10px;
+    gap: 5px;
+    scrollbar-width: none;
+  }
+  .source-footer-bar::-webkit-scrollbar {
+    display: none;
+  }
+  .source-chip {
+    flex: 0 0 auto;
+    font-size: 10px;
+    padding: 2px 8px;
+  }
+
+  .dossier-content {
+    padding: 12px;
+    gap: 10px;
+  }
+
+  #dossierCountryName {
+    font-size: 17.5px;
+  }
+
+  .watch-btn {
+    padding: 5px 8px;
+    font-size: 10.5px;
+  }
+
+  .dossier-level-banner {
+    padding: 8px 10px;
+  }
+
+  .banner-lvl-num {
+    font-size: 12px;
+  }
+
+  .banner-lvl-label {
+    font-size: 11px;
+  }
+
+  .dossier-section-title {
+    font-size: 10px;
+  }
+}
+
+/* =========================================================
+   TABLET PORTRAIT & MOBILE TABBED MODE (<= 900px)
+   Covers iPad Mini / Air Portrait (744px-834px) & Phones
+   ========================================================= */
+@media (max-width: 900px) {
+  body {
+    height: 100vh;
+    height: 100dvh;
+    overflow: hidden;
+  }
+
+  .brand-logo-img {
+    width: 32px !important;
+    height: 32px !important;
+    border-radius: 8px !important;
+  }
+
+  .brand-title {
+    font-size: 15px;
+    gap: 4px;
+  }
+
+  /* Tablet Portrait (640px - 900px): Single-row header + 6-column full-width ribbon */
+  .top-bar {
+    height: 50px;
+    padding: 0 10px;
+    flex-wrap: nowrap;
+    gap: 8px;
+  }
+
+  .mode-switcher {
+    order: 0;
+    width: auto;
+    display: flex;
+    padding: 2px;
+    gap: 3px;
+  }
+
+  .mode-btn {
+    padding: 5px 10px;
+    font-size: 11.5px;
+    gap: 5px;
+  }
+
+  .top-actions {
+    gap: 5px;
+  }
+
+  .action-btn {
+    padding: 6px 9px;
+    font-size: 11px;
+    border-radius: 6px;
+  }
+
+  .stats-ribbon {
+    padding: 6px 10px;
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+    scrollbar-width: none;
+  }
+  .stats-ribbon::-webkit-scrollbar {
+    display: none;
+  }
+
+  .level-cards {
+    display: grid;
+    grid-template-columns: repeat(6, 1fr);
+    gap: 5px;
+    width: 100%;
+  }
+
+  .lvl-card {
+    flex-direction: row;
+    align-items: center;
+    justify-content: space-between;
+    gap: 5px;
+    padding: 5px 8px;
+    border-radius: 8px;
+  }
+
+  .lvl-name {
+    font-size: 9.5px;
+  }
+
+  .lvl-count {
+    font-size: 13px;
+  }
+
+  /* Single-View Workspace Switched by Bottom Nav */
   .workspace {
     display: flex;
     flex-direction: column;
@@ -1282,19 +1386,12 @@ body {
     border-left: none;
   }
 
-  /* 4. MAP STAGE MOBILE REFINEMENTS */
+  /* Map Stage Touch Refinements */
   .map-toolbar {
     top: 8px;
     left: 8px;
     right: 8px;
     gap: 8px;
-  }
-
-  .map-mode-banner {
-    font-size: 10.5px;
-    line-height: 1.35;
-    padding: 6px 9px;
-    max-width: calc(100% - 42px);
   }
 
   .map-zoom-controls button {
@@ -1307,30 +1404,11 @@ body {
     touch-action: none;
   }
 
-  /* Hide desktop hover tooltip on touch screens; use quick card instead */
   .map-tooltip {
     display: none !important;
   }
 
-  .source-footer-bar {
-    display: flex;
-    flex-wrap: nowrap;
-    justify-content: flex-start;
-    overflow-x: auto;
-    padding: 5px 10px;
-    gap: 5px;
-    scrollbar-width: none;
-  }
-  .source-footer-bar::-webkit-scrollbar {
-    display: none;
-  }
-  .source-chip {
-    flex: 0 0 auto;
-    font-size: 9.5px;
-    padding: 2px 7px;
-  }
-
-  /* Floating Country Quick-Preview Bar on Mobile Map */
+  /* Floating Country Quick-Preview Bar on Map */
   .mobile-map-quick-card {
     display: flex;
     align-items: center;
@@ -1385,10 +1463,10 @@ body {
     flex-shrink: 0;
   }
 
-  /* 5. LEFT DIRECTORY & DOSSIER MOBILE REFINEMENTS */
+  /* Left Directory & Dossier Touch Refinements */
   .search-box input,
   .form-input {
-    font-size: 16px !important; /* Prevents iOS Safari auto-zoom on focus */
+    font-size: 16px !important;
   }
 
   .c-row-sub {
@@ -1417,12 +1495,7 @@ body {
     padding: 12px 14px 24px 14px;
   }
 
-  .dossier-level-banner {
-    flex-wrap: wrap;
-    gap: 6px;
-  }
-
-  /* 6. MOBILE BOTTOM NAVIGATION BAR */
+  /* Bottom Navigation Bar */
   .mobile-bottom-nav {
     display: grid;
     grid-template-columns: repeat(3, 1fr);
@@ -1476,7 +1549,6 @@ body {
     border: 1px solid var(--border-bright);
   }
 
-  /* 7. MODAL MOBILE FIT */
   .modal-backdrop {
     padding: 10px;
   }
@@ -1487,7 +1559,50 @@ body {
   }
 }
 
+/* =========================================================
+   SMARTPHONES (<= 639px)
+   Two-row header + horizontal swipeable filter pills
+   ========================================================= */
+@media (max-width: 639px) {
+  .top-bar {
+    height: auto;
+    padding: 8px 10px;
+    flex-wrap: wrap;
+    gap: 8px;
+  }
+
+  .top-actions {
+    margin-left: auto;
+  }
+
+  .mode-switcher {
+    order: 3;
+    width: 100%;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+  }
+
+  .mode-btn {
+    justify-content: center;
+    padding: 6px 8px;
+  }
+
+  .level-cards {
+    display: flex;
+    gap: 6px;
+    width: max-content;
+  }
+
+  .lvl-card {
+    flex: 0 0 auto;
+    padding: 5px 10px;
+    border-radius: 99px;
+    gap: 7px;
+  }
+}
+
 .hidden {
   display: none !important;
 }
+
 
