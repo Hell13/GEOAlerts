@@ -314,7 +314,7 @@ function getMainMenuKeyboard(sub) {
       { text: '⚙️ Americas', callback_data: 'region:Americas' }
     ],
     [
-      { text: '❤️ DONATE / Support Project', url: 'https://pay.monobank.ua/2610266gGwa5F3i8tyG6' }
+      { text: '❤️ DONATE / Support Project', url: 'https://send.monobank.ua/jar/6TprYBThpo' }
     ]
   ];
   return { inline_keyboard: buttons };
