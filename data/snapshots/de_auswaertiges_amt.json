@@ -1165,18 +1165,6 @@
       "situationWarning": false,
       "situationPartWarning": false
     },
-    "200382": {
-      "lastModified": 1792487082,
-      "effective": 1792486800,
-      "title": "Belgien: Reise- und Sicherheitshinweise",
-      "countryCode": "BE",
-      "iso3CountryCode": "BEL",
-      "countryName": "Belgien",
-      "warning": false,
-      "partialWarning": false,
-      "situationWarning": false,
-      "situationPartWarning": false
-    },
     "210822": {
       "lastModified": 1792488372,
       "effective": 1792488600,
@@ -1789,30 +1777,6 @@
       "situationWarning": false,
       "situationPartWarning": false
     },
-    "208400": {
-      "lastModified": 1791886124,
-      "effective": 1790069400,
-      "title": "Südafrika: Reise- und Sicherheitshinweise",
-      "countryCode": "ZA",
-      "iso3CountryCode": "ZAF",
-      "countryName": "Südafrika",
-      "warning": false,
-      "partialWarning": false,
-      "situationWarning": false,
-      "situationPartWarning": false
-    },
-    "209524": {
-      "lastModified": 1792503879,
-      "effective": 1792503000,
-      "title": "Frankreich: Reise- und Sicherheitshinweise",
-      "countryCode": "FR",
-      "iso3CountryCode": "FRA",
-      "countryName": "Frankreich",
-      "warning": false,
-      "partialWarning": false,
-      "situationWarning": false,
-      "situationPartWarning": false
-    },
     "204048": {
       "lastModified": 1793025227,
       "effective": 1793025000,
@@ -2401,6 +2365,42 @@
       "situationWarning": false,
       "situationPartWarning": false
     },
+    "200382": {
+      "lastModified": 1793196255,
+      "effective": 1793196000,
+      "title": "Belgien: Reise- und Sicherheitshinweise",
+      "countryCode": "BE",
+      "iso3CountryCode": "BEL",
+      "countryName": "Belgien",
+      "warning": false,
+      "partialWarning": false,
+      "situationWarning": false,
+      "situationPartWarning": false
+    },
+    "209524": {
+      "lastModified": 1793196025,
+      "effective": 1793196000,
+      "title": "Frankreich: Reise- und Sicherheitshinweise",
+      "countryCode": "FR",
+      "iso3CountryCode": "FRA",
+      "countryName": "Frankreich",
+      "warning": false,
+      "partialWarning": false,
+      "situationWarning": false,
+      "situationPartWarning": false
+    },
+    "208400": {
+      "lastModified": 1793196410,
+      "effective": 1793196000,
+      "title": "Südafrika: Reise- und Sicherheitshinweise",
+      "countryCode": "ZA",
+      "iso3CountryCode": "ZAF",
+      "countryName": "Südafrika",
+      "warning": false,
+      "partialWarning": false,
+      "situationWarning": false,
+      "situationPartWarning": false
+    },
     "contentList": [
       "226268",
       "210708",
@@ -2499,7 +2499,6 @@
       "226176",
       "219044",
       "210258",
-      "200382",
       "210822",
       "205788",
       "207694",
@@ -2551,8 +2550,6 @@
       "219024",
       "220008",
       "213032",
-      "208400",
-      "209524",
       "204048",
       "201962",
       "205998",
@@ -2601,7 +2598,10 @@
       "206342",
       "203814",
       "204692",
-      "201536"
+      "201536",
+      "200382",
+      "209524",
+      "208400"
     ]
   }
 }
