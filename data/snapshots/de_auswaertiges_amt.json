@@ -2017,18 +2017,6 @@
       "situationWarning": false,
       "situationPartWarning": false
     },
-    "210534": {
-      "lastModified": 1793449535,
-      "effective": 1793448000,
-      "title": "Spanien: Reise- und Sicherheitshinweise",
-      "countryCode": "ES",
-      "iso3CountryCode": "ESP",
-      "countryName": "Spanien",
-      "warning": false,
-      "partialWarning": false,
-      "situationWarning": false,
-      "situationPartWarning": false
-    },
     "221216": {
       "lastModified": 1792420461,
       "effective": 1792420200,
@@ -2281,18 +2269,6 @@
       "situationWarning": false,
       "situationPartWarning": false
     },
-    "224080": {
-      "lastModified": 1791885138,
-      "effective": 1791451800,
-      "title": "Marokko: Reise- und Sicherheitshinweise",
-      "countryCode": "MA",
-      "iso3CountryCode": "MAR",
-      "countryName": "Marokko",
-      "warning": false,
-      "partialWarning": false,
-      "situationWarning": false,
-      "situationPartWarning": false
-    },
     "202298": {
       "lastModified": 1793283125,
       "effective": 1793282400,
@@ -2398,6 +2374,30 @@
       "countryName": "Libanon",
       "warning": false,
       "partialWarning": true,
+      "situationWarning": false,
+      "situationPartWarning": false
+    },
+    "210534": {
+      "lastModified": 1793613469,
+      "effective": 1793448000,
+      "title": "Spanien: Reise- und Sicherheitshinweise",
+      "countryCode": "ES",
+      "iso3CountryCode": "ESP",
+      "countryName": "Spanien",
+      "warning": false,
+      "partialWarning": false,
+      "situationWarning": false,
+      "situationPartWarning": false
+    },
+    "224080": {
+      "lastModified": 1793624797,
+      "effective": 1793625300,
+      "title": "Marokko: Reise- und Sicherheitshinweise",
+      "countryCode": "MA",
+      "iso3CountryCode": "MAR",
+      "countryName": "Marokko",
+      "warning": false,
+      "partialWarning": false,
       "situationWarning": false,
       "situationPartWarning": false
     },
@@ -2570,7 +2570,6 @@
       "213428",
       "207960",
       "201048",
-      "210534",
       "221216",
       "226912",
       "201918",
@@ -2592,7 +2591,6 @@
       "202738",
       "219024",
       "205878",
-      "224080",
       "202298",
       "212622",
       "205998",
@@ -2601,7 +2599,9 @@
       "207502",
       "213032",
       "217274",
-      "204048"
+      "204048",
+      "210534",
+      "224080"
     ]
   }
 }
