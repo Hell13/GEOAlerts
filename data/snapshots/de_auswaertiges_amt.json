@@ -2377,18 +2377,6 @@
       "situationWarning": false,
       "situationPartWarning": false
     },
-    "216132": {
-      "lastModified": 1793783152,
-      "effective": 1793782800,
-      "title": "Republik Korea (Südkorea): Reise- und Sicherheitshinweise",
-      "countryCode": "KR",
-      "iso3CountryCode": "KOR",
-      "countryName": "Republik Korea (Südkorea)",
-      "warning": false,
-      "partialWarning": false,
-      "situationWarning": false,
-      "situationPartWarning": false
-    },
     "201932": {
       "lastModified": 1793804382,
       "effective": 1793800800,
@@ -2396,6 +2384,18 @@
       "countryCode": "MD",
       "iso3CountryCode": "MDA",
       "countryName": "Republik Moldau",
+      "warning": false,
+      "partialWarning": false,
+      "situationWarning": false,
+      "situationPartWarning": false
+    },
+    "216132": {
+      "lastModified": 1793783152,
+      "effective": 1793782800,
+      "title": "Republik Korea (Südkorea): Reise- und Sicherheitshinweise",
+      "countryCode": "KR",
+      "iso3CountryCode": "KOR",
+      "countryName": "Republik Korea (Südkorea)",
       "warning": false,
       "partialWarning": false,
       "situationWarning": false,
@@ -2600,8 +2600,8 @@
       "209524",
       "201536",
       "203814",
-      "216132",
-      "201932"
+      "201932",
+      "216132"
     ]
   }
 }
