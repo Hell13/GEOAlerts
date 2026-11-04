@@ -421,18 +421,6 @@
       "situationWarning": false,
       "situationPartWarning": false
     },
-    "201932": {
-      "lastModified": 1791885207,
-      "effective": 1783415700,
-      "title": "Moldau, Republik: Reise- und Sicherheitshinweise",
-      "countryCode": "MD",
-      "iso3CountryCode": "MDA",
-      "countryName": "Republik Moldau",
-      "warning": false,
-      "partialWarning": false,
-      "situationWarning": false,
-      "situationPartWarning": false
-    },
     "220400": {
       "lastModified": 1791885148,
       "effective": 1783671300,
@@ -2233,18 +2221,6 @@
       "situationWarning": false,
       "situationPartWarning": false
     },
-    "216132": {
-      "lastModified": 1791886104,
-      "effective": 1783431900,
-      "title": "Republik Korea (Südkorea): Reise- und Sicherheitshinweise",
-      "countryCode": "KR",
-      "iso3CountryCode": "KOR",
-      "countryName": "Republik Korea (Südkorea)",
-      "warning": false,
-      "partialWarning": false,
-      "situationWarning": false,
-      "situationPartWarning": false
-    },
     "201558": {
       "lastModified": 1793007307,
       "effective": 1793007000,
@@ -2401,6 +2377,30 @@
       "situationWarning": false,
       "situationPartWarning": false
     },
+    "216132": {
+      "lastModified": 1793783152,
+      "effective": 1793782800,
+      "title": "Republik Korea (Südkorea): Reise- und Sicherheitshinweise",
+      "countryCode": "KR",
+      "iso3CountryCode": "KOR",
+      "countryName": "Republik Korea (Südkorea)",
+      "warning": false,
+      "partialWarning": false,
+      "situationWarning": false,
+      "situationPartWarning": false
+    },
+    "201932": {
+      "lastModified": 1793804382,
+      "effective": 1793800800,
+      "title": "Moldau, Republik: Reise- und Sicherheitshinweise",
+      "countryCode": "MD",
+      "iso3CountryCode": "MDA",
+      "countryName": "Republik Moldau",
+      "warning": false,
+      "partialWarning": false,
+      "situationWarning": false,
+      "situationPartWarning": false
+    },
     "contentList": [
       "226268",
       "210708",
@@ -2437,7 +2437,6 @@
       "219190",
       "222842",
       "208258",
-      "201932",
       "220400",
       "220678",
       "212100",
@@ -2588,7 +2587,6 @@
       "213920",
       "201918",
       "211938",
-      "216132",
       "201558",
       "208058",
       "201516",
@@ -2601,7 +2599,9 @@
       "208400",
       "209524",
       "201536",
-      "203814"
+      "203814",
+      "216132",
+      "201932"
     ]
   }
 }
