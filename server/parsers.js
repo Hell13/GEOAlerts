@@ -737,6 +737,11 @@ async function runFullIngestion({ sendTelegramAlerts = true } = {}) {
   const countExistingEvents = db.prepare(`SELECT COUNT(*) as c FROM change_events`).get().c;
   const isInitialBootstrap = countExistingEvents === 0;
 
+  // Snapshot every country's overall threat status BEFORE this poll
+  // so Telegram alerts are ONLY sent when a country's composite status actually changes!
+  const beforeCountries = db.prepare(`SELECT iso2, overall_level FROM countries`).all();
+  const prevCountryLevelMap = new Map(beforeCountries.map(c => [c.iso2, Number(c.overall_level)]));
+
   const dedupedMap = new Map();
   for (const r of allRecords) {
     if (!r.iso2 || !countriesData[r.iso2]) continue;
@@ -749,7 +754,7 @@ async function runFullIngestion({ sendTelegramAlerts = true } = {}) {
   const uniqueRecords = [...dedupedMap.values()];
 
   let changedCount = 0;
-  const newRedBlackEvents = [];
+  const changedEventsByIso = new Map();
   const nowIso = new Date().toISOString();
 
   for (const rec of uniqueRecords) {
@@ -808,7 +813,7 @@ async function runFullIngestion({ sendTelegramAlerts = true } = {}) {
         createdAt: rec.publishedAt || nowIso
       };
 
-      insertEvent.run(
+      const info = insertEvent.run(
         eventObj.iso2,
         eventObj.countryName,
         eventObj.sourceId,
@@ -826,10 +831,12 @@ async function runFullIngestion({ sendTelegramAlerts = true } = {}) {
         0,
         eventObj.createdAt
       );
+      eventObj.eventId = info.lastInsertRowid;
 
-      if (finalLevel >= 4) {
-        newRedBlackEvents.push(eventObj);
+      if (!changedEventsByIso.has(rec.iso2)) {
+        changedEventsByIso.set(rec.iso2, []);
       }
+      changedEventsByIso.get(rec.iso2).push(eventObj);
     } else if (isInitialBootstrap && rec.normalizedLevel >= 4 && (rec.redFlags?.length > 0 || rec.sourceId === 'us_embassy_alert' || rec.sourceId === 'uk_fcdo')) {
       // Seed the initial timeline with recent real-world escalations so the Escalation Radar is immediately rich
       insertEvent.run(
@@ -874,7 +881,43 @@ async function runFullIngestion({ sendTelegramAlerts = true } = {}) {
   // Recompute Composite Country Threat Index & Resonance across all 203 countries
   recomputeCountryAggregates();
 
+  // Compare new composite country threat status with previous status:
+  // ONLY dispatch Telegram notifications for countries whose overall status actually changed!
+  const afterCountries = db.prepare(`SELECT iso2, overall_level FROM countries`).all();
+  const nextCountryLevelMap = new Map(afterCountries.map(c => [c.iso2, Number(c.overall_level)]));
+  const statusChangedEvents = [];
+
+  for (const [iso2, countryEvents] of changedEventsByIso.entries()) {
+    const oldCountryLevel = prevCountryLevelMap.get(iso2);
+    const newCountryLevel = nextCountryLevelMap.get(iso2);
+
+    if (
+      oldCountryLevel !== undefined &&
+      newCountryLevel !== undefined &&
+      oldCountryLevel !== newCountryLevel
+    ) {
+      // Pick the most prominent source event that caused the country's status shift
+      const primaryEvent = [...countryEvents].sort((a, b) => b.newLevel - a.newLevel)[0];
+      const alertEvent = {
+        ...primaryEvent,
+        oldLevel: oldCountryLevel,
+        newLevel: newCountryLevel
+      };
+      statusChangedEvents.push(alertEvent);
+
+      if (primaryEvent.eventId) {
+        db.prepare(`UPDATE change_events SET old_level = ?, new_level = ?, notified_telegram = 1 WHERE id = ?`)
+          .run(oldCountryLevel, newCountryLevel, primaryEvent.eventId);
+      }
+    }
+  }
+
   db.prepare(`INSERT OR REPLACE INTO system_meta (key, value) VALUES ('last_poll_at', ?)`).run(nowIso);
+
+  try {
+    const { syncSubscribersFromCloudWorker } = require('./telegram');
+    await syncSubscribersFromCloudWorker();
+  } catch (_) {}
 
   try {
     const { exportStaticData } = require('./exporter');
@@ -883,16 +926,16 @@ async function runFullIngestion({ sendTelegramAlerts = true } = {}) {
     console.error('[Static Export Warning]', e.message);
   }
 
-  if (sendTelegramAlerts && !isInitialBootstrap && newRedBlackEvents.length > 0) {
+  if (sendTelegramAlerts && !isInitialBootstrap && statusChangedEvents.length > 0) {
     const { broadcastCriticalEvents } = require('./telegram');
-    await broadcastCriticalEvents(newRedBlackEvents);
+    await broadcastCriticalEvents(statusChangedEvents);
   }
 
   return {
     durationMs: Date.now() - startTime,
     totalRecordsScanned: allRecords.length,
     changedRecords: changedCount,
-    criticalAlertsTriggered: newRedBlackEvents.length
+    criticalAlertsTriggered: statusChangedEvents.length
   };
 }
 

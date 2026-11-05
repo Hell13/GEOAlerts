@@ -98,6 +98,11 @@ const server = http.createServer(async (req, res) => {
       }));
 
       const lastPoll = db.prepare(`SELECT value FROM system_meta WHERE key = 'last_poll_at'`).get();
+      const subRow = db.prepare(`
+        SELECT COUNT(*) as c FROM telegram_subscribers
+        WHERE active = 1 AND chat_id NOT IN ('admin_profile', 'default_admin')
+      `).get();
+      const telegramSubscribersCount = Math.max(1, Number(subRow?.c || 0));
 
       const levelCounts = { 1: 0, 2: 0, 3: 0, 4: 0, 5: 0 };
       const enrichedCountries = countries.map(c => {
@@ -112,6 +117,7 @@ const server = http.createServer(async (req, res) => {
         lastPollAt: lastPoll?.value || new Date().toISOString(),
         openAiConfigured: Boolean(process.env.OPENAI_API_KEY && process.env.OPENAI_API_KEY !== 'your_openai_api_key_here'),
         telegramConfigured: Boolean(process.env.TELEGRAM_BOT_TOKEN && process.env.TELEGRAM_BOT_TOKEN !== 'your_telegram_bot_token_here'),
+        telegramSubscribersCount,
         levelCounts,
         totalCountries: enrichedCountries.length,
         countries: enrichedCountries,

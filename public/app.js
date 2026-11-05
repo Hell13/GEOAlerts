@@ -478,11 +478,37 @@ async function loadOverviewData() {
   document.getElementById('countL2').textContent = data.levelCounts?.[2] || 0;
   document.getElementById('countL1').textContent = data.levelCounts?.[1] || 0;
 
+  if (data.telegramSubscribersCount) {
+    updateSubscriberBadge(data.telegramSubscribersCount);
+  }
+  refreshLiveTelegramSubscriberCount();
+
   populateSimulatorSelect();
   renderCountriesList();
   renderFeedList();
   updateMapColors();
   renderRadarPulses();
+}
+
+function updateSubscriberBadge(count) {
+  const badge = document.getElementById('tgSubscriberBadge');
+  if (!badge) return;
+  const n = Math.max(1, Number(count) || 1);
+  badge.textContent = `👥 ${n}`;
+  badge.title = `${n} Active Telegram Bot Subscriber${n === 1 ? '' : 's'}`;
+}
+
+async function refreshLiveTelegramSubscriberCount() {
+  try {
+    const res = await fetch('https://geoalerts-telegram-bot.geoalerts.workers.dev/stats', {
+      cache: 'no-store'
+    });
+    if (!res.ok) return;
+    const stats = await res.json();
+    if (stats && Number(stats.subscriberCount) >= 1) {
+      updateSubscriberBadge(stats.subscriberCount);
+    }
+  } catch (_) {}
 }
 
 function renderCountriesList() {
@@ -663,12 +689,14 @@ async function selectCountry(iso2, opts = {}) {
   } else {
     eventsContainer.innerHTML = events.map(ev => {
       const eLvl = ev.new_level || 4;
+      const oldLvl = ev.old_level || 1;
+      const statusChanged = Number(oldLvl) !== Number(eLvl);
       const flagsHtml = (ev.redFlags || []).map(f => `<span class="red-flag-pill">🚩 ${escapeHtml(f)}</span>`).join('');
       return `
         <div class="event-card">
           <div style="display:flex;justify-content:space-between;align-items:center;">
             <strong style="font-size:12px;color:var(--accent)">${escapeHtml(ev.source_name)}</strong>
-            <span class="c-row-badge badge-l${eLvl}">L${ev.old_level || 1} ➔ L${eLvl} (${ev.new_level >= 4 ? '📲 TG SENT' : 'SILENT'})</span>
+            <span class="c-row-badge badge-l${eLvl}">L${oldLvl} ➔ L${eLvl} (${statusChanged ? '📲 TG SENT' : 'SAME STATUS • SILENT'})</span>
           </div>
           <div style="font-size:12px;font-weight:700;color:#fff;">${escapeHtml(ev.title)}</div>
           <div style="font-size:11.5px;color:var(--text-1);line-height:1.45;">🧠 <strong>AI Brief:</strong> ${escapeHtml(ev.ai_summary)}</div>

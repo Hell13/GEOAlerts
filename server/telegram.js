@@ -110,11 +110,84 @@ const SOURCE_ICONS = {
   'maritime_nga_un': '⚓️'
 };
 
+function getSubscriberCount() {
+  try {
+    const row = db.prepare(`
+      SELECT COUNT(*) as c FROM telegram_subscribers
+      WHERE active = 1 AND chat_id NOT IN ('admin_profile', 'default_admin')
+    `).get();
+    return Math.max(1, Number(row?.c || 0));
+  } catch (_) {
+    return 1;
+  }
+}
+
+async function syncSubscribersFromCloudWorker() {
+  try {
+    const controller = new AbortController();
+    const timer = setTimeout(() => controller.abort(), 5000);
+    const res = await fetch('https://geoalerts-telegram-bot.geoalerts.workers.dev/subscribers', {
+      signal: controller.signal
+    });
+    clearTimeout(timer);
+    if (!res.ok) return getSubscriberCount();
+    const data = await res.json();
+    if (Array.isArray(data.subscribers)) {
+      const upsert = db.prepare(`
+        INSERT INTO telegram_subscribers (
+          chat_id, username, first_name, mode, selected_countries_json, min_level, active, created_at, updated_at
+        ) VALUES (?, ?, ?, ?, ?, 1, 1, ?, ?)
+        ON CONFLICT(chat_id) DO UPDATE SET
+          username = COALESCE(NULLIF(excluded.username, ''), telegram_subscribers.username),
+          first_name = COALESCE(NULLIF(excluded.first_name, ''), telegram_subscribers.first_name),
+          mode = excluded.mode,
+          selected_countries_json = excluded.selected_countries_json,
+          active = excluded.active,
+          updated_at = excluded.updated_at
+      `);
+      const now = new Date().toISOString();
+      for (const s of data.subscribers) {
+        const cid = String(s.chat_id || '').trim();
+        if (!cid || cid === 'admin_profile' || cid === 'default_admin') continue;
+        const sel = Array.isArray(s.selectedCountries) ? s.selectedCountries : ['UA', 'IL', 'LB', 'IR', 'TW'];
+        upsert.run(
+          cid,
+          s.username || '',
+          s.first_name || 'Subscriber',
+          s.mode === 'selected' ? 'selected' : 'all',
+          JSON.stringify(sel),
+          s.created_at || now,
+          s.updated_at || now
+        );
+      }
+    }
+  } catch (_) {
+    // Offline or sandboxed environment fallback
+  }
+  return getSubscriberCount();
+}
+
 function formatAlertMessage(event) {
-  const isLevel5 = Number(event.newLevel) >= 5;
-  const headerBadge = isLevel5
-    ? '⚫️🚨 <b>CRITICAL WAR / EVACUATION WARNING (LEVEL 5)</b> 🚨⚫️'
-    : '🔴⚠️ <b>RED FLAG ESCALATION ALERT (LEVEL 4)</b> ⚠️🔴';
+  const oldLvl = Number(event.oldLevel) || 1;
+  const newLvl = Number(event.newLevel) || 1;
+  const isEscalation = newLvl > oldLvl;
+
+  let headerBadge = '🔔 <b>COUNTRY THREAT STATUS CHANGED</b> 🔔';
+  if (newLvl >= 5) {
+    headerBadge = '⚫️🚨 <b>CRITICAL WAR / EVACUATION WARNING (LEVEL 5)</b> 🚨⚫️';
+  } else if (newLvl === 4) {
+    headerBadge = '🔴⚠️ <b>RED FLAG STATUS ESCALATION (LEVEL 4)</b> ⚠️🔴';
+  } else if (newLvl === 3) {
+    headerBadge = isEscalation
+      ? '🟠⚠️ <b>HIGH RISK STATUS ESCALATION (LEVEL 3)</b> ⚠️🟠'
+      : '🟠📉 <b>COUNTRY STATUS DOWNGRADED TO LEVEL 3</b> 🟠';
+  } else if (newLvl === 2) {
+    headerBadge = isEscalation
+      ? '🟡⚠️ <b>CAUTION STATUS UPDATE (LEVEL 2)</b> 🟡'
+      : '🟡📉 <b>COUNTRY STATUS DOWNGRADED TO LEVEL 2</b> 🟡';
+  } else {
+    headerBadge = '🟢✅ <b>COUNTRY STATUS NORMALIZED (LEVEL 1)</b> ✅🟢';
+  }
 
   const flags = Array.isArray(event.redFlags) ? event.redFlags : [];
   const flagsHtml = flags.length > 0
@@ -127,11 +200,13 @@ function formatAlertMessage(event) {
       (event.diffAfter ? `➕ <i>After:</i> <b>${escapeHtml(event.diffAfter.slice(0, 320))}</b>\n` : '')
     : '';
 
+  const shiftIcon = isEscalation ? '📈 <b>Country Status Escalation:</b>' : '📉 <b>Country Status Shift:</b>';
+
   return (
     `${headerBadge}\n\n` +
     `🌍 <b>Country:</b> ${escapeHtml(event.countryName)} (${event.iso2})\n` +
-    `🏛 <b>Source:</b> ${escapeHtml(event.sourceName)}\n` +
-    `📈 <b>Threat Escalation:</b> Level ${event.oldLevel || 1} ➔ <b>Level ${event.newLevel} (${escapeHtml(event.severityLabel)})</b>\n` +
+    `🏛 <b>Triggering Source:</b> ${escapeHtml(event.sourceName)}\n` +
+    `${shiftIcon} Level ${oldLvl} ➔ <b>Level ${newLvl} (${escapeHtml(event.severityLabel || LEVEL_BADGES[newLvl] || `LEVEL ${newLvl}`)})</b>\n` +
     `📌 <b>Headline:</b> ${escapeHtml(event.title)}\n` +
     `${flagsHtml}\n` +
     `🧠 <b>AI Crisis Intelligence Brief:</b>\n${escapeHtml(event.aiSummary)}\n` +
@@ -234,21 +309,28 @@ async function callTelegramApi(method, payload) {
 }
 
 /**
- * Sends ONLY Level 4 (Red) and Level 5 (Black) events to subscribed users
- * respecting their mode ('all' vs 'selected' countries).
+ * Sends Telegram alerts ONLY when a country's threat status actually changes
+ * (oldLevel !== newLevel), respecting each subscriber's mode ('all' vs 'selected').
+ * If a country's status remains the same, no notification is sent.
  */
 async function broadcastCriticalEvents(events) {
-  const criticalOnly = (events || []).filter(e => Number(e.newLevel) >= 4);
-  if (criticalOnly.length === 0) return { sent: 0 };
+  await syncSubscribersFromCloudWorker();
+
+  const statusChangedOnly = (events || []).filter(e => {
+    const oldL = Number(e.oldLevel);
+    const newL = Number(e.newLevel);
+    return Number.isFinite(oldL) && Number.isFinite(newL) && oldL !== newL;
+  });
+  if (statusChangedOnly.length === 0) return { sent: 0, eventsCount: 0 };
 
   const subscribers = db.prepare(`SELECT * FROM telegram_subscribers WHERE active = 1`).all();
   let sentCount = 0;
 
-  for (const event of criticalOnly) {
+  for (const event of statusChangedOnly) {
     const htmlMessage = formatAlertMessage(event);
 
     for (const sub of subscribers) {
-      if (sub.chat_id === 'admin_profile') continue;
+      if (sub.chat_id === 'admin_profile' || sub.chat_id === 'default_admin') continue;
       if (sub.mode === 'selected') {
         let selected = [];
         try { selected = JSON.parse(sub.selected_countries_json || '[]'); } catch (_) {}
@@ -265,7 +347,7 @@ async function broadcastCriticalEvents(events) {
     }
   }
 
-  return { sent: sentCount, eventsCount: criticalOnly.length };
+  return { sent: sentCount, eventsCount: statusChangedOnly.length };
 }
 
 function buildMainMenuText(sub) {
@@ -273,13 +355,15 @@ function buildMainMenuText(sub) {
   let selected = [];
   try { selected = JSON.parse(sub.selected_countries_json || '[]'); } catch (_) {}
   const selectedNames = selected.map(code => `${countriesData[code]?.name || code} (${code})`).join(', ');
+  const subCount = getSubscriberCount();
 
   return (
     `🛡 <b>GEOAlerts — Early Warning Control Center</b>\n` +
     `━━━━━━━━━━━━━━━━━━━━\n` +
+    `👥 <b>Active Subscribers:</b> <code>${subCount}</code>\n` +
     `📡 <b>Alert Mode:</b> ${modeAll ? '✅ <b>🌍 All Countries Worldwide (Default)</b>' : `✅ <b>⭐ Selected Countries Only (${selected.length})</b>`}\n` +
     `⭐ <b>Your Watchlist (${selected.length}):</b> <code>${selectedNames || 'None'}</code>\n` +
-    `🔇 <b>Noise Filter:</b> Levels 1–3 are silenced. Only <b>🔴 Level 4</b> & <b>⚫️ Level 5</b> trigger pushes.\n\n` +
+    `🔔 <b>Smart Trigger Rule:</b> Notifications are sent <b>ONLY when a country's threat status changes</b> (e.g. Level 3 ➔ Level 4 or Level 4 ➔ Level 5). Zero spam when status remains unchanged.\n\n` +
     `💡 <i>Tip: You can also type any country name in chat (e.g. <code>Israel</code>, <code>Израиль</code>, <code>Taiwan</code>, <code>UA</code>) to instantly inspect its dossier!</i>`
   );
 }
@@ -792,5 +876,7 @@ module.exports = {
   PERSISTENT_BOTTOM_KEYBOARD,
   buildMainMenuText,
   getMainMenuKeyboard,
-  callTelegramApi
+  callTelegramApi,
+  getSubscriberCount,
+  syncSubscribersFromCloudWorker
 };

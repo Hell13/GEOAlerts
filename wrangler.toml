@@ -1,3 +1,7 @@
 name = "geoalerts-telegram-bot"
 main = "cloudflare/worker.js"
 compatibility_date = "2025-01-01"
+
+[[kv_namespaces]]
+binding = "GEOALERTS_KV"
+id = "2f12062773a746f98df2856e2d787307"

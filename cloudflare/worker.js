@@ -1,9 +1,31 @@
 /**
  * GEOAlerts 24/7 Cloud Telegram Bot Webhook Worker (Cloudflare Workers / Edge)
  * Responds in <50ms from the cloud with ZERO processes running on the user's computer!
+ * Includes persistent subscriber registry & counter in Cloudflare KV (GEOALERTS_KV).
  */
 
 const DATA_BASE_URL = 'https://geoalerts.inteligentevolutionplatform.com/data';
+const KV_SUBSCRIBERS_KEY = 'subscribers_registry_v1';
+
+// Seed with existing historical subscriber from SQLite DB so counter & registry are accurate from day 1
+const INITIAL_SUBSCRIBERS = {
+  '256524790': {
+    chat_id: '256524790',
+    username: 'Igor_Chumakov',
+    first_name: 'Igor',
+    mode: 'all',
+    selectedCountries: ['UA', 'IL', 'LB', 'IR', 'TW'],
+    active: 1,
+    created_at: '2026-10-25T21:12:58.234Z',
+    updated_at: '2026-10-25T21:37:11.609Z'
+  }
+};
+
+const CORS_HEADERS = {
+  'Access-Control-Allow-Origin': '*',
+  'Access-Control-Allow-Methods': 'GET, POST, OPTIONS',
+  'Access-Control-Allow-Headers': 'Content-Type'
+};
 
 const REGIONS = {
   'Middle East': ['IL', 'PS', 'LB', 'IR', 'IQ', 'SY', 'YE', 'JO', 'EG', 'SA', 'AE', 'QA', 'BH', 'KW', 'OM', 'TR'],
@@ -73,6 +95,65 @@ const PERSISTENT_BOTTOM_KEYBOARD = {
 
 let cachedDetails = null;
 let cachedAt = 0;
+let memorySubscribers = { ...INITIAL_SUBSCRIBERS };
+
+async function loadSubscribersRegistry(env) {
+  if (env && env.GEOALERTS_KV) {
+    try {
+      const raw = await env.GEOALERTS_KV.get(KV_SUBSCRIBERS_KEY, 'json');
+      if (raw && typeof raw === 'object') {
+        memorySubscribers = { ...INITIAL_SUBSCRIBERS, ...raw };
+        return memorySubscribers;
+      }
+      await env.GEOALERTS_KV.put(KV_SUBSCRIBERS_KEY, JSON.stringify(memorySubscribers));
+    } catch (_) {}
+  }
+  return memorySubscribers;
+}
+
+async function upsertSubscriber(env, chatObj, patch = {}) {
+  const registry = await loadSubscribersRegistry(env);
+  const chatId = String(chatObj?.id || patch.chat_id || '').trim();
+  if (!chatId || chatId === 'admin_profile' || chatId === 'default_admin') {
+    return { subscriber: null, count: Object.keys(registry).length };
+  }
+
+  const now = new Date().toISOString();
+  const existing = registry[chatId] || {
+    chat_id: chatId,
+    username: chatObj?.username || '',
+    first_name: chatObj?.first_name || 'Subscriber',
+    mode: 'all',
+    selectedCountries: ['UA', 'IL', 'LB', 'IR', 'TW'],
+    active: 1,
+    created_at: now,
+    updated_at: now
+  };
+
+  const updated = {
+    ...existing,
+    username: chatObj?.username || existing.username || '',
+    first_name: chatObj?.first_name || existing.first_name || 'Subscriber',
+    mode: patch.mode || existing.mode || 'all',
+    selectedCountries: Array.isArray(patch.selectedCountries)
+      ? patch.selectedCountries
+      : (existing.selectedCountries || ['UA', 'IL', 'LB', 'IR', 'TW']),
+    active: 1,
+    updated_at: now
+  };
+
+  registry[chatId] = updated;
+  memorySubscribers = registry;
+
+  if (env && env.GEOALERTS_KV) {
+    try {
+      await env.GEOALERTS_KV.put(KV_SUBSCRIBERS_KEY, JSON.stringify(registry));
+    } catch (_) {}
+  }
+
+  const activeCount = Object.values(registry).filter(s => s && s.active !== 0).length;
+  return { subscriber: updated, count: activeCount };
+}
 
 async function getIntelligenceDetails() {
   const now = Date.now();
@@ -136,14 +217,15 @@ function findCountry(detailsMap, rawQuery) {
   return null;
 }
 
-function buildMainMenuText(mode = 'all', selected = ['UA', 'IL', 'LB', 'IR', 'TW']) {
+function buildMainMenuText(mode = 'all', selected = ['UA', 'IL', 'LB', 'IR', 'TW'], subscriberCount = 1) {
   const modeAll = mode === 'all';
   return (
     `🛡 <b>GEOAlerts — Early Warning Control Center (Cloud 24/7)</b>\n` +
     `━━━━━━━━━━━━━━━━━━━━\n` +
+    `👥 <b>Active Subscribers:</b> <code>${subscriberCount}</code>\n` +
     `📡 <b>Alert Mode:</b> ${modeAll ? '✅ <b>🌍 All Countries Worldwide (Default)</b>' : `✅ <b>⭐ Selected Countries Only (${selected.length})</b>`}\n` +
     `⭐ <b>Your Watchlist (${selected.length}):</b> <code>${selected.join(', ') || 'None'}</code>\n` +
-    `🔇 <b>Noise Filter:</b> Levels 1–3 are silenced. Only <b>🔴 Level 4</b> & <b>⚫️ Level 5</b> trigger pushes.\n\n` +
+    `🔔 <b>Smart Trigger Rule:</b> Notifications are sent <b>ONLY when a country's threat status changes</b> (e.g. Level 3 ➔ Level 4 or Level 4 ➔ Level 5). Zero spam when status remains unchanged.\n\n` +
     `💡 <i>Tip: Type any country name in chat (e.g. <code>Israel</code>, <code>Израиль</code>, <code>Taiwan</code>, <code>UA</code>) to instantly inspect its dossier!</i>`
   );
 }
@@ -273,12 +355,45 @@ function buildSummary(detailsMap) {
 
 export default {
   async fetch(request, env) {
-    const token = env.TELEGRAM_BOT_TOKEN;
-    if (!token) {
-      return new Response('Missing TELEGRAM_BOT_TOKEN secret', { status: 500 });
+    if (request.method === 'OPTIONS') {
+      return new Response(null, { status: 204, headers: CORS_HEADERS });
     }
 
+    const token = env.TELEGRAM_BOT_TOKEN;
     const url = new URL(request.url);
+
+    // Public live subscriber stats endpoint for website badge
+    if (request.method === 'GET' && url.pathname === '/stats') {
+      const registry = await loadSubscribersRegistry(env);
+      const subscribers = Object.values(registry).filter(s => s && s.active !== 0);
+      return new Response(
+        JSON.stringify({
+          ok: true,
+          subscriberCount: subscribers.length,
+          updatedAt: new Date().toISOString()
+        }),
+        { headers: { 'Content-Type': 'application/json; charset=utf-8', ...CORS_HEADERS } }
+      );
+    }
+
+    // Subscriber sync endpoint for GitHub Actions 30-min cron
+    if (request.method === 'GET' && url.pathname === '/subscribers') {
+      const registry = await loadSubscribersRegistry(env);
+      const subscribers = Object.values(registry).filter(s => s && s.active !== 0);
+      return new Response(
+        JSON.stringify({
+          ok: true,
+          subscriberCount: subscribers.length,
+          subscribers
+        }),
+        { headers: { 'Content-Type': 'application/json; charset=utf-8', ...CORS_HEADERS } }
+      );
+    }
+
+    if (!token) {
+      return new Response('Missing TELEGRAM_BOT_TOKEN secret', { status: 500, headers: CORS_HEADERS });
+    }
+
     if (url.pathname === '/register-webhook') {
       const webhookUrl = `${url.origin}/webhook`;
       const res = await tgApi(token, 'setWebhook', {
@@ -286,12 +401,17 @@ export default {
         allowed_updates: ['message', 'callback_query']
       });
       return new Response(JSON.stringify({ webhookUrl, telegramResponse: res }, null, 2), {
-        headers: { 'Content-Type': 'application/json' }
+        headers: { 'Content-Type': 'application/json', ...CORS_HEADERS }
       });
     }
 
     if (request.method !== 'POST') {
-      return new Response('GEOAlerts Telegram Cloud Webhook is active 24/7!', { status: 200 });
+      const registry = await loadSubscribersRegistry(env);
+      const count = Object.values(registry).filter(s => s && s.active !== 0).length;
+      return new Response(`GEOAlerts Telegram Cloud Webhook is active 24/7! Active Subscribers: ${count}`, {
+        status: 200,
+        headers: CORS_HEADERS
+      });
     }
 
     try {
@@ -304,6 +424,39 @@ export default {
         const text = (msg.text || '').trim();
         const textLower = text.toLowerCase();
         if (!text) return new Response('OK');
+
+        // Register or update this user in the persistent Cloudflare KV subscriber registry
+        let patch = {};
+        if (text.startsWith('/start ')) {
+          const arg = text.slice(7).trim();
+          if (arg === 'all') {
+            patch.mode = 'all';
+          } else if (arg.startsWith('watch_')) {
+            const codes = arg.slice(6).toUpperCase().split('_').filter(Boolean);
+            if (codes.length > 0) {
+              patch.mode = 'selected';
+              patch.selectedCountries = codes;
+            }
+          }
+        }
+        const { subscriber, count: subscriberCount } = await upsertSubscriber(env, msg.chat, patch);
+        const userMode = subscriber?.mode || 'all';
+        const userSelected = subscriber?.selectedCountries || ['UA', 'IL', 'LB', 'IR', 'TW'];
+
+        if (text === '/stats' || text === '/subscribers' || textLower === 'подписчики') {
+          await tgApi(token, 'sendMessage', {
+            chat_id: chatId,
+            text:
+              `👥 <b>GEOAlerts Telegram Bot Statistics</b>\n` +
+              `━━━━━━━━━━━━━━━━━━━━\n` +
+              `• <b>Total Subscribed Users:</b> <code>${subscriberCount}</code>\n` +
+              `• <b>Your Alert Mode:</b> <code>${userMode === 'all' ? 'All Countries Worldwide' : `Selected (${userSelected.length})`}</code>\n` +
+              `• <b>Alert Principle:</b> Only when a country's status changes`,
+            parse_mode: 'HTML',
+            reply_markup: getMainMenuKeyboard(userMode, userSelected)
+          });
+          return new Response('OK');
+        }
 
         if (
           text.startsWith('/start') ||
@@ -323,9 +476,9 @@ export default {
           }
           await tgApi(token, 'sendMessage', {
             chat_id: chatId,
-            text: buildMainMenuText('all'),
+            text: buildMainMenuText(userMode, userSelected, subscriberCount),
             parse_mode: 'HTML',
-            reply_markup: getMainMenuKeyboard('all')
+            reply_markup: getMainMenuKeyboard(userMode, userSelected)
           });
           return new Response('OK');
         }
@@ -389,15 +542,21 @@ export default {
         let toastText = '✅ Updated';
         let editPayload = null;
 
+        const { subscriber, count: subscriberCount } = await upsertSubscriber(env, cb.from || cb.message.chat);
+        let userMode = subscriber?.mode || 'all';
+        let userSelected = subscriber?.selectedCountries || ['UA', 'IL', 'LB', 'IR', 'TW'];
+
         if (data === 'mode:all' || data === 'mode:selected') {
           const newMode = data.split(':')[1];
+          const updatedRes = await upsertSubscriber(env, cb.from || cb.message.chat, { mode: newMode });
+          userMode = newMode;
           toastText = newMode === 'all' ? '🌍 Mode: All Countries Worldwide active!' : '⭐ Mode: Selected Countries Only active!';
           editPayload = {
             chat_id: chatId,
             message_id: messageId,
-            text: buildMainMenuText(newMode),
+            text: buildMainMenuText(userMode, userSelected, updatedRes.count),
             parse_mode: 'HTML',
-            reply_markup: getMainMenuKeyboard(newMode)
+            reply_markup: getMainMenuKeyboard(userMode, userSelected)
           };
         } else if (data === 'action:lookup_menu') {
           toastText = '🔍 Select a region or type a country name';
@@ -453,9 +612,9 @@ export default {
           editPayload = {
             chat_id: chatId,
             message_id: messageId,
-            text: buildMainMenuText('all'),
+            text: buildMainMenuText(userMode, userSelected, subscriberCount),
             parse_mode: 'HTML',
-            reply_markup: getMainMenuKeyboard('all')
+            reply_markup: getMainMenuKeyboard(userMode, userSelected)
           };
         } else if (data === 'action:summary') {
           toastText = '📊 Compact Level 4 & 5 Summary';
