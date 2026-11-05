@@ -1213,18 +1213,6 @@
       "situationWarning": false,
       "situationPartWarning": false
     },
-    "222614": {
-      "lastModified": 1793104883,
-      "effective": 1793103300,
-      "title": "Burundi: Reise- und Sicherheitshinweise",
-      "countryCode": "BI",
-      "iso3CountryCode": "BDI",
-      "countryName": "Burundi",
-      "warning": false,
-      "partialWarning": false,
-      "situationWarning": false,
-      "situationPartWarning": false
-    },
     "201888": {
       "lastModified": 1792072465,
       "effective": 1792070100,
@@ -1292,18 +1280,6 @@
       "countryCode": "PK",
       "iso3CountryCode": "PAK",
       "countryName": "Pakistan",
-      "warning": false,
-      "partialWarning": true,
-      "situationWarning": false,
-      "situationPartWarning": false
-    },
-    "212622": {
-      "lastModified": 1791882427,
-      "effective": 1790671500,
-      "title": "Ägypten: Reise- und Sicherheitshinweise",
-      "countryCode": "EG",
-      "iso3CountryCode": "EGY",
-      "countryName": "Ägypten",
       "warning": false,
       "partialWarning": true,
       "situationWarning": false,
@@ -1641,18 +1617,6 @@
       "iso3CountryCode": "IRQ",
       "countryName": "Irak",
       "warning": true,
-      "partialWarning": false,
-      "situationWarning": false,
-      "situationPartWarning": false
-    },
-    "206342": {
-      "lastModified": 1791884560,
-      "effective": 1772216100,
-      "title": "Kasachstan: Reise- und Sicherheitshinweise",
-      "countryCode": "KZ",
-      "iso3CountryCode": "KAZ",
-      "countryName": "Kasachstan",
-      "warning": false,
       "partialWarning": false,
       "situationWarning": false,
       "situationPartWarning": false
@@ -2005,18 +1969,6 @@
       "situationWarning": false,
       "situationPartWarning": false
     },
-    "203372": {
-      "lastModified": 1791884122,
-      "effective": 1791810000,
-      "title": "Ghana: Reise- und Sicherheitshinweise",
-      "countryCode": "GH",
-      "iso3CountryCode": "GHA",
-      "countryName": "Ghana",
-      "warning": false,
-      "partialWarning": true,
-      "situationWarning": false,
-      "situationPartWarning": false
-    },
     "208824": {
       "lastModified": 1791883188,
       "effective": 1789998300,
@@ -2269,18 +2221,6 @@
       "situationWarning": false,
       "situationPartWarning": false
     },
-    "201092": {
-      "lastModified": 1793091181,
-      "effective": 1793090700,
-      "title": "Brasilien: Reise- und Sicherheitshinweise",
-      "countryCode": "BR",
-      "iso3CountryCode": "BRA",
-      "countryName": "Brasilien",
-      "warning": false,
-      "partialWarning": false,
-      "situationWarning": false,
-      "situationPartWarning": false
-    },
     "205788": {
       "lastModified": 1792585592,
       "effective": 1792583100,
@@ -2401,6 +2341,66 @@
       "situationWarning": false,
       "situationPartWarning": false
     },
+    "203372": {
+      "lastModified": 1793878726,
+      "effective": 1793878200,
+      "title": "Ghana: Reise- und Sicherheitshinweise",
+      "countryCode": "GH",
+      "iso3CountryCode": "GHA",
+      "countryName": "Ghana",
+      "warning": false,
+      "partialWarning": true,
+      "situationWarning": false,
+      "situationPartWarning": false
+    },
+    "206342": {
+      "lastModified": 1793879985,
+      "effective": 1793880000,
+      "title": "Kasachstan: Reise- und Sicherheitshinweise",
+      "countryCode": "KZ",
+      "iso3CountryCode": "KAZ",
+      "countryName": "Kasachstan",
+      "warning": false,
+      "partialWarning": false,
+      "situationWarning": false,
+      "situationPartWarning": false
+    },
+    "212622": {
+      "lastModified": 1793889480,
+      "effective": 1793889000,
+      "title": "Ägypten: Reise- und Sicherheitshinweise",
+      "countryCode": "EG",
+      "iso3CountryCode": "EGY",
+      "countryName": "Ägypten",
+      "warning": false,
+      "partialWarning": true,
+      "situationWarning": false,
+      "situationPartWarning": false
+    },
+    "222614": {
+      "lastModified": 1793890902,
+      "effective": 1793103300,
+      "title": "Burundi: Reise- und Sicherheitshinweise",
+      "countryCode": "BI",
+      "iso3CountryCode": "BDI",
+      "countryName": "Burundi",
+      "warning": false,
+      "partialWarning": true,
+      "situationWarning": false,
+      "situationPartWarning": false
+    },
+    "201092": {
+      "lastModified": 1793893474,
+      "effective": 1793893500,
+      "title": "Brasilien: Reise- und Sicherheitshinweise",
+      "countryCode": "BR",
+      "iso3CountryCode": "BRA",
+      "countryName": "Brasilien",
+      "warning": false,
+      "partialWarning": false,
+      "situationWarning": false,
+      "situationPartWarning": false
+    },
     "contentList": [
       "226268",
       "210708",
@@ -2503,14 +2503,12 @@
       "208118",
       "226450",
       "225774",
-      "222614",
       "201888",
       "203674",
       "204130",
       "202260",
       "199124",
       "204974",
-      "212622",
       "226424",
       "211624",
       "212396",
@@ -2539,7 +2537,6 @@
       "206408",
       "211322",
       "202738",
-      "206342",
       "205998",
       "204874",
       "201516",
@@ -2569,7 +2566,6 @@
       "202298",
       "206774",
       "202280",
-      "203372",
       "208824",
       "206146",
       "223316",
@@ -2591,7 +2587,6 @@
       "220008",
       "224816",
       "201326",
-      "201092",
       "205788",
       "213032",
       "207442",
@@ -2601,7 +2596,12 @@
       "201962",
       "201536",
       "201230",
-      "207502"
+      "207502",
+      "203372",
+      "206342",
+      "212622",
+      "222614",
+      "201092"
     ]
   }
 }
