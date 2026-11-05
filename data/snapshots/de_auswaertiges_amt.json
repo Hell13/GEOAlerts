@@ -2329,42 +2329,6 @@
       "situationWarning": false,
       "situationPartWarning": false
     },
-    "207502": {
-      "lastModified": 1793876630,
-      "effective": 1793876400,
-      "title": "Serbien: Reise- und Sicherheitshinweise",
-      "countryCode": "RS",
-      "iso3CountryCode": "SRB",
-      "countryName": "Serbien",
-      "warning": false,
-      "partialWarning": false,
-      "situationWarning": false,
-      "situationPartWarning": false
-    },
-    "203372": {
-      "lastModified": 1793878726,
-      "effective": 1793878200,
-      "title": "Ghana: Reise- und Sicherheitshinweise",
-      "countryCode": "GH",
-      "iso3CountryCode": "GHA",
-      "countryName": "Ghana",
-      "warning": false,
-      "partialWarning": true,
-      "situationWarning": false,
-      "situationPartWarning": false
-    },
-    "206342": {
-      "lastModified": 1793879985,
-      "effective": 1793880000,
-      "title": "Kasachstan: Reise- und Sicherheitshinweise",
-      "countryCode": "KZ",
-      "iso3CountryCode": "KAZ",
-      "countryName": "Kasachstan",
-      "warning": false,
-      "partialWarning": false,
-      "situationWarning": false,
-      "situationPartWarning": false
-    },
     "212622": {
       "lastModified": 1793889480,
       "effective": 1793889000,
@@ -2396,6 +2360,42 @@
       "countryCode": "BR",
       "iso3CountryCode": "BRA",
       "countryName": "Brasilien",
+      "warning": false,
+      "partialWarning": false,
+      "situationWarning": false,
+      "situationPartWarning": false
+    },
+    "207502": {
+      "lastModified": 1793876630,
+      "effective": 1793876400,
+      "title": "Serbien: Reise- und Sicherheitshinweise",
+      "countryCode": "RS",
+      "iso3CountryCode": "SRB",
+      "countryName": "Serbien",
+      "warning": false,
+      "partialWarning": false,
+      "situationWarning": false,
+      "situationPartWarning": false
+    },
+    "203372": {
+      "lastModified": 1793878726,
+      "effective": 1793878200,
+      "title": "Ghana: Reise- und Sicherheitshinweise",
+      "countryCode": "GH",
+      "iso3CountryCode": "GHA",
+      "countryName": "Ghana",
+      "warning": false,
+      "partialWarning": true,
+      "situationWarning": false,
+      "situationPartWarning": false
+    },
+    "206342": {
+      "lastModified": 1793879985,
+      "effective": 1793880000,
+      "title": "Kasachstan: Reise- und Sicherheitshinweise",
+      "countryCode": "KZ",
+      "iso3CountryCode": "KAZ",
+      "countryName": "Kasachstan",
       "warning": false,
       "partialWarning": false,
       "situationWarning": false,
@@ -2596,12 +2596,12 @@
       "201962",
       "201536",
       "201230",
-      "207502",
-      "203372",
-      "206342",
       "212622",
       "222614",
-      "201092"
+      "201092",
+      "207502",
+      "203372",
+      "206342"
     ]
   }
 }
