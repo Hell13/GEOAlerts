@@ -1681,18 +1681,6 @@
       "situationWarning": false,
       "situationPartWarning": false
     },
-    "207502": {
-      "lastModified": 1791969871,
-      "effective": 1791969300,
-      "title": "Serbien: Reise- und Sicherheitshinweise",
-      "countryCode": "RS",
-      "iso3CountryCode": "SRB",
-      "countryName": "Serbien",
-      "warning": false,
-      "partialWarning": false,
-      "situationWarning": false,
-      "situationPartWarning": false
-    },
     "201516": {
       "lastModified": 1791884697,
       "effective": 1791811800,
@@ -2401,6 +2389,18 @@
       "situationWarning": false,
       "situationPartWarning": false
     },
+    "207502": {
+      "lastModified": 1793876630,
+      "effective": 1793876400,
+      "title": "Serbien: Reise- und Sicherheitshinweise",
+      "countryCode": "RS",
+      "iso3CountryCode": "SRB",
+      "countryName": "Serbien",
+      "warning": false,
+      "partialWarning": false,
+      "situationWarning": false,
+      "situationPartWarning": false
+    },
     "contentList": [
       "226268",
       "210708",
@@ -2542,7 +2542,6 @@
       "206342",
       "205998",
       "204874",
-      "207502",
       "201516",
       "211534",
       "204692",
@@ -2601,7 +2600,8 @@
       "209524",
       "201962",
       "201536",
-      "201230"
+      "201230",
+      "207502"
     ]
   }
 }
