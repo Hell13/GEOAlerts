@@ -2221,6 +2221,54 @@
       "situationWarning": false,
       "situationPartWarning": false
     },
+    "209524": {
+      "lastModified": 1793703223,
+      "effective": 1793703600,
+      "title": "Frankreich: Reise- und Sicherheitshinweise",
+      "countryCode": "FR",
+      "iso3CountryCode": "FRA",
+      "countryName": "Frankreich",
+      "warning": false,
+      "partialWarning": false,
+      "situationWarning": false,
+      "situationPartWarning": false
+    },
+    "201536": {
+      "lastModified": 1792572319,
+      "effective": 1792571400,
+      "title": "Russische Föderation: Reise- und Sicherheitshinweise",
+      "countryCode": "RU",
+      "iso3CountryCode": "RUS",
+      "countryName": "Russische Föderation",
+      "warning": true,
+      "partialWarning": false,
+      "situationWarning": false,
+      "situationPartWarning": false
+    },
+    "204692": {
+      "lastModified": 1791882462,
+      "effective": 1787149800,
+      "title": "Afghanistan: Reise- und Sicherheitshinweise",
+      "countryCode": "AF",
+      "iso3CountryCode": "AFG",
+      "countryName": "Afghanistan",
+      "warning": true,
+      "partialWarning": false,
+      "situationWarning": false,
+      "situationPartWarning": false
+    },
+    "204048": {
+      "lastModified": 1793283530,
+      "effective": 1793283300,
+      "title": "Libanon: Reise- und Sicherheitshinweise",
+      "countryCode": "LB",
+      "iso3CountryCode": "LBN",
+      "countryName": "Libanon",
+      "warning": false,
+      "partialWarning": true,
+      "situationWarning": false,
+      "situationPartWarning": false
+    },
     "205998": {
       "lastModified": 1791985511,
       "effective": 1791985500,
@@ -2264,18 +2312,6 @@
       "countryCode": "GR",
       "iso3CountryCode": "GRC",
       "countryName": "Griechenland",
-      "warning": false,
-      "partialWarning": false,
-      "situationWarning": false,
-      "situationPartWarning": false
-    },
-    "201962": {
-      "lastModified": 1792497353,
-      "effective": 1792497600,
-      "title": "Türkei: Reise- und Sicherheitshinweise",
-      "countryCode": "TR",
-      "iso3CountryCode": "TUR",
-      "countryName": "Türkei",
       "warning": false,
       "partialWarning": false,
       "situationWarning": false,
@@ -2353,50 +2389,14 @@
       "situationWarning": false,
       "situationPartWarning": false
     },
-    "204692": {
-      "lastModified": 1791882462,
-      "effective": 1787149800,
-      "title": "Afghanistan: Reise- und Sicherheitshinweise",
-      "countryCode": "AF",
-      "iso3CountryCode": "AFG",
-      "countryName": "Afghanistan",
-      "warning": true,
-      "partialWarning": false,
-      "situationWarning": false,
-      "situationPartWarning": false
-    },
-    "204048": {
-      "lastModified": 1793283530,
-      "effective": 1793283300,
-      "title": "Libanon: Reise- und Sicherheitshinweise",
-      "countryCode": "LB",
-      "iso3CountryCode": "LBN",
-      "countryName": "Libanon",
+    "201962": {
+      "lastModified": 1793971529,
+      "effective": 1793970900,
+      "title": "Türkei: Reise- und Sicherheitshinweise",
+      "countryCode": "TR",
+      "iso3CountryCode": "TUR",
+      "countryName": "Türkei",
       "warning": false,
-      "partialWarning": true,
-      "situationWarning": false,
-      "situationPartWarning": false
-    },
-    "209524": {
-      "lastModified": 1793703223,
-      "effective": 1793703600,
-      "title": "Frankreich: Reise- und Sicherheitshinweise",
-      "countryCode": "FR",
-      "iso3CountryCode": "FRA",
-      "countryName": "Frankreich",
-      "warning": false,
-      "partialWarning": false,
-      "situationWarning": false,
-      "situationPartWarning": false
-    },
-    "201536": {
-      "lastModified": 1792572319,
-      "effective": 1792571400,
-      "title": "Russische Föderation: Reise- und Sicherheitshinweise",
-      "countryCode": "RU",
-      "iso3CountryCode": "RUS",
-      "countryName": "Russische Föderation",
-      "warning": true,
       "partialWarning": false,
       "situationWarning": false,
       "situationPartWarning": false
@@ -2587,21 +2587,21 @@
       "208400",
       "212208",
       "220146",
+      "209524",
+      "201536",
+      "204692",
+      "204048",
       "205998",
       "203266",
       "200466",
       "211534",
-      "201962",
       "203814",
       "201946",
       "201326",
       "201092",
       "205788",
       "206342",
-      "204692",
-      "204048",
-      "209524",
-      "201536"
+      "201962"
     ]
   }
 }
