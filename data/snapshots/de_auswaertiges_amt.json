@@ -1633,18 +1633,6 @@
       "situationWarning": false,
       "situationPartWarning": false
     },
-    "202298": {
-      "lastModified": 1793283125,
-      "effective": 1793282400,
-      "title": "Saudi-Arabien: Reise- und Sicherheitshinweise",
-      "countryCode": "SA",
-      "iso3CountryCode": "SAU",
-      "countryName": "Saudi-Arabien",
-      "warning": true,
-      "partialWarning": false,
-      "situationWarning": false,
-      "situationPartWarning": false
-    },
     "206774": {
       "lastModified": 1793267177,
       "effective": 1793267100,
@@ -2401,6 +2389,18 @@
       "situationWarning": false,
       "situationPartWarning": false
     },
+    "202298": {
+      "lastModified": 1794145116,
+      "effective": 1794146400,
+      "title": "Saudi-Arabien: Reise- und Sicherheitshinweise",
+      "countryCode": "SA",
+      "iso3CountryCode": "SAU",
+      "countryName": "Saudi-Arabien",
+      "warning": true,
+      "partialWarning": false,
+      "situationWarning": false,
+      "situationPartWarning": false
+    },
     "contentList": [
       "226268",
       "210708",
@@ -2538,7 +2538,6 @@
       "224080",
       "206790",
       "204112",
-      "202298",
       "206774",
       "202280",
       "203372",
@@ -2601,7 +2600,8 @@
       "204692",
       "206342",
       "204048",
-      "201536"
+      "201536",
+      "202298"
     ]
   }
 }
