@@ -1237,18 +1237,6 @@
       "situationWarning": false,
       "situationPartWarning": false
     },
-    "199124": {
-      "lastModified": 1792485931,
-      "effective": 1792485900,
-      "title": "Polen: Reise- und Sicherheitshinweise",
-      "countryCode": "PL",
-      "iso3CountryCode": "POL",
-      "countryName": "Polen",
-      "warning": false,
-      "partialWarning": false,
-      "situationWarning": false,
-      "situationPartWarning": false
-    },
     "204974": {
       "lastModified": 1791885533,
       "effective": 1790675100,
@@ -1725,18 +1713,6 @@
       "iso3CountryCode": "PRK",
       "countryName": "Demokratische Volksrepublik Korea (Nordkorea)",
       "warning": false,
-      "partialWarning": false,
-      "situationWarning": false,
-      "situationPartWarning": false
-    },
-    "202298": {
-      "lastModified": 1794145116,
-      "effective": 1794146400,
-      "title": "Saudi-Arabien: Reise- und Sicherheitshinweise",
-      "countryCode": "SA",
-      "iso3CountryCode": "SAU",
-      "countryName": "Saudi-Arabien",
-      "warning": true,
       "partialWarning": false,
       "situationWarning": false,
       "situationPartWarning": false
@@ -2389,6 +2365,18 @@
       "situationWarning": false,
       "situationPartWarning": false
     },
+    "199124": {
+      "lastModified": 1794235617,
+      "effective": 1794235500,
+      "title": "Polen: Reise- und Sicherheitshinweise",
+      "countryCode": "PL",
+      "iso3CountryCode": "POL",
+      "countryName": "Polen",
+      "warning": false,
+      "partialWarning": false,
+      "situationWarning": false,
+      "situationPartWarning": false
+    },
     "212622": {
       "lastModified": 1794214888,
       "effective": 1794213900,
@@ -2398,6 +2386,18 @@
       "countryName": "Ägypten",
       "warning": false,
       "partialWarning": true,
+      "situationWarning": false,
+      "situationPartWarning": false
+    },
+    "202298": {
+      "lastModified": 1794231455,
+      "effective": 1794146400,
+      "title": "Saudi-Arabien: Reise- und Sicherheitshinweise",
+      "countryCode": "SA",
+      "iso3CountryCode": "SAU",
+      "countryName": "Saudi-Arabien",
+      "warning": true,
+      "partialWarning": false,
       "situationWarning": false,
       "situationPartWarning": false
     },
@@ -2505,7 +2505,6 @@
       "203674",
       "204130",
       "202260",
-      "199124",
       "204974",
       "211624",
       "201932",
@@ -2546,7 +2545,6 @@
       "205878",
       "213428",
       "216104",
-      "202298",
       "207960",
       "226912",
       "204160",
@@ -2601,7 +2599,9 @@
       "208752",
       "201558",
       "201516",
-      "212622"
+      "199124",
+      "212622",
+      "202298"
     ]
   }
 }
