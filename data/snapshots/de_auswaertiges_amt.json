@@ -1417,18 +1417,6 @@
       "situationWarning": false,
       "situationPartWarning": false
     },
-    "212622": {
-      "lastModified": 1793889480,
-      "effective": 1793889000,
-      "title": "Ägypten: Reise- und Sicherheitshinweise",
-      "countryCode": "EG",
-      "iso3CountryCode": "EGY",
-      "countryName": "Ägypten",
-      "warning": false,
-      "partialWarning": true,
-      "situationWarning": false,
-      "situationPartWarning": false
-    },
     "201382": {
       "lastModified": 1793365541,
       "effective": 1793365200,
@@ -2401,6 +2389,18 @@
       "situationWarning": false,
       "situationPartWarning": false
     },
+    "212622": {
+      "lastModified": 1794214888,
+      "effective": 1794213900,
+      "title": "Ägypten: Reise- und Sicherheitshinweise",
+      "countryCode": "EG",
+      "iso3CountryCode": "EGY",
+      "countryName": "Ägypten",
+      "warning": false,
+      "partialWarning": true,
+      "situationWarning": false,
+      "situationPartWarning": false
+    },
     "contentList": [
       "226268",
       "210708",
@@ -2520,7 +2520,6 @@
       "219044",
       "221882",
       "200896",
-      "212622",
       "201382",
       "226490",
       "224080",
@@ -2601,7 +2600,8 @@
       "218008",
       "208752",
       "201558",
-      "201516"
+      "201516",
+      "212622"
     ]
   }
 }
