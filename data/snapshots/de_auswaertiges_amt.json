@@ -2173,18 +2173,6 @@
       "situationWarning": false,
       "situationPartWarning": false
     },
-    "210900": {
-      "lastModified": 1791881758,
-      "effective": 1785335400,
-      "title": "Portugal: Reise- und Sicherheitshinweise",
-      "countryCode": "PT",
-      "iso3CountryCode": "PRT",
-      "countryName": "Portugal",
-      "warning": false,
-      "partialWarning": false,
-      "situationWarning": false,
-      "situationPartWarning": false
-    },
     "201048": {
       "lastModified": 1791971298,
       "effective": 1791969300,
@@ -2401,6 +2389,18 @@
       "situationWarning": false,
       "situationPartWarning": false
     },
+    "210900": {
+      "lastModified": 1794324015,
+      "effective": 1794324600,
+      "title": "Portugal: Reise- und Sicherheitshinweise",
+      "countryCode": "PT",
+      "iso3CountryCode": "PRT",
+      "countryName": "Portugal",
+      "warning": false,
+      "partialWarning": false,
+      "situationWarning": false,
+      "situationPartWarning": false
+    },
     "contentList": [
       "226268",
       "210708",
@@ -2583,7 +2583,6 @@
       "212254",
       "213428",
       "206208",
-      "210900",
       "201048",
       "213920",
       "221216",
@@ -2601,7 +2600,8 @@
       "208400",
       "209524",
       "201536",
-      "212396"
+      "212396",
+      "210900"
     ]
   }
 }
