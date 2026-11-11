@@ -325,18 +325,6 @@
       "situationWarning": false,
       "situationPartWarning": false
     },
-    "208874": {
-      "lastModified": 1791884525,
-      "effective": 1788879600,
-      "title": "Kamerun: Reise- und Sicherheitshinweise",
-      "countryCode": "CM",
-      "iso3CountryCode": "CMR",
-      "countryName": "Kamerun",
-      "warning": false,
-      "partialWarning": true,
-      "situationWarning": false,
-      "situationPartWarning": false
-    },
     "219190": {
       "lastModified": 1791885159,
       "effective": 1786523400,
@@ -2401,6 +2389,18 @@
       "situationWarning": false,
       "situationPartWarning": false
     },
+    "208874": {
+      "lastModified": 1794408340,
+      "effective": 1794408300,
+      "title": "Kamerun: Reise- und Sicherheitshinweise",
+      "countryCode": "CM",
+      "iso3CountryCode": "CMR",
+      "countryName": "Kamerun",
+      "warning": false,
+      "partialWarning": true,
+      "situationWarning": false,
+      "situationPartWarning": false
+    },
     "contentList": [
       "226268",
       "210708",
@@ -2429,7 +2429,6 @@
       "205048",
       "220348",
       "221078",
-      "208874",
       "219190",
       "222842",
       "208258",
@@ -2601,7 +2600,8 @@
       "208752",
       "212208",
       "201558",
-      "220146"
+      "220146",
+      "208874"
     ]
   }
 }
