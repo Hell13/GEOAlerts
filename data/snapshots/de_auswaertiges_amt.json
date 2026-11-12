@@ -301,18 +301,6 @@
       "situationWarning": false,
       "situationPartWarning": false
     },
-    "220678": {
-      "lastModified": 1791885196,
-      "effective": 1783671300,
-      "title": "Föderierte Staaten von Mikronesien: Reise- und Sicherheitshinweise",
-      "countryCode": "FM",
-      "iso3CountryCode": "FSM",
-      "countryName": "Mikronesien",
-      "warning": false,
-      "partialWarning": false,
-      "situationWarning": false,
-      "situationPartWarning": false
-    },
     "212100": {
       "lastModified": 1791885273,
       "effective": 1787748300,
@@ -1185,18 +1173,6 @@
       "iso3CountryCode": "SDN",
       "countryName": "Sudan",
       "warning": true,
-      "partialWarning": false,
-      "situationWarning": false,
-      "situationPartWarning": false
-    },
-    "210900": {
-      "lastModified": 1794324015,
-      "effective": 1794324600,
-      "title": "Portugal: Reise- und Sicherheitshinweise",
-      "countryCode": "PT",
-      "iso3CountryCode": "PRT",
-      "countryName": "Portugal",
-      "warning": false,
       "partialWarning": false,
       "situationWarning": false,
       "situationPartWarning": false
@@ -2125,18 +2101,6 @@
       "situationWarning": false,
       "situationPartWarning": false
     },
-    "211322": {
-      "lastModified": 1792764310,
-      "effective": 1792764000,
-      "title": "Italien: Reise- und Sicherheitshinweise",
-      "countryCode": "IT",
-      "iso3CountryCode": "ITA",
-      "countryName": "Italien",
-      "warning": false,
-      "partialWarning": false,
-      "situationWarning": false,
-      "situationPartWarning": false
-    },
     "202738": {
       "lastModified": 1793283672,
       "effective": 1793283300,
@@ -2401,6 +2365,42 @@
       "situationWarning": false,
       "situationPartWarning": false
     },
+    "220678": {
+      "lastModified": 1794490605,
+      "effective": 1794490200,
+      "title": "Föderierte Staaten von Mikronesien: Reise- und Sicherheitshinweise",
+      "countryCode": "FM",
+      "iso3CountryCode": "FSM",
+      "countryName": "Mikronesien",
+      "warning": false,
+      "partialWarning": false,
+      "situationWarning": false,
+      "situationPartWarning": false
+    },
+    "211322": {
+      "lastModified": 1794493069,
+      "effective": 1794492000,
+      "title": "Italien: Reise- und Sicherheitshinweise",
+      "countryCode": "IT",
+      "iso3CountryCode": "ITA",
+      "countryName": "Italien",
+      "warning": false,
+      "partialWarning": false,
+      "situationWarning": false,
+      "situationPartWarning": false
+    },
+    "210900": {
+      "lastModified": 1794495801,
+      "effective": 1794495600,
+      "title": "Portugal: Reise- und Sicherheitshinweise",
+      "countryCode": "PT",
+      "iso3CountryCode": "PRT",
+      "countryName": "Portugal",
+      "warning": false,
+      "partialWarning": false,
+      "situationWarning": false,
+      "situationPartWarning": false
+    },
     "contentList": [
       "226268",
       "210708",
@@ -2427,7 +2427,6 @@
       "219190",
       "222842",
       "208258",
-      "220678",
       "212100",
       "221782",
       "226384",
@@ -2501,7 +2500,6 @@
       "203372",
       "219522",
       "203266",
-      "210900",
       "201946",
       "202396",
       "210534",
@@ -2579,7 +2577,6 @@
       "201048",
       "226912",
       "211938",
-      "211322",
       "202738",
       "219024",
       "220008",
@@ -2601,7 +2598,10 @@
       "204692",
       "209524",
       "201536",
-      "220958"
+      "220958",
+      "220678",
+      "211322",
+      "210900"
     ]
   }
 }
