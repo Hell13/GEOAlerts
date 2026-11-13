@@ -1561,18 +1561,6 @@
       "situationWarning": false,
       "situationPartWarning": false
     },
-    "202332": {
-      "lastModified": 1793282845,
-      "effective": 1793282400,
-      "title": "Vereinigte Arabische Emirate: Reise- und Sicherheitshinweise",
-      "countryCode": "AE",
-      "iso3CountryCode": "ARE",
-      "countryName": "Vereinigte Arabische Emirate",
-      "warning": false,
-      "partialWarning": false,
-      "situationWarning": false,
-      "situationPartWarning": false
-    },
     "216248": {
       "lastModified": 1792141060,
       "effective": 1792086600,
@@ -1809,18 +1797,6 @@
       "iso3CountryCode": "IRN",
       "countryName": "Iran",
       "warning": true,
-      "partialWarning": false,
-      "situationWarning": false,
-      "situationPartWarning": false
-    },
-    "213920": {
-      "lastModified": 1791983054,
-      "effective": 1791982800,
-      "title": "Australien: Reise- und Sicherheitshinweise",
-      "countryCode": "AU",
-      "iso3CountryCode": "AUS",
-      "countryName": "Australien",
-      "warning": false,
       "partialWarning": false,
       "situationWarning": false,
       "situationPartWarning": false
@@ -2390,12 +2366,36 @@
       "situationPartWarning": false
     },
     "208400": {
-      "lastModified": 1793196410,
-      "effective": 1793196000,
+      "lastModified": 1794561298,
+      "effective": 1794560400,
       "title": "Südafrika: Reise- und Sicherheitshinweise",
       "countryCode": "ZA",
       "iso3CountryCode": "ZAF",
       "countryName": "Südafrika",
+      "warning": false,
+      "partialWarning": false,
+      "situationWarning": false,
+      "situationPartWarning": false
+    },
+    "213920": {
+      "lastModified": 1794565283,
+      "effective": 1794564900,
+      "title": "Australien: Reise- und Sicherheitshinweise",
+      "countryCode": "AU",
+      "iso3CountryCode": "AUS",
+      "countryName": "Australien",
+      "warning": false,
+      "partialWarning": false,
+      "situationWarning": false,
+      "situationPartWarning": false
+    },
+    "202332": {
+      "lastModified": 1794577135,
+      "effective": 1794576600,
+      "title": "Vereinigte Arabische Emirate: Reise- und Sicherheitshinweise",
+      "countryCode": "AE",
+      "iso3CountryCode": "ARE",
+      "countryName": "Vereinigte Arabische Emirate",
       "warning": false,
       "partialWarning": false,
       "situationWarning": false,
@@ -2532,7 +2532,6 @@
       "200896",
       "201382",
       "212396",
-      "202332",
       "216248",
       "223232",
       "225412",
@@ -2553,7 +2552,6 @@
       "201962",
       "201536",
       "202396",
-      "213920",
       "210534",
       "200854",
       "218008",
@@ -2601,7 +2599,9 @@
       "206292",
       "213032",
       "201946",
-      "208400"
+      "208400",
+      "213920",
+      "202332"
     ]
   }
 }
