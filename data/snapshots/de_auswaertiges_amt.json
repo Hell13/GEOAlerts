@@ -1405,18 +1405,6 @@
       "situationWarning": false,
       "situationPartWarning": false
     },
-    "221882": {
-      "lastModified": 1791884148,
-      "effective": 1787214600,
-      "title": "Guatemala: Reise- und Sicherheitshinweise",
-      "countryCode": "GT",
-      "iso3CountryCode": "GTM",
-      "countryName": "Guatemala",
-      "warning": false,
-      "partialWarning": false,
-      "situationWarning": false,
-      "situationPartWarning": false
-    },
     "204112": {
       "lastModified": 1793282675,
       "effective": 1793282400,
@@ -1801,18 +1789,6 @@
       "situationWarning": false,
       "situationPartWarning": false
     },
-    "210534": {
-      "lastModified": 1793613469,
-      "effective": 1793448000,
-      "title": "Spanien: Reise- und Sicherheitshinweise",
-      "countryCode": "ES",
-      "iso3CountryCode": "ESP",
-      "countryName": "Spanien",
-      "warning": false,
-      "partialWarning": false,
-      "situationWarning": false,
-      "situationPartWarning": false
-    },
     "200854": {
       "lastModified": 1791884296,
       "effective": 1790603100,
@@ -2017,18 +1993,6 @@
       "situationWarning": false,
       "situationPartWarning": false
     },
-    "207612": {
-      "lastModified": 1792066596,
-      "effective": 1792066500,
-      "title": "Republik Nordmazedonien: Reise- und Sicherheitshinweise",
-      "countryCode": "MK",
-      "iso3CountryCode": "MKD",
-      "countryName": "Nordmazedonien",
-      "warning": false,
-      "partialWarning": false,
-      "situationWarning": false,
-      "situationPartWarning": false
-    },
     "206994": {
       "lastModified": 1792418841,
       "effective": 1792418400,
@@ -2053,18 +2017,6 @@
       "situationWarning": false,
       "situationPartWarning": false
     },
-    "217274": {
-      "lastModified": 1791886711,
-      "effective": 1787148900,
-      "title": "Vietnam: Reise- und Sicherheitshinweise",
-      "countryCode": "VN",
-      "iso3CountryCode": "VNM",
-      "countryName": "Vietnam",
-      "warning": false,
-      "partialWarning": false,
-      "situationWarning": false,
-      "situationPartWarning": false
-    },
     "211834": {
       "lastModified": 1791881399,
       "effective": 1773396900,
@@ -2084,18 +2036,6 @@
       "countryCode": "CN",
       "iso3CountryCode": "CHN",
       "countryName": "China",
-      "warning": false,
-      "partialWarning": false,
-      "situationWarning": false,
-      "situationPartWarning": false
-    },
-    "220146": {
-      "lastModified": 1791885429,
-      "effective": 1783431000,
-      "title": "Neuseeland: Reise- und Sicherheitshinweise",
-      "countryCode": "NZ",
-      "iso3CountryCode": "NZL",
-      "countryName": "Neuseeland",
       "warning": false,
       "partialWarning": false,
       "situationWarning": false,
@@ -2156,18 +2096,6 @@
       "countryCode": "CM",
       "iso3CountryCode": "CMR",
       "countryName": "Kamerun",
-      "warning": false,
-      "partialWarning": true,
-      "situationWarning": false,
-      "situationPartWarning": false
-    },
-    "201558": {
-      "lastModified": 1793007307,
-      "effective": 1793007000,
-      "title": "Thailand: Reise- und Sicherheitshinweise",
-      "countryCode": "TH",
-      "iso3CountryCode": "THA",
-      "countryName": "Thailand",
       "warning": false,
       "partialWarning": true,
       "situationWarning": false,
@@ -2401,6 +2329,78 @@
       "situationWarning": false,
       "situationPartWarning": false
     },
+    "210534": {
+      "lastModified": 1793613469,
+      "effective": 1793448000,
+      "title": "Spanien: Reise- und Sicherheitshinweise",
+      "countryCode": "ES",
+      "iso3CountryCode": "ESP",
+      "countryName": "Spanien",
+      "warning": false,
+      "partialWarning": false,
+      "situationWarning": false,
+      "situationPartWarning": false
+    },
+    "217274": {
+      "lastModified": 1791886711,
+      "effective": 1787148900,
+      "title": "Vietnam: Reise- und Sicherheitshinweise",
+      "countryCode": "VN",
+      "iso3CountryCode": "VNM",
+      "countryName": "Vietnam",
+      "warning": false,
+      "partialWarning": false,
+      "situationWarning": false,
+      "situationPartWarning": false
+    },
+    "201558": {
+      "lastModified": 1793007307,
+      "effective": 1793007000,
+      "title": "Thailand: Reise- und Sicherheitshinweise",
+      "countryCode": "TH",
+      "iso3CountryCode": "THA",
+      "countryName": "Thailand",
+      "warning": false,
+      "partialWarning": true,
+      "situationWarning": false,
+      "situationPartWarning": false
+    },
+    "207612": {
+      "lastModified": 1792066596,
+      "effective": 1792066500,
+      "title": "Republik Nordmazedonien: Reise- und Sicherheitshinweise",
+      "countryCode": "MK",
+      "iso3CountryCode": "MKD",
+      "countryName": "Nordmazedonien",
+      "warning": false,
+      "partialWarning": false,
+      "situationWarning": false,
+      "situationPartWarning": false
+    },
+    "220146": {
+      "lastModified": 1791885429,
+      "effective": 1783431000,
+      "title": "Neuseeland: Reise- und Sicherheitshinweise",
+      "countryCode": "NZ",
+      "iso3CountryCode": "NZL",
+      "countryName": "Neuseeland",
+      "warning": false,
+      "partialWarning": false,
+      "situationWarning": false,
+      "situationPartWarning": false
+    },
+    "221882": {
+      "lastModified": 1791884148,
+      "effective": 1787214600,
+      "title": "Guatemala: Reise- und Sicherheitshinweise",
+      "countryCode": "GT",
+      "iso3CountryCode": "GTM",
+      "countryName": "Guatemala",
+      "warning": false,
+      "partialWarning": false,
+      "situationWarning": false,
+      "situationPartWarning": false
+    },
     "contentList": [
       "226268",
       "210708",
@@ -2519,7 +2519,6 @@
       "221864",
       "206774",
       "226424",
-      "221882",
       "204112",
       "221078",
       "208824",
@@ -2552,7 +2551,6 @@
       "201962",
       "201536",
       "202396",
-      "210534",
       "200854",
       "218008",
       "201888",
@@ -2570,19 +2568,15 @@
       "201092",
       "204692",
       "205998",
-      "207612",
       "206994",
       "206738",
-      "217274",
       "211834",
       "200466",
-      "220146",
       "212168",
       "212254",
       "206208",
       "206408",
       "208874",
-      "201558",
       "199124",
       "202260",
       "209524",
@@ -2601,7 +2595,13 @@
       "201946",
       "208400",
       "213920",
-      "202332"
+      "202332",
+      "210534",
+      "217274",
+      "201558",
+      "207612",
+      "220146",
+      "221882"
     ]
   }
 }
