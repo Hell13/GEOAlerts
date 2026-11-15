@@ -1561,18 +1561,6 @@
       "situationWarning": false,
       "situationPartWarning": false
     },
-    "223232": {
-      "lastModified": 1791884009,
-      "effective": 1790841600,
-      "title": "Ecuador: Reise- und Sicherheitshinweise",
-      "countryCode": "EC",
-      "iso3CountryCode": "ECU",
-      "countryName": "Ecuador",
-      "warning": false,
-      "partialWarning": false,
-      "situationWarning": false,
-      "situationPartWarning": false
-    },
     "225412": {
       "lastModified": 1792488657,
       "effective": 1792488600,
@@ -2401,6 +2389,18 @@
       "situationWarning": false,
       "situationPartWarning": false
     },
+    "223232": {
+      "lastModified": 1794691492,
+      "effective": 1794690600,
+      "title": "Ecuador: Reise- und Sicherheitshinweise",
+      "countryCode": "EC",
+      "iso3CountryCode": "ECU",
+      "countryName": "Ecuador",
+      "warning": false,
+      "partialWarning": false,
+      "situationWarning": false,
+      "situationPartWarning": false
+    },
     "contentList": [
       "226268",
       "210708",
@@ -2532,7 +2532,6 @@
       "201382",
       "212396",
       "216248",
-      "223232",
       "225412",
       "208662",
       "224526",
@@ -2601,7 +2600,8 @@
       "201558",
       "207612",
       "220146",
-      "221882"
+      "221882",
+      "223232"
     ]
   }
 }
