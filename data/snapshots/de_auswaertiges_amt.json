@@ -2317,6 +2317,18 @@
       "situationWarning": false,
       "situationPartWarning": false
     },
+    "223232": {
+      "lastModified": 1794691492,
+      "effective": 1794690600,
+      "title": "Ecuador: Reise- und Sicherheitshinweise",
+      "countryCode": "EC",
+      "iso3CountryCode": "ECU",
+      "countryName": "Ecuador",
+      "warning": false,
+      "partialWarning": false,
+      "situationWarning": false,
+      "situationPartWarning": false
+    },
     "210534": {
       "lastModified": 1793613469,
       "effective": 1793448000,
@@ -2384,18 +2396,6 @@
       "countryCode": "GT",
       "iso3CountryCode": "GTM",
       "countryName": "Guatemala",
-      "warning": false,
-      "partialWarning": false,
-      "situationWarning": false,
-      "situationPartWarning": false
-    },
-    "223232": {
-      "lastModified": 1794691492,
-      "effective": 1794690600,
-      "title": "Ecuador: Reise- und Sicherheitshinweise",
-      "countryCode": "EC",
-      "iso3CountryCode": "ECU",
-      "countryName": "Ecuador",
       "warning": false,
       "partialWarning": false,
       "situationWarning": false,
@@ -2595,13 +2595,13 @@
       "208400",
       "213920",
       "202332",
+      "223232",
       "210534",
       "217274",
       "201558",
       "207612",
       "220146",
-      "221882",
-      "223232"
+      "221882"
     ]
   }
 }
