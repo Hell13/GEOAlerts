@@ -1561,18 +1561,6 @@
       "situationWarning": false,
       "situationPartWarning": false
     },
-    "225412": {
-      "lastModified": 1792488657,
-      "effective": 1792488600,
-      "title": "Singapur: Reise- und Sicherheitshinweise",
-      "countryCode": "SG",
-      "iso3CountryCode": "SGP",
-      "countryName": "Singapur",
-      "warning": false,
-      "partialWarning": false,
-      "situationWarning": false,
-      "situationPartWarning": false
-    },
     "208662": {
       "lastModified": 1793364746,
       "effective": 1793363400,
@@ -2065,18 +2053,6 @@
       "situationWarning": false,
       "situationPartWarning": false
     },
-    "206408": {
-      "lastModified": 1791881484,
-      "effective": 1783084500,
-      "title": "Vereinigtes Königreich: Reise- und Sicherheitshinweise",
-      "countryCode": "GB",
-      "iso3CountryCode": "GBR",
-      "countryName": "Vereinigtes Königreich",
-      "warning": false,
-      "partialWarning": false,
-      "situationWarning": false,
-      "situationPartWarning": false
-    },
     "208874": {
       "lastModified": 1794408340,
       "effective": 1794408300,
@@ -2180,18 +2156,6 @@
       "countryCode": "DK",
       "iso3CountryCode": "DNK",
       "countryName": "Dänemark",
-      "warning": false,
-      "partialWarning": false,
-      "situationWarning": false,
-      "situationPartWarning": false
-    },
-    "204160": {
-      "lastModified": 1793283028,
-      "effective": 1793282400,
-      "title": "Oman: Reise- und Sicherheitshinweise",
-      "countryCode": "OM",
-      "iso3CountryCode": "OMN",
-      "countryName": "Oman",
       "warning": false,
       "partialWarning": false,
       "situationWarning": false,
@@ -2401,6 +2365,42 @@
       "situationWarning": false,
       "situationPartWarning": false
     },
+    "204160": {
+      "lastModified": 1793283028,
+      "effective": 1793282400,
+      "title": "Oman: Reise- und Sicherheitshinweise",
+      "countryCode": "OM",
+      "iso3CountryCode": "OMN",
+      "countryName": "Oman",
+      "warning": false,
+      "partialWarning": false,
+      "situationWarning": false,
+      "situationPartWarning": false
+    },
+    "225412": {
+      "lastModified": 1792488657,
+      "effective": 1792488600,
+      "title": "Singapur: Reise- und Sicherheitshinweise",
+      "countryCode": "SG",
+      "iso3CountryCode": "SGP",
+      "countryName": "Singapur",
+      "warning": false,
+      "partialWarning": false,
+      "situationWarning": false,
+      "situationPartWarning": false
+    },
+    "206408": {
+      "lastModified": 1791881484,
+      "effective": 1783084500,
+      "title": "Vereinigtes Königreich: Reise- und Sicherheitshinweise",
+      "countryCode": "GB",
+      "iso3CountryCode": "GBR",
+      "countryName": "Vereinigtes Königreich",
+      "warning": false,
+      "partialWarning": false,
+      "situationWarning": false,
+      "situationPartWarning": false
+    },
     "contentList": [
       "226268",
       "210708",
@@ -2532,7 +2532,6 @@
       "201382",
       "212396",
       "216248",
-      "225412",
       "208662",
       "224526",
       "208190",
@@ -2574,7 +2573,6 @@
       "212168",
       "212254",
       "206208",
-      "206408",
       "208874",
       "199124",
       "202260",
@@ -2584,7 +2582,6 @@
       "200382",
       "211084",
       "211724",
-      "204160",
       "211938",
       "208058",
       "220008",
@@ -2601,7 +2598,10 @@
       "201558",
       "207612",
       "220146",
-      "221882"
+      "221882",
+      "204160",
+      "225412",
+      "206408"
     ]
   }
 }
