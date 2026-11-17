@@ -1105,18 +1105,6 @@
       "situationWarning": false,
       "situationPartWarning": false
     },
-    "207960": {
-      "lastModified": 1792148901,
-      "effective": 1792148400,
-      "title": "Madagaskar: Reise- und Sicherheitshinweise",
-      "countryCode": "MG",
-      "iso3CountryCode": "MDG",
-      "countryName": "Madagaskar",
-      "warning": false,
-      "partialWarning": false,
-      "situationWarning": false,
-      "situationPartWarning": false
-    },
     "221216": {
       "lastModified": 1792420461,
       "effective": 1792420200,
@@ -2401,6 +2389,18 @@
       "situationWarning": false,
       "situationPartWarning": false
     },
+    "207960": {
+      "lastModified": 1794904802,
+      "effective": 1794904200,
+      "title": "Madagaskar: Reise- und Sicherheitshinweise",
+      "countryCode": "MG",
+      "iso3CountryCode": "MDG",
+      "countryName": "Madagaskar",
+      "warning": false,
+      "partialWarning": false,
+      "situationWarning": false,
+      "situationPartWarning": false
+    },
     "contentList": [
       "226268",
       "210708",
@@ -2494,7 +2494,6 @@
       "211534",
       "204048",
       "213428",
-      "207960",
       "221216",
       "226490",
       "203372",
@@ -2601,7 +2600,8 @@
       "221882",
       "204160",
       "225412",
-      "206408"
+      "206408",
+      "207960"
     ]
   }
 }
