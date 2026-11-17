@@ -1633,18 +1633,6 @@
       "situationWarning": false,
       "situationPartWarning": false
     },
-    "220284": {
-      "lastModified": 1791882663,
-      "effective": 1787218200,
-      "title": "Belize: Reise- und Sicherheitshinweise",
-      "countryCode": "BZ",
-      "iso3CountryCode": "BLZ",
-      "countryName": "Belize",
-      "warning": false,
-      "partialWarning": false,
-      "situationWarning": false,
-      "situationPartWarning": false
-    },
     "213624": {
       "lastModified": 1791884097,
       "effective": 1789046100,
@@ -1678,18 +1666,6 @@
       "countryName": "Ägypten",
       "warning": false,
       "partialWarning": true,
-      "situationWarning": false,
-      "situationPartWarning": false
-    },
-    "200754": {
-      "lastModified": 1791881428,
-      "effective": 1780578900,
-      "title": "Estland: Reise- und Sicherheitshinweise",
-      "countryCode": "EE",
-      "iso3CountryCode": "EST",
-      "countryName": "Estland",
-      "warning": false,
-      "partialWarning": false,
       "situationWarning": false,
       "situationPartWarning": false
     },
@@ -2401,6 +2377,30 @@
       "situationWarning": false,
       "situationPartWarning": false
     },
+    "220284": {
+      "lastModified": 1794913926,
+      "effective": 1794914100,
+      "title": "Belize: Reise- und Sicherheitshinweise",
+      "countryCode": "BZ",
+      "iso3CountryCode": "BLZ",
+      "countryName": "Belize",
+      "warning": false,
+      "partialWarning": false,
+      "situationWarning": false,
+      "situationPartWarning": false
+    },
+    "200754": {
+      "lastModified": 1794926976,
+      "effective": 1794926700,
+      "title": "Estland: Reise- und Sicherheitshinweise",
+      "countryCode": "EE",
+      "iso3CountryCode": "EST",
+      "countryName": "Estland",
+      "warning": false,
+      "partialWarning": false,
+      "situationWarning": false,
+      "situationPartWarning": false
+    },
     "contentList": [
       "226268",
       "210708",
@@ -2538,11 +2538,9 @@
       "206790",
       "201904",
       "226176",
-      "220284",
       "213624",
       "201872",
       "212622",
-      "200754",
       "223616",
       "203814",
       "201962",
@@ -2601,7 +2599,9 @@
       "204160",
       "225412",
       "206408",
-      "207960"
+      "207960",
+      "220284",
+      "200754"
     ]
   }
 }
