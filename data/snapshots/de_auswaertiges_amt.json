@@ -661,18 +661,6 @@
       "situationWarning": false,
       "situationPartWarning": false
     },
-    "213850": {
-      "lastModified": 1791886306,
-      "effective": 1789387200,
-      "title": "Togo: Reise- und Sicherheitshinweise",
-      "countryCode": "TG",
-      "iso3CountryCode": "TGO",
-      "countryName": "Togo",
-      "warning": false,
-      "partialWarning": true,
-      "situationWarning": false,
-      "situationPartWarning": false
-    },
     "221388": {
       "lastModified": 1791886284,
       "effective": 1789387200,
@@ -920,18 +908,6 @@
       "countryCode": "GW",
       "iso3CountryCode": "GNB",
       "countryName": "Guinea-Bissau",
-      "warning": false,
-      "partialWarning": false,
-      "situationWarning": false,
-      "situationPartWarning": false
-    },
-    "208118": {
-      "lastModified": 1792658717,
-      "effective": 1792656000,
-      "title": "Angola: Reise- und Sicherheitshinweise",
-      "countryCode": "AO",
-      "iso3CountryCode": "AGO",
-      "countryName": "Angola",
       "warning": false,
       "partialWarning": false,
       "situationWarning": false,
@@ -1789,18 +1765,6 @@
       "situationWarning": false,
       "situationPartWarning": false
     },
-    "211322": {
-      "lastModified": 1794493069,
-      "effective": 1794492000,
-      "title": "Italien: Reise- und Sicherheitshinweise",
-      "countryCode": "IT",
-      "iso3CountryCode": "ITA",
-      "countryName": "Italien",
-      "warning": false,
-      "partialWarning": false,
-      "situationWarning": false,
-      "situationPartWarning": false
-    },
     "202738": {
       "lastModified": 1793283672,
       "effective": 1793283300,
@@ -2233,18 +2197,6 @@
       "situationWarning": false,
       "situationPartWarning": false
     },
-    "210534": {
-      "lastModified": 1793613469,
-      "effective": 1793448000,
-      "title": "Spanien: Reise- und Sicherheitshinweise",
-      "countryCode": "ES",
-      "iso3CountryCode": "ESP",
-      "countryName": "Spanien",
-      "warning": false,
-      "partialWarning": false,
-      "situationWarning": false,
-      "situationPartWarning": false
-    },
     "217274": {
       "lastModified": 1791886711,
       "effective": 1787148900,
@@ -2288,18 +2240,6 @@
       "countryCode": "NZ",
       "iso3CountryCode": "NZL",
       "countryName": "Neuseeland",
-      "warning": false,
-      "partialWarning": false,
-      "situationWarning": false,
-      "situationPartWarning": false
-    },
-    "221882": {
-      "lastModified": 1791884148,
-      "effective": 1787214600,
-      "title": "Guatemala: Reise- und Sicherheitshinweise",
-      "countryCode": "GT",
-      "iso3CountryCode": "GTM",
-      "countryName": "Guatemala",
       "warning": false,
       "partialWarning": false,
       "situationWarning": false,
@@ -2401,6 +2341,66 @@
       "situationWarning": false,
       "situationPartWarning": false
     },
+    "208118": {
+      "lastModified": 1795009442,
+      "effective": 1795009500,
+      "title": "Angola: Reise- und Sicherheitshinweise",
+      "countryCode": "AO",
+      "iso3CountryCode": "AGO",
+      "countryName": "Angola",
+      "warning": false,
+      "partialWarning": false,
+      "situationWarning": false,
+      "situationPartWarning": false
+    },
+    "210534": {
+      "lastModified": 1795012643,
+      "effective": 1795012200,
+      "title": "Spanien: Reise- und Sicherheitshinweise",
+      "countryCode": "ES",
+      "iso3CountryCode": "ESP",
+      "countryName": "Spanien",
+      "warning": false,
+      "partialWarning": false,
+      "situationWarning": false,
+      "situationPartWarning": false
+    },
+    "213850": {
+      "lastModified": 1795011814,
+      "effective": 1795011300,
+      "title": "Togo: Reise- und Sicherheitshinweise",
+      "countryCode": "TG",
+      "iso3CountryCode": "TGO",
+      "countryName": "Togo",
+      "warning": false,
+      "partialWarning": true,
+      "situationWarning": false,
+      "situationPartWarning": false
+    },
+    "211322": {
+      "lastModified": 1795013175,
+      "effective": 1795013100,
+      "title": "Italien: Reise- und Sicherheitshinweise",
+      "countryCode": "IT",
+      "iso3CountryCode": "ITA",
+      "countryName": "Italien",
+      "warning": false,
+      "partialWarning": false,
+      "situationWarning": false,
+      "situationPartWarning": false
+    },
+    "221882": {
+      "lastModified": 1795015871,
+      "effective": 1795015800,
+      "title": "Guatemala: Reise- und Sicherheitshinweise",
+      "countryCode": "GT",
+      "iso3CountryCode": "GTM",
+      "countryName": "Guatemala",
+      "warning": false,
+      "partialWarning": false,
+      "situationWarning": false,
+      "situationPartWarning": false
+    },
     "contentList": [
       "226268",
       "210708",
@@ -2457,7 +2457,6 @@
       "206756",
       "220450",
       "226750",
-      "213850",
       "221388",
       "213790",
       "201138",
@@ -2479,7 +2478,6 @@
       "208542",
       "226324",
       "220332",
-      "208118",
       "226450",
       "222614",
       "225774",
@@ -2551,7 +2549,6 @@
       "201888",
       "201516",
       "201918",
-      "211322",
       "202738",
       "219024",
       "205878",
@@ -2588,12 +2585,10 @@
       "213920",
       "202332",
       "223232",
-      "210534",
       "217274",
       "201558",
       "207612",
       "220146",
-      "221882",
       "204160",
       "225412",
       "206408",
@@ -2601,7 +2596,12 @@
       "220284",
       "199124",
       "200754",
-      "206292"
+      "206292",
+      "208118",
+      "210534",
+      "213850",
+      "211322",
+      "221882"
     ]
   }
 }
