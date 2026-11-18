@@ -2161,18 +2161,6 @@
       "situationWarning": false,
       "situationPartWarning": false
     },
-    "206292": {
-      "lastModified": 1791882628,
-      "effective": 1791378000,
-      "title": "Bangladesch: Reise- und Sicherheitshinweise",
-      "countryCode": "BD",
-      "iso3CountryCode": "BGD",
-      "countryName": "Bangladesch",
-      "warning": false,
-      "partialWarning": false,
-      "situationWarning": false,
-      "situationPartWarning": false
-    },
     "213032": {
       "lastModified": 1791884466,
       "effective": 1783431000,
@@ -2377,6 +2365,18 @@
       "situationWarning": false,
       "situationPartWarning": false
     },
+    "199124": {
+      "lastModified": 1794991261,
+      "effective": 1794990600,
+      "title": "Polen: Reise- und Sicherheitshinweise",
+      "countryCode": "PL",
+      "iso3CountryCode": "POL",
+      "countryName": "Polen",
+      "warning": false,
+      "partialWarning": false,
+      "situationWarning": false,
+      "situationPartWarning": false
+    },
     "200754": {
       "lastModified": 1794926976,
       "effective": 1794926700,
@@ -2389,13 +2389,13 @@
       "situationWarning": false,
       "situationPartWarning": false
     },
-    "199124": {
-      "lastModified": 1794991261,
-      "effective": 1794990600,
-      "title": "Polen: Reise- und Sicherheitshinweise",
-      "countryCode": "PL",
-      "iso3CountryCode": "POL",
-      "countryName": "Polen",
+    "206292": {
+      "lastModified": 1794999753,
+      "effective": 1794999600,
+      "title": "Bangladesch: Reise- und Sicherheitshinweise",
+      "countryCode": "BD",
+      "iso3CountryCode": "BGD",
+      "countryName": "Bangladesch",
       "warning": false,
       "partialWarning": false,
       "situationWarning": false,
@@ -2582,7 +2582,6 @@
       "208058",
       "220008",
       "224816",
-      "206292",
       "213032",
       "201946",
       "208400",
@@ -2600,8 +2599,9 @@
       "206408",
       "207960",
       "220284",
+      "199124",
       "200754",
-      "199124"
+      "206292"
     ]
   }
 }
