@@ -2029,18 +2029,6 @@
       "situationWarning": false,
       "situationPartWarning": false
     },
-    "199124": {
-      "lastModified": 1794235617,
-      "effective": 1794235500,
-      "title": "Polen: Reise- und Sicherheitshinweise",
-      "countryCode": "PL",
-      "iso3CountryCode": "POL",
-      "countryName": "Polen",
-      "warning": false,
-      "partialWarning": false,
-      "situationWarning": false,
-      "situationPartWarning": false
-    },
     "202260": {
       "lastModified": 1793284180,
       "effective": 1793284200,
@@ -2401,6 +2389,18 @@
       "situationWarning": false,
       "situationPartWarning": false
     },
+    "199124": {
+      "lastModified": 1794991261,
+      "effective": 1794990600,
+      "title": "Polen: Reise- und Sicherheitshinweise",
+      "countryCode": "PL",
+      "iso3CountryCode": "POL",
+      "countryName": "Polen",
+      "warning": false,
+      "partialWarning": false,
+      "situationWarning": false,
+      "situationPartWarning": false
+    },
     "contentList": [
       "226268",
       "210708",
@@ -2571,7 +2571,6 @@
       "212254",
       "206208",
       "208874",
-      "199124",
       "202260",
       "209524",
       "212492",
@@ -2601,7 +2600,8 @@
       "206408",
       "207960",
       "220284",
-      "200754"
+      "200754",
+      "199124"
     ]
   }
 }
