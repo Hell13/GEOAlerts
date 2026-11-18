@@ -21,18 +21,36 @@ function computeHash(text) {
   return crypto.createHash('sha256').update((text || '').trim()).digest('hex').slice(0, 24);
 }
 
+function decodeHtmlEntities(str) {
+  if (!str) return '';
+  return String(str)
+    .replace(/&amp;/gi, '&')
+    .replace(/&lt;/gi, '<')
+    .replace(/&gt;/gi, '>')
+    .replace(/&quot;/gi, '"')
+    .replace(/&#0*39;|&apos;|&#8217;|&rsquo;|&#8216;|&lsquo;/gi, "'")
+    .replace(/&#8211;|&ndash;|&#8212;|&mdash;/gi, '-')
+    .replace(/&nbsp;/gi, ' ')
+    .replace(/&#(\d+);/g, (_, num) => {
+      const code = Number(num);
+      return code >= 32 && code <= 126 ? String.fromCharCode(code) : ' ';
+    });
+}
+
 function stripHtml(html) {
   if (!html) return '';
-  return html
-    .replace(/<style[\s\S]*?<\/style>/gi, '')
-    .replace(/<script[\s\S]*?<\/script>/gi, '')
+  // Decode twice first to catch double-escaped RSS HTML like &lt;div class="tag"&gt;
+  let text = decodeHtmlEntities(decodeHtmlEntities(html));
+  text = text
+    .replace(/<style[\s\S]*?<\/style>/gi, ' ')
+    .replace(/<script[\s\S]*?<\/script>/gi, ' ')
     .replace(/<\/(p|div|li|h[1-6]|br|tr)>/gi, '\n')
-    .replace(/<[^>]+>/g, ' ')
-    .replace(/&nbsp;/g, ' ')
-    .replace(/&amp;/g, '&')
-    .replace(/&quot;/g, '"')
-    .replace(/&#8217;|&rsquo;/g, "'")
-    .replace(/&#8211;|&ndash;/g, '-')
+    .replace(/<br\s*\/?>/gi, '\n')
+    .replace(/<[^>]+>/g, ' ');
+  // Decode once more in case entities remained inside text nodes, then strip any leftover tags
+  text = decodeHtmlEntities(text).replace(/<[^>]+>/g, ' ');
+  return text
+    .replace(/Please refer to the attached file\.?/gi, '')
     .replace(/[ \t]+/g, ' ')
     .replace(/\n\s*\n+/g, '\n')
     .trim();
@@ -138,28 +156,36 @@ async function analyzeChangeWithAI({
     };
   }
 
+  const cleanDiffBefore = stripHtml(diffBefore || '');
+  const cleanDiffAfter = stripHtml(diffAfter || '');
+  const cleanFullText = stripHtml(fullText || '');
+
   const prompt = `You are a senior geopolitical & military crisis intelligence analyst.
 Analyze the following official update from "${sourceName}" for "${countryName}".
 
 Previous Threat Level: ${oldLevel || 'N/A'}
 Source Base Level: ${newBaseLevel}
 Headline: ${title}
-Removed Wording (Before): ${diffBefore || '(Initial or new bulletin)'}
-Added Wording (After): ${diffAfter || stripHtml(fullText).slice(0, 1200)}
+Removed Wording (Before): ${cleanDiffBefore || '(Initial or new bulletin)'}
+Added Wording (After): ${cleanDiffAfter || cleanFullText.slice(0, 1200)}
 
 Classify the update strictly on our 1-5 Geopolitical Early Warning Scale:
-- Level 1 (Normal): Standard precautions, routine editorial/visa/health edits.
-- Level 2 (Increased Caution): Peaceful protests, petty crime, weather/climate notes.
-- Level 3 (High Risk / Reconsider Travel): High background threat, but diplomatic missions and airspace operate normally.
-- Level 4 (Red Flag / Pre-Evacuation): Authorized Departure of diplomatic families/non-emergency staff, shelter-in-place orders, new conflict zone airspace warnings (NOTAM/EASA/FAA), border closures, missile/drone threats.
+- Level 1 (Normal): Standard precautions, routine editorial/visa/health/nutrition/weather/administrative edits.
+- Level 2 (Increased Caution): Peaceful protests, petty crime, localized weather/climate/health notes, non-violent unrest.
+- Level 3 (High Risk / Reconsider Travel): High background threat or regional crime/instability, but diplomatic missions and airspace operate normally.
+- Level 4 (Red Flag / Pre-Evacuation): Authorized Departure of diplomatic families/non-emergency staff, shelter-in-place orders, active conflict zone airspace warnings (NOTAM/EASA/FAA), border closures, state of emergency due to armed violence, missile/drone threats.
 - Level 5 (Critical / Imminent War - Time is down to days): Ordered Departure (mandatory evacuation of diplomats), embassy closure/relocation, urgent call for citizens to leave immediately via commercial flights, imminent military strike warning.
+
+CRITICAL RULES:
+1. If the update is a routine editorial tweak, meeting minutes, nutrition/health report, or a DOWNGRADE/easing of a prior warning, reflect the true lower current threat level (do NOT escalate because the text mentions what it was downgraded from).
+2. "redFlags" MUST be an empty array [] unless "normalizedLevel" is 4 or 5 AND the update explicitly reports military conflict, diplomatic evacuation, shelter-in-place, border closure, or conflict-zone airspace prohibition. NEVER put health, nutrition, editorial, climate, or crime tags in "redFlags".
 
 Respond ONLY in valid JSON with this exact structure:
 {
   "normalizedLevel": <number 1 to 5>,
   "severityLabel": "<NORMAL | CAUTION | HIGH_RISK | RED_FLAG | CRITICAL_WAR_WARNING>",
   "aiSummary": "<2-sentence crisp intelligence brief explaining what changed and why it matters>",
-  "redFlags": ["<short tag 1>", "<short tag 2>"]
+  "redFlags": []
 }`;
 
   try {
@@ -205,13 +231,34 @@ Respond ONLY in valid JSON with this exact structure:
       parsed = JSON.parse(data.candidates[0].content.parts[0].text);
     }
 
-    const finalLevel = Math.max(deterministicLevel, Number(parsed.normalizedLevel) || deterministicLevel);
+    const aiLvl = Number(parsed.normalizedLevel);
+    const validAiLvl = Number.isFinite(aiLvl) ? Math.min(5, Math.max(1, Math.round(aiLvl))) : deterministicLevel;
+    // Trust AI's nuanced contextual classification (handles downgrades and editorial updates accurately),
+    // while keeping explicit diplomatic base levels when higher unless the AI explicitly identifies a downgrade/editorial note.
+    const isExplicitDowngradeOrEditorial = /\b(downgrad|eased|lifted|editorial|routine|no indication of escalating|nutrition|health update)\b/i.test(
+      `${parsed.aiSummary || ''} ${cleanDiffAfter}`
+    );
+    const finalLevel = isExplicitDowngradeOrEditorial
+      ? validAiLvl
+      : Math.max(Math.min(deterministicLevel, 4), validAiLvl);
+
+    // STRICT: Only Level 4 and Level 5 genuine security events may carry Red Flags!
+    const aiFlags = Array.isArray(parsed.redFlags)
+      ? parsed.redFlags.filter(f =>
+          typeof f === 'string' &&
+          f.trim().length > 2 &&
+          !/\b(nutrition|health|editorial|climate|weather|reporting|visa|crime|petty|market|funding|rainfall|ebola|cholera)\b/i.test(f)
+        )
+      : [];
+    const finalRedFlags = finalLevel >= 4
+      ? Array.from(new Set([...redFlags, ...aiFlags])).slice(0, 6)
+      : [];
 
     return {
       normalizedLevel: finalLevel,
       severityLabel: getSeverityLabel(finalLevel),
       aiSummary: parsed.aiSummary || title,
-      redFlags: Array.from(new Set([...redFlags, ...(parsed.redFlags || [])])),
+      redFlags: finalRedFlags,
       usedOpenAI: true
     };
   } catch (err) {
@@ -219,8 +266,8 @@ Respond ONLY in valid JSON with this exact structure:
     return {
       normalizedLevel: deterministicLevel,
       severityLabel: getSeverityLabel(deterministicLevel),
-      aiSummary: diffAfter ? diffAfter.slice(0, 300) : stripHtml(fullText).slice(0, 300),
-      redFlags,
+      aiSummary: cleanDiffAfter ? cleanDiffAfter.slice(0, 300) : cleanFullText.slice(0, 300),
+      redFlags: deterministicLevel >= 4 ? redFlags : [],
       usedOpenAI: false
     };
   }

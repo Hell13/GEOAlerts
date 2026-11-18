@@ -6,7 +6,8 @@ const {
   stripHtml,
   computeTextDiff,
   detectRedFlagsAndLevel,
-  analyzeChangeWithAI
+  analyzeChangeWithAI,
+  getSeverityLabel
 } = require('./analyzer');
 
 const SNAPSHOT_DIR = path.join(__dirname, '../data/snapshots');
@@ -293,10 +294,10 @@ async function parseUKFCDO() {
     const iso2 = resolveCountryIso2(countryName) || resolveCountryIso2(item.slug);
     if (!iso2) continue;
 
-    let baseLevel = 2;
+    let baseLevel = 1;
     if (/advise against all travel/i.test(changeDesc)) baseLevel = 4;
-    else if (/advise against all but essential travel|targeted|attacks|conflict/i.test(changeDesc)) baseLevel = 3;
-    else if (/health|entry requirements|visa|currency|festival/i.test(changeDesc)) baseLevel = 1;
+    else if (/advise against all but essential travel|targeted|attacks|conflict|state of emergency/i.test(changeDesc)) baseLevel = 3;
+    else if (/protest|demonstration|crime|unrest|caution|terrorism|strike|shooting/i.test(changeDesc)) baseLevel = 2;
 
     const { level: normLevel, redFlags } = detectRedFlagsAndLevel(changeDesc, baseLevel);
 
@@ -642,11 +643,14 @@ async function parseMaritimeAndUN() {
     } catch (_) {}
   }
 
-  // Parse UN ReliefWeb Crisis RSS
+  // Parse UN ReliefWeb Crisis RSS (strictly security/conflict SitReps — ignore routine NGO/nutrition/market PDFs)
   const unXml = await fetchWithFallback('https://reliefweb.int/updates/rss.xml', 'un_reliefweb.xml');
   if (unXml) {
     const items = [...unXml.matchAll(/<item>([\s\S]*?)<\/item>/g)];
     const seenUn = new Set();
+    const ROUTINE_NGO_NOISE = /\b(nutrition|food security|market monitor|monthly operational update|compte rendu|réunion|meeting minutes|transhumance|vaccination|cholera|ebola|mpox|measles|malaria|rainfall|weather|agriculture|cash assistance|funding appeal|humanitarian funding|education cluster|wash cluster|livelihood|bulletin mensuel|rapport mensuel|health cluster)\b/i;
+    const GENUINE_CONFLICT_SITREP = /\b(armed conflict|armed clashes|military offensive|airstrike|airstrikes|shelling|bombardment|artillery|missile strike|drone strike|massacre|evacuation order|state of emergency|martial law|coup d'etat|military coup|insurgent attack|heavy fighting|active hostilities|ceasefire collapse)\b/i;
+
     for (const m of items) {
       const block = m[1];
       const title = stripHtml(((block.match(/<title>([\s\S]*?)<\/title>/) || [])[1] || '').trim());
@@ -654,6 +658,11 @@ async function parseMaritimeAndUN() {
       const pubDate = ((block.match(/<pubDate>([\s\S]*?)<\/pubDate>/) || [])[1] || '').trim();
       const desc = stripHtml(((block.match(/<description>([\s\S]*?)<\/description>/) || [])[1] || '').trim());
       const categories = [...block.matchAll(/<category>([^<]+)<\/category>/g)].map(c => c[1]);
+
+      const combinedText = `${title} ${desc}`;
+      // Skip routine humanitarian/NGO administrative bulletins completely so they never pollute threat levels
+      if (ROUTINE_NGO_NOISE.test(combinedText)) continue;
+      if (!GENUINE_CONFLICT_SITREP.test(combinedText)) continue;
 
       let iso2 = null;
       for (const cat of categories) {
@@ -663,21 +672,19 @@ async function parseMaritimeAndUN() {
       if (!iso2 || seenUn.has(iso2)) continue;
       seenUn.add(iso2);
 
-      const isConflict = /\b(armed violence|conflict|displacement|attacks|hostilities|war|evacuation|security)\b/i.test(title + ' ' + desc);
-      const normLevel = isConflict ? 4 : 2;
-
+      const cleanSummary = desc.slice(0, 340) || title;
       records.push({
         iso2,
         sourceId: 'un_reliefweb',
         sourceName: 'UN OCHA / ReliefWeb Security SitRep',
         category: 'humanitarian',
-        rawLevel: isConflict ? 'UN Armed Conflict / Displacement SitRep' : 'UN Humanitarian SitRep',
-        normalizedLevel: normLevel,
+        rawLevel: 'UN Armed Conflict / Escalation SitRep',
+        normalizedLevel: 4,
         title,
-        summary: desc.slice(0, 340),
-        fullText: desc,
+        summary: cleanSummary,
+        fullText: desc || title,
         url: link || 'https://reliefweb.int',
-        redFlags: isConflict ? ['UN OCHA Armed Violence / Mass Displacement SitRep'] : [],
+        redFlags: ['UN OCHA Active Armed Conflict / Hostilities SitRep'],
         publishedAt: pubDate ? new Date(pubDate).toISOString() : new Date().toISOString()
       });
     }
@@ -896,18 +903,37 @@ async function runFullIngestion({ sendTelegramAlerts = true } = {}) {
       newCountryLevel !== undefined &&
       oldCountryLevel !== newCountryLevel
     ) {
-      // Pick the most prominent source event that caused the country's status shift
-      const primaryEvent = [...countryEvents].sort((a, b) => b.newLevel - a.newLevel)[0];
+      const isEscalation = newCountryLevel > oldCountryLevel;
+      // Pick ONLY a triggering source event that genuinely moved in the SAME direction as the country status change!
+      const matchingEvents = countryEvents.filter(ev =>
+        isEscalation
+          ? (Number(ev.newLevel) > Number(ev.oldLevel) || Number(ev.newLevel) >= newCountryLevel)
+          : (Number(ev.newLevel) < Number(ev.oldLevel))
+      );
+      if (matchingEvents.length === 0) {
+        // Prevent contradictory alerts (e.g. a Level 2 nutrition report cannot trigger a Level 4 -> Level 5 escalation)
+        continue;
+      }
+
+      const primaryEvent = [...matchingEvents].sort((a, b) =>
+        isEscalation ? (b.newLevel - a.newLevel) : (a.newLevel - b.newLevel)
+      )[0];
+
+      const countrySeverityLabel = getSeverityLabel(newCountryLevel);
       const alertEvent = {
         ...primaryEvent,
         oldLevel: oldCountryLevel,
-        newLevel: newCountryLevel
+        newLevel: newCountryLevel,
+        severityLabel: countrySeverityLabel,
+        redFlags: newCountryLevel >= 4 ? (primaryEvent.redFlags || []) : [],
+        diffBefore: stripHtml(primaryEvent.diffBefore || ''),
+        diffAfter: stripHtml(primaryEvent.diffAfter || '')
       };
       statusChangedEvents.push(alertEvent);
 
       if (primaryEvent.eventId) {
-        db.prepare(`UPDATE change_events SET old_level = ?, new_level = ?, notified_telegram = 1 WHERE id = ?`)
-          .run(oldCountryLevel, newCountryLevel, primaryEvent.eventId);
+        db.prepare(`UPDATE change_events SET old_level = ?, new_level = ?, severity_label = ?, diff_before = ?, diff_after = ?, notified_telegram = 1 WHERE id = ?`)
+          .run(oldCountryLevel, newCountryLevel, countrySeverityLabel, alertEvent.diffBefore, alertEvent.diffAfter, primaryEvent.eventId);
       }
     }
   }
@@ -980,11 +1006,13 @@ function recomputeCountryAggregates() {
 
     for (const s of list) {
       if (s.normalized_level > maxLevel) maxLevel = s.normalized_level;
-      if (s.normalized_level >= 4) highCount++;
-      try {
-        const flags = JSON.parse(s.red_flags_json || '[]');
-        flags.forEach(f => allFlags.add(f));
-      } catch (_) {}
+      if (s.normalized_level >= 4) {
+        highCount++;
+        try {
+          const flags = JSON.parse(s.red_flags_json || '[]');
+          flags.forEach(f => allFlags.add(f));
+        } catch (_) {}
+      }
     }
 
     // Resonance Logic: If 3+ independent agencies simultaneously flag Level 4 (Red Flag),

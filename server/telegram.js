@@ -1,4 +1,5 @@
 const { db } = require('./db');
+const { stripHtml, getSeverityLabel } = require('./analyzer');
 const fs = require('fs');
 const path = require('path');
 
@@ -189,27 +190,30 @@ function formatAlertMessage(event) {
     headerBadge = '🟢✅ <b>COUNTRY STATUS NORMALIZED (LEVEL 1)</b> ✅🟢';
   }
 
-  const flags = Array.isArray(event.redFlags) ? event.redFlags : [];
+  const flags = (newLvl >= 4 && Array.isArray(event.redFlags)) ? event.redFlags : [];
   const flagsHtml = flags.length > 0
-    ? `\n<b>🚩 Red Flags Detected:</b>\n${flags.map(f => `  • <code>${escapeHtml(f)}</code>`).join('\n')}\n`
+    ? `\n<b>🚩 Red Flags Detected:</b>\n${flags.map(f => `  • <code>${escapeHtml(stripHtml(f))}</code>`).join('\n')}\n`
     : '';
 
-  const diffHtml = (event.diffBefore || event.diffAfter)
+  const cleanBefore = stripHtml(event.diffBefore || '');
+  const cleanAfter = stripHtml(event.diffAfter || '');
+  const diffHtml = (cleanBefore || cleanAfter)
     ? `\n<b>🔍 Wording Diff (What Changed):</b>\n` +
-      (event.diffBefore ? `➖ <i>Before:</i> ${escapeHtml(event.diffBefore.slice(0, 220))}\n` : '') +
-      (event.diffAfter ? `➕ <i>After:</i> <b>${escapeHtml(event.diffAfter.slice(0, 320))}</b>\n` : '')
+      (cleanBefore ? `➖ <i>Before:</i> ${escapeHtml(cleanBefore.slice(0, 220))}\n` : '') +
+      (cleanAfter ? `➕ <i>After:</i> <b>${escapeHtml(cleanAfter.slice(0, 320))}</b>\n` : '')
     : '';
 
   const shiftIcon = isEscalation ? '📈 <b>Country Status Escalation:</b>' : '📉 <b>Country Status Shift:</b>';
+  const consistentLabel = getSeverityLabel(newLvl);
 
   return (
     `${headerBadge}\n\n` +
     `🌍 <b>Country:</b> ${escapeHtml(event.countryName)} (${event.iso2})\n` +
     `🏛 <b>Triggering Source:</b> ${escapeHtml(event.sourceName)}\n` +
-    `${shiftIcon} Level ${oldLvl} ➔ <b>Level ${newLvl} (${escapeHtml(event.severityLabel || LEVEL_BADGES[newLvl] || `LEVEL ${newLvl}`)})</b>\n` +
-    `📌 <b>Headline:</b> ${escapeHtml(event.title)}\n` +
+    `${shiftIcon} Level ${oldLvl} ➔ <b>Level ${newLvl} (${escapeHtml(consistentLabel)})</b>\n` +
+    `📌 <b>Headline:</b> ${escapeHtml(stripHtml(event.title || ''))}\n` +
     `${flagsHtml}\n` +
-    `🧠 <b>AI Crisis Intelligence Brief:</b>\n${escapeHtml(event.aiSummary)}\n` +
+    `🧠 <b>AI Crisis Intelligence Brief:</b>\n${escapeHtml(stripHtml(event.aiSummary || ''))}\n` +
     `${diffHtml}\n` +
     `🔗 <a href="${event.sourceUrl || 'https://travel.state.gov'}">View Official Source Document</a>`
   );
