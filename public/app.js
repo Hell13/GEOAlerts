@@ -96,9 +96,9 @@ function bindUIEvents() {
         if (state.selectedIso2) await selectCountry(state.selectedIso2);
         document.getElementById('lastPollLabel').textContent = `Synced: Just now (${data.totalRecordsScanned} records)`;
       } else {
-        // Static cloud mode: reload latest exported JSON from CDN
+        // Static cloud mode: reload latest exported JSON from CDN with cache-busting
         state.staticDetailsCache = null;
-        await loadOverviewData();
+        await loadOverviewData({ forceFresh: true });
         if (state.selectedIso2) await selectCountry(state.selectedIso2);
         document.getElementById('lastPollLabel').textContent = `Synced from Cloud Feed (${state.countries.length} countries)`;
       }
@@ -447,14 +447,15 @@ function renderRadarPulses() {
   }
 }
 
-async function loadOverviewData() {
+async function loadOverviewData({ forceFresh = false } = {}) {
   let data;
   try {
-    const res = await fetch('/api/overview');
+    const res = await fetch('/api/overview', { cache: 'no-store' });
     if (!res.ok) throw new Error('Static fallback');
     data = await res.json();
   } catch (_) {
-    const res = await fetch('./data/overview.json');
+    const suffix = forceFresh ? `?t=${Date.now()}` : '';
+    const res = await fetch(`./data/overview.json${suffix}`, { cache: forceFresh ? 'no-store' : 'default' });
     data = await res.json();
   }
 
@@ -762,7 +763,7 @@ async function runCrisisSimulation() {
       const newLvl = scenario === 'ordered_departure' ? 5 : 4;
       const flags = scenario === 'ordered_departure'
         ? ['Ordered Departure (Non-Emergency Embassy Staff)', 'Leave Immediately (Commercial Means)', 'Consular Operations Suspended']
-        : scenario === 'airspace_czib'
+        : scenario === 'airspace_closure'
           ? ['Airspace Risk / Conflict Zone Bulletin (CZIB)', 'Leave Immediately (Commercial Means)']
           : ['Authorized Departure (Voluntary Staff/Family Exit)', 'Shelter in Place / Bunker Readiness Alert'];
       const simSummary = scenario === 'ordered_departure'
@@ -848,58 +849,6 @@ async function loadTelegramSettings() {
         r.checked = r.value === state.tgMode;
       });
     } catch {}
-  }
-}
-
-function renderTelegramModalTags() {
-  const container = document.getElementById('tgSelectedTags');
-  const quickIsoList = ['UA', 'IL', 'PS', 'LB', 'IR', 'TW', 'RS', 'XK', 'PL', 'LT', 'LV', 'EE', 'MD', 'GE', 'AM', 'AZ', 'TR', 'EG', 'JO', 'SA', 'AE', 'KP', 'KR', 'PH', 'VE'];
-
-  container.innerHTML = quickIsoList.map(iso2 => {
-    const c = state.countriesByIso2[iso2];
-    const name = c ? c.name : iso2;
-    const isAct = state.watchedCountries.has(iso2);
-    return `<span class="country-tag ${isAct ? 'active' : ''}" data-iso="${iso2}">${isAct ? '✅ ' : ''}${escapeHtml(name)} (${iso2})</span>`;
-  }).join('');
-
-  container.querySelectorAll('.country-tag').forEach(tag => {
-    tag.addEventListener('click', () => {
-      const iso = tag.dataset.iso;
-      if (state.watchedCountries.has(iso)) state.watchedCountries.delete(iso);
-      else state.watchedCountries.add(iso);
-      renderTelegramModalTags();
-      updateWatchButtonUI();
-    });
-  });
-}
-
-async function saveTelegramSettings() {
-  const selectedMode = document.querySelector('input[name="tgMode"]:checked')?.value || 'all';
-  state.tgMode = selectedMode;
-
-  await persistTelegramSettingsQuietly();
-  document.getElementById('modalTelegram').classList.add('hidden');
-
-  const codes = [...state.watchedCountries].slice(0, 18).join('_');
-  const startParam = (selectedMode === 'selected' && codes) ? `watch_${codes}` : 'all';
-  window.open(`https://t.me/GeoAlerts13Bot?start=${startParam}`, '_blank', 'noopener,noreferrer');
-}
-
-async function persistTelegramSettingsQuietly() {
-  const payload = {
-    chatId: state.tgChatId,
-    mode: state.tgMode,
-    selectedCountries: [...state.watchedCountries]
-  };
-  localStorage.setItem('geoalerts_tg_settings', JSON.stringify(payload));
-  try {
-    await fetch('/api/telegram/settings', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(payload)
-    });
-  } catch {
-    // Saved in localStorage in static mode
   }
 }
 

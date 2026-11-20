@@ -53,11 +53,16 @@ function exportStaticData() {
   }
 
   const lastPoll = db.prepare(`SELECT value FROM system_meta WHERE key = 'last_poll_at'`).get();
+  const metaSubCount = db.prepare(`SELECT value FROM system_meta WHERE key = 'telegram_subscriber_count'`).get();
   const subRow = db.prepare(`
     SELECT COUNT(*) as c FROM telegram_subscribers
     WHERE active = 1 AND chat_id NOT IN ('admin_profile', 'default_admin')
   `).get();
-  const telegramSubscribersCount = Math.max(1, Number(subRow?.c || 0));
+  const telegramSubscribersCount = Math.max(
+    1,
+    Number(metaSubCount?.value || 0),
+    Number(subRow?.c || 0)
+  );
   const levelCounts = { 1: 0, 2: 0, 3: 0, 4: 0, 5: 0 };
 
   const enrichedCountries = countries.map(c => {
@@ -90,9 +95,6 @@ function exportStaticData() {
 
   fs.writeFileSync(path.join(outDir, 'overview.json'), JSON.stringify(overviewPayload));
   fs.writeFileSync(path.join(outDir, 'countries_details.json'), JSON.stringify(detailsByIso));
-  try {
-    db.exec('PRAGMA wal_checkpoint(TRUNCATE);');
-  } catch (_) {}
 }
 
 module.exports = { exportStaticData };

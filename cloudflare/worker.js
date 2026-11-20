@@ -1,29 +1,20 @@
 /**
  * GEOAlerts 24/7 Cloud Telegram Bot Webhook Worker (Cloudflare Workers / Edge)
- * Responds in <50ms from the cloud with ZERO processes running on the user's computer!
- * Includes persistent subscriber registry & counter in Cloudflare KV (GEOALERTS_KV).
+ * - Per-user Cloudflare KV storage (sub:<chat_id>) to avoid concurrent write races
+ * - Verifies Telegram X-Telegram-Bot-Api-Secret-Token on POST /webhook
+ * - Protects GET /subscribers & GET /register-webhook with Bearer auth
+ * - Exposes public PII-free GET /stats for the website subscriber counter badge
+ * - Full interactive Watchlist editing (region: / toggle: / watch_dossier:)
  */
 
 const DATA_BASE_URL = 'https://geoalerts.inteligentevolutionplatform.com/data';
-const KV_SUBSCRIBERS_KEY = 'subscribers_registry_v1';
+const LEGACY_KV_KEY = 'subscribers_registry_v1';
+const SUB_KEY_PREFIX = 'sub:';
+const MIGRATED_FLAG_KEY = 'meta:migrated_per_user_v1';
 
-// Seed with existing historical subscriber from SQLite DB so counter & registry are accurate from day 1
-const INITIAL_SUBSCRIBERS = {
-  '256524790': {
-    chat_id: '256524790',
-    username: 'Igor_Chumakov',
-    first_name: 'Igor',
-    mode: 'all',
-    selectedCountries: ['UA', 'IL', 'LB', 'IR', 'TW'],
-    active: 1,
-    created_at: '2026-10-25T21:12:58.234Z',
-    updated_at: '2026-10-25T21:37:11.609Z'
-  }
-};
-
-const CORS_HEADERS = {
+const PUBLIC_CORS_HEADERS = {
   'Access-Control-Allow-Origin': '*',
-  'Access-Control-Allow-Methods': 'GET, POST, OPTIONS',
+  'Access-Control-Allow-Methods': 'GET, OPTIONS',
   'Access-Control-Allow-Headers': 'Content-Type'
 };
 
@@ -78,7 +69,8 @@ const SOURCE_ICONS = {
   'ca_global_affairs': '🇨🇦',
   'de_auswaertiges_amt': '🇩🇪',
   'aviation_safeairspace': '✈️',
-  'maritime_nga_un': '⚓️'
+  'nga_maritime': '⚓️',
+  'un_reliefweb': '🌐'
 };
 
 const PERSISTENT_BOTTOM_KEYBOARD = {
@@ -93,38 +85,115 @@ const PERSISTENT_BOTTOM_KEYBOARD = {
   is_persistent: true
 };
 
+const DEFAULT_WATCHLIST = ['UA', 'IL', 'LB', 'IR', 'TW'];
+
 let cachedDetails = null;
 let cachedAt = 0;
-let memorySubscribers = { ...INITIAL_SUBSCRIBERS };
 
-async function loadSubscribersRegistry(env) {
-  if (env && env.GEOALERTS_KV) {
-    try {
-      const raw = await env.GEOALERTS_KV.get(KV_SUBSCRIBERS_KEY, 'json');
-      if (raw && typeof raw === 'object') {
-        memorySubscribers = { ...INITIAL_SUBSCRIBERS, ...raw };
-        return memorySubscribers;
-      }
-      await env.GEOALERTS_KV.put(KV_SUBSCRIBERS_KEY, JSON.stringify(memorySubscribers));
-    } catch (_) {}
+async function sha256Hex(input) {
+  const bytes = new TextEncoder().encode(input);
+  const digest = await crypto.subtle.digest('SHA-256', bytes);
+  return [...new Uint8Array(digest)].map(b => b.toString(16).padStart(2, '0')).join('');
+}
+
+function timingSafeEqual(a, b) {
+  const s1 = String(a || '');
+  const s2 = String(b || '');
+  if (s1.length !== s2.length || s1.length === 0) return false;
+  let diff = 0;
+  for (let i = 0; i < s1.length; i++) {
+    diff |= s1.charCodeAt(i) ^ s2.charCodeAt(i);
   }
-  return memorySubscribers;
+  return diff === 0;
+}
+
+async function getExpectedSyncSecret(env) {
+  if (env.SYNC_SECRET) return String(env.SYNC_SECRET).trim();
+  return sha256Hex(`geoalerts-sync:${env.TELEGRAM_BOT_TOKEN || ''}`);
+}
+
+async function getExpectedWebhookSecret(env) {
+  if (env.TELEGRAM_WEBHOOK_SECRET) return String(env.TELEGRAM_WEBHOOK_SECRET).trim();
+  const full = await sha256Hex(`geoalerts-webhook:${env.TELEGRAM_BOT_TOKEN || ''}`);
+  return full.slice(0, 48);
+}
+
+async function ensureMigratedToPerUserKeys(env) {
+  if (!env || !env.GEOALERTS_KV) return;
+  const alreadyMigrated = await env.GEOALERTS_KV.get(MIGRATED_FLAG_KEY);
+  if (alreadyMigrated) return;
+
+  try {
+    const legacy = await env.GEOALERTS_KV.get(LEGACY_KV_KEY, 'json');
+    if (legacy && typeof legacy === 'object') {
+      for (const [cid, record] of Object.entries(legacy)) {
+        const cleanId = String(cid || record?.chat_id || '').trim();
+        if (!cleanId || cleanId === 'admin_profile' || cleanId === 'default_admin') continue;
+        const existing = await env.GEOALERTS_KV.get(`${SUB_KEY_PREFIX}${cleanId}`, 'json');
+        if (!existing) {
+          await env.GEOALERTS_KV.put(`${SUB_KEY_PREFIX}${cleanId}`, JSON.stringify(record));
+        }
+      }
+    }
+    await env.GEOALERTS_KV.put(MIGRATED_FLAG_KEY, new Date().toISOString());
+  } catch (_) {}
+}
+
+async function listAllSubscribers(env) {
+  if (!env || !env.GEOALERTS_KV) return [];
+  await ensureMigratedToPerUserKeys(env);
+
+  const subscribers = [];
+  let cursor = undefined;
+  do {
+    const page = await env.GEOALERTS_KV.list({ prefix: SUB_KEY_PREFIX, cursor });
+    const records = await Promise.all(
+      page.keys.map(k => env.GEOALERTS_KV.get(k.name, 'json'))
+    );
+    for (const rec of records) {
+      if (rec && rec.active !== 0) subscribers.push(rec);
+    }
+    cursor = page.list_complete ? undefined : page.cursor;
+  } while (cursor);
+
+  return subscribers;
+}
+
+async function countActiveSubscribers(env) {
+  if (!env || !env.GEOALERTS_KV) return 1;
+  await ensureMigratedToPerUserKeys(env);
+
+  let count = 0;
+  let cursor = undefined;
+  do {
+    const page = await env.GEOALERTS_KV.list({ prefix: SUB_KEY_PREFIX, cursor });
+    count += page.keys.length;
+    cursor = page.list_complete ? undefined : page.cursor;
+  } while (cursor);
+
+  return Math.max(1, count);
+}
+
+async function getSubscriber(env, chatId) {
+  if (!env || !env.GEOALERTS_KV) return null;
+  await ensureMigratedToPerUserKeys(env);
+  return env.GEOALERTS_KV.get(`${SUB_KEY_PREFIX}${chatId}`, 'json');
 }
 
 async function upsertSubscriber(env, chatObj, patch = {}) {
-  const registry = await loadSubscribersRegistry(env);
   const chatId = String(chatObj?.id || patch.chat_id || '').trim();
   if (!chatId || chatId === 'admin_profile' || chatId === 'default_admin') {
-    return { subscriber: null, count: Object.keys(registry).length };
+    return { subscriber: null, count: await countActiveSubscribers(env) };
   }
 
+  await ensureMigratedToPerUserKeys(env);
   const now = new Date().toISOString();
-  const existing = registry[chatId] || {
+  const existing = (await getSubscriber(env, chatId)) || {
     chat_id: chatId,
     username: chatObj?.username || '',
     first_name: chatObj?.first_name || 'Subscriber',
     mode: 'all',
-    selectedCountries: ['UA', 'IL', 'LB', 'IR', 'TW'],
+    selectedCountries: [...DEFAULT_WATCHLIST],
     active: 1,
     created_at: now,
     updated_at: now
@@ -136,23 +205,18 @@ async function upsertSubscriber(env, chatObj, patch = {}) {
     first_name: chatObj?.first_name || existing.first_name || 'Subscriber',
     mode: patch.mode || existing.mode || 'all',
     selectedCountries: Array.isArray(patch.selectedCountries)
-      ? patch.selectedCountries
-      : (existing.selectedCountries || ['UA', 'IL', 'LB', 'IR', 'TW']),
+      ? Array.from(new Set(patch.selectedCountries))
+      : (existing.selectedCountries || [...DEFAULT_WATCHLIST]),
     active: 1,
     updated_at: now
   };
 
-  registry[chatId] = updated;
-  memorySubscribers = registry;
-
   if (env && env.GEOALERTS_KV) {
-    try {
-      await env.GEOALERTS_KV.put(KV_SUBSCRIBERS_KEY, JSON.stringify(registry));
-    } catch (_) {}
+    await env.GEOALERTS_KV.put(`${SUB_KEY_PREFIX}${chatId}`, JSON.stringify(updated));
   }
 
-  const activeCount = Object.values(registry).filter(s => s && s.active !== 0).length;
-  return { subscriber: updated, count: activeCount };
+  const count = await countActiveSubscribers(env);
+  return { subscriber: updated, count };
 }
 
 async function getIntelligenceDetails() {
@@ -217,7 +281,7 @@ function findCountry(detailsMap, rawQuery) {
   return null;
 }
 
-function buildMainMenuText(mode = 'all', selected = ['UA', 'IL', 'LB', 'IR', 'TW'], subscriberCount = 1) {
+function buildMainMenuText(mode = 'all', selected = DEFAULT_WATCHLIST, subscriberCount = 1) {
   const modeAll = mode === 'all';
   return (
     `🛡 <b>GEOAlerts — Early Warning Control Center (Cloud 24/7)</b>\n` +
@@ -230,7 +294,7 @@ function buildMainMenuText(mode = 'all', selected = ['UA', 'IL', 'LB', 'IR', 'TW
   );
 }
 
-function getMainMenuKeyboard(mode = 'all', selected = ['UA', 'IL', 'LB', 'IR', 'TW']) {
+function getMainMenuKeyboard(mode = 'all', selected = DEFAULT_WATCHLIST) {
   const modeAll = mode === 'all';
   return {
     inline_keyboard: [
@@ -258,6 +322,29 @@ function getMainMenuKeyboard(mode = 'all', selected = ['UA', 'IL', 'LB', 'IR', '
   };
 }
 
+function buildWatchlistRegionKeyboard(detailsMap, regionName, selectedList) {
+  const selectedSet = new Set(selectedList || []);
+  const isoList = REGIONS[regionName] || [];
+  const rows = [];
+  let currentRow = [];
+  for (const iso2 of isoList) {
+    const c = detailsMap[iso2]?.country;
+    const name = c?.name || iso2;
+    const isSel = selectedSet.has(iso2);
+    currentRow.push({
+      text: `${isSel ? '✅' : '⬜️'} ${name} (${iso2})`,
+      callback_data: `toggle:${iso2}:${regionName}`
+    });
+    if (currentRow.length === 2) {
+      rows.push(currentRow);
+      currentRow = [];
+    }
+  }
+  if (currentRow.length > 0) rows.push(currentRow);
+  rows.push([{ text: '⬅️ Back to Main Menu', callback_data: 'menu:main' }]);
+  return { inline_keyboard: rows };
+}
+
 function getLookupMenuKeyboard() {
   return {
     inline_keyboard: [
@@ -277,16 +364,19 @@ function getLookupMenuKeyboard() {
   };
 }
 
-function formatDossier(detailsMap, iso2) {
+function formatDossier(detailsMap, iso2, selectedList = []) {
   const entry = detailsMap[iso2];
   if (!entry) return null;
   const { country, sources } = entry;
   const lvl = country.overall_level || 1;
   const lvlIcon = lvl === 5 ? '⚫️' : lvl === 4 ? '🔴' : lvl === 3 ? '🟠' : lvl === 2 ? '🟡' : '🟢';
+  const isWatched = (selectedList || []).includes(iso2);
 
   const allFlags = new Set();
   for (const s of sources || []) {
-    (s.redFlags || []).forEach(f => allFlags.add(f));
+    if ((s.normalized_level || 1) >= 4) {
+      (s.redFlags || []).forEach(f => allFlags.add(f));
+    }
   }
 
   const sourceLines = (sources || []).map(s => {
@@ -310,6 +400,7 @@ function formatDossier(detailsMap, iso2) {
     `━━━━━━━━━━━━━━━━━━━━\n` +
     `<b>Composite Status:</b> ${LEVEL_BADGES[lvl] || `${lvlIcon} LEVEL ${lvl}`}\n` +
     `<b>Multi-Agency Resonance:</b> ${country.resonance_count > 0 ? `⚠️ <b>${country.resonance_count} agencies at Level 4+</b>` : `${(sources || []).length} official sources monitored`}\n` +
+    `<b>Watchlist Status:</b> ${isWatched ? '⭐ In your Selected Watchlist' : '⬜️ Not in Selected Watchlist'}\n` +
     `${flagsBlock}\n` +
     `🧠 <b>Executive Summary:</b>\n${escapeHtml(country.ai_executive_summary || 'Standard monitoring active.')}\n\n` +
     `🏛 <b>Status by Each Official Source (${(sources || []).length}):</b>\n\n` +
@@ -317,6 +408,12 @@ function formatDossier(detailsMap, iso2) {
 
   const keyboard = {
     inline_keyboard: [
+      [
+        {
+          text: isWatched ? `✅ In Watchlist (${iso2}) — Remove` : `⭐ Add ${country.name} (${iso2}) to Watchlist`,
+          callback_data: `watch_dossier:${iso2}`
+        }
+      ],
       [
         { text: '🔍 Check Another Country', callback_data: 'action:lookup_menu' },
         { text: '⬅️ Main Menu', callback_data: 'menu:main' }
@@ -356,62 +453,88 @@ function buildSummary(detailsMap) {
 export default {
   async fetch(request, env) {
     if (request.method === 'OPTIONS') {
-      return new Response(null, { status: 204, headers: CORS_HEADERS });
+      return new Response(null, { status: 204, headers: PUBLIC_CORS_HEADERS });
     }
 
     const token = env.TELEGRAM_BOT_TOKEN;
     const url = new URL(request.url);
 
-    // Public live subscriber stats endpoint for website badge
+    // Public, PII-free live subscriber count endpoint for the website badge
     if (request.method === 'GET' && url.pathname === '/stats') {
-      const registry = await loadSubscribersRegistry(env);
-      const subscribers = Object.values(registry).filter(s => s && s.active !== 0);
+      const subscriberCount = await countActiveSubscribers(env);
       return new Response(
         JSON.stringify({
           ok: true,
-          subscriberCount: subscribers.length,
+          subscriberCount,
           updatedAt: new Date().toISOString()
         }),
-        { headers: { 'Content-Type': 'application/json; charset=utf-8', ...CORS_HEADERS } }
+        { headers: { 'Content-Type': 'application/json; charset=utf-8', ...PUBLIC_CORS_HEADERS } }
       );
     }
 
-    // Subscriber sync endpoint for GitHub Actions 30-min cron
+    if (!token) {
+      return new Response('Missing TELEGRAM_BOT_TOKEN secret', { status: 500 });
+    }
+
+    // Authenticated subscriber sync endpoint for GitHub Actions cron ONLY (no public PII exposure)
     if (request.method === 'GET' && url.pathname === '/subscribers') {
-      const registry = await loadSubscribersRegistry(env);
-      const subscribers = Object.values(registry).filter(s => s && s.active !== 0);
+      const authHeader = request.headers.get('Authorization') || '';
+      const provided = authHeader.startsWith('Bearer ') ? authHeader.slice(7).trim() : '';
+      const expected = await getExpectedSyncSecret(env);
+      if (!timingSafeEqual(provided, expected)) {
+        return new Response(JSON.stringify({ ok: false, error: 'Unauthorized' }), {
+          status: 401,
+          headers: { 'Content-Type': 'application/json; charset=utf-8' }
+        });
+      }
+
+      const subscribers = await listAllSubscribers(env);
       return new Response(
         JSON.stringify({
           ok: true,
           subscriberCount: subscribers.length,
           subscribers
         }),
-        { headers: { 'Content-Type': 'application/json; charset=utf-8', ...CORS_HEADERS } }
+        { headers: { 'Content-Type': 'application/json; charset=utf-8' } }
       );
     }
 
-    if (!token) {
-      return new Response('Missing TELEGRAM_BOT_TOKEN secret', { status: 500, headers: CORS_HEADERS });
-    }
-
+    // Authenticated webhook registration endpoint
     if (url.pathname === '/register-webhook') {
+      const authHeader = request.headers.get('Authorization') || '';
+      const provided = authHeader.startsWith('Bearer ') ? authHeader.slice(7).trim() : '';
+      const expected = await getExpectedSyncSecret(env);
+      if (!timingSafeEqual(provided, expected)) {
+        return new Response(JSON.stringify({ ok: false, error: 'Unauthorized' }), {
+          status: 401,
+          headers: { 'Content-Type': 'application/json; charset=utf-8' }
+        });
+      }
+
       const webhookUrl = `${url.origin}/webhook`;
+      const secretToken = await getExpectedWebhookSecret(env);
       const res = await tgApi(token, 'setWebhook', {
         url: webhookUrl,
+        secret_token: secretToken,
         allowed_updates: ['message', 'callback_query']
       });
       return new Response(JSON.stringify({ webhookUrl, telegramResponse: res }, null, 2), {
-        headers: { 'Content-Type': 'application/json', ...CORS_HEADERS }
+        headers: { 'Content-Type': 'application/json' }
       });
     }
 
     if (request.method !== 'POST') {
-      const registry = await loadSubscribersRegistry(env);
-      const count = Object.values(registry).filter(s => s && s.active !== 0).length;
+      const count = await countActiveSubscribers(env);
       return new Response(`GEOAlerts Telegram Cloud Webhook is active 24/7! Active Subscribers: ${count}`, {
-        status: 200,
-        headers: CORS_HEADERS
+        status: 200
       });
+    }
+
+    // Verify Telegram's secret webhook header on every POST /webhook to block forged updates
+    const tgSecretHeader = request.headers.get('X-Telegram-Bot-Api-Secret-Token') || '';
+    const expectedWebhookSecret = await getExpectedWebhookSecret(env);
+    if (!timingSafeEqual(tgSecretHeader, expectedWebhookSecret)) {
+      return new Response('Forbidden', { status: 403 });
     }
 
     try {
@@ -425,7 +548,7 @@ export default {
         const textLower = text.toLowerCase();
         if (!text) return new Response('OK');
 
-        // Register or update this user in the persistent Cloudflare KV subscriber registry
+        // Register or update this user in per-user Cloudflare KV key
         let patch = {};
         if (text.startsWith('/start ')) {
           const arg = text.slice(7).trim();
@@ -434,14 +557,16 @@ export default {
           } else if (arg.startsWith('watch_')) {
             const codes = arg.slice(6).toUpperCase().split('_').filter(Boolean);
             if (codes.length > 0) {
+              const existingSub = await getSubscriber(env, chatId);
+              const merged = Array.from(new Set([...(existingSub?.selectedCountries || DEFAULT_WATCHLIST), ...codes]));
               patch.mode = 'selected';
-              patch.selectedCountries = codes;
+              patch.selectedCountries = merged;
             }
           }
         }
         const { subscriber, count: subscriberCount } = await upsertSubscriber(env, msg.chat, patch);
         const userMode = subscriber?.mode || 'all';
-        const userSelected = subscriber?.selectedCountries || ['UA', 'IL', 'LB', 'IR', 'TW'];
+        const userSelected = subscriber?.selectedCountries || [...DEFAULT_WATCHLIST];
 
         if (text === '/stats' || text === '/subscribers' || textLower === 'подписчики') {
           await tgApi(token, 'sendMessage', {
@@ -515,7 +640,7 @@ export default {
         const queryStr = text.replace(/^\/(status|check|country)\s*/i, '').trim();
         const matched = findCountry(detailsMap, queryStr);
         if (matched) {
-          const dossier = formatDossier(detailsMap, matched.iso2);
+          const dossier = formatDossier(detailsMap, matched.iso2, userSelected);
           await tgApi(token, 'sendMessage', {
             chat_id: chatId,
             text: dossier.text,
@@ -544,7 +669,7 @@ export default {
 
         const { subscriber, count: subscriberCount } = await upsertSubscriber(env, cb.from || cb.message.chat);
         let userMode = subscriber?.mode || 'all';
-        let userSelected = subscriber?.selectedCountries || ['UA', 'IL', 'LB', 'IR', 'TW'];
+        let userSelected = subscriber?.selectedCountries || [...DEFAULT_WATCHLIST];
 
         if (data === 'mode:all' || data === 'mode:selected') {
           const newMode = data.split(':')[1];
@@ -558,6 +683,65 @@ export default {
             parse_mode: 'HTML',
             reply_markup: getMainMenuKeyboard(userMode, userSelected)
           };
+        } else if (data.startsWith('region:')) {
+          // Watchlist editor for a specific region
+          const regionName = data.slice(7);
+          toastText = `⚙️ Editing Watchlist: ${regionName}`;
+          editPayload = {
+            chat_id: chatId,
+            message_id: messageId,
+            text:
+              `⚙️ <b>Edit Your Watchlist — ${escapeHtml(regionName)}</b>\n` +
+              `Tap any country to add (✅) or remove (⬜️) it from your Selected Watchlist (${userSelected.length} selected):`,
+            parse_mode: 'HTML',
+            reply_markup: buildWatchlistRegionKeyboard(detailsMap, regionName, userSelected)
+          };
+        } else if (data.startsWith('toggle:')) {
+          const parts = data.split(':');
+          const iso2 = parts[1];
+          const regionName = parts.slice(2).join(':');
+          const selSet = new Set(userSelected);
+          if (selSet.has(iso2)) {
+            selSet.delete(iso2);
+            toastText = `⬜️ Removed ${iso2} from Watchlist`;
+          } else {
+            selSet.add(iso2);
+            toastText = `✅ Added ${iso2} to Watchlist`;
+          }
+          userSelected = [...selSet];
+          await upsertSubscriber(env, cb.from || cb.message.chat, { selectedCountries: userSelected });
+
+          editPayload = {
+            chat_id: chatId,
+            message_id: messageId,
+            text:
+              `⚙️ <b>Edit Your Watchlist — ${escapeHtml(regionName)}</b>\n` +
+              `Tap any country to add (✅) or remove (⬜️) it from your Selected Watchlist (${userSelected.length} selected):`,
+            parse_mode: 'HTML',
+            reply_markup: buildWatchlistRegionKeyboard(detailsMap, regionName, userSelected)
+          };
+        } else if (data.startsWith('watch_dossier:')) {
+          const iso2 = data.slice(14);
+          const selSet = new Set(userSelected);
+          if (selSet.has(iso2)) {
+            selSet.delete(iso2);
+            toastText = `⬜️ Removed ${iso2} from Watchlist`;
+          } else {
+            selSet.add(iso2);
+            toastText = `⭐ Added ${iso2} to Watchlist`;
+          }
+          userSelected = [...selSet];
+          await upsertSubscriber(env, cb.from || cb.message.chat, { selectedCountries: userSelected });
+          const dossier = formatDossier(detailsMap, iso2, userSelected);
+          if (dossier) {
+            editPayload = {
+              chat_id: chatId,
+              message_id: messageId,
+              text: dossier.text,
+              parse_mode: 'HTML',
+              reply_markup: dossier.keyboard
+            };
+          }
         } else if (data === 'action:lookup_menu') {
           toastText = '🔍 Select a region or type a country name';
           editPayload = {
@@ -570,8 +754,8 @@ export default {
             parse_mode: 'HTML',
             reply_markup: getLookupMenuKeyboard()
           };
-        } else if (data.startsWith('lookup_reg:') || data.startsWith('region:')) {
-          const regionName = data.replace(/^(lookup_reg:|region:)/, '');
+        } else if (data.startsWith('lookup_reg:')) {
+          const regionName = data.slice(11);
           toastText = `📍 ${regionName}`;
           const isoList = REGIONS[regionName] || [];
           const rows = [];
@@ -596,7 +780,7 @@ export default {
           };
         } else if (data.startsWith('dossier:')) {
           const iso2 = data.slice(8);
-          const dossier = formatDossier(detailsMap, iso2);
+          const dossier = formatDossier(detailsMap, iso2, userSelected);
           toastText = `🌎 Loaded dossier for ${iso2}`;
           if (dossier) {
             editPayload = {

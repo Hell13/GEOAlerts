@@ -7,7 +7,8 @@ const {
   computeTextDiff,
   detectRedFlagsAndLevel,
   analyzeChangeWithAI,
-  getSeverityLabel
+  getSeverityLabel,
+  resetAiCallBudget
 } = require('./analyzer');
 
 const SNAPSHOT_DIR = path.join(__dirname, '../data/snapshots');
@@ -114,6 +115,8 @@ function resolveCountryIso2(input) {
   return null;
 }
 
+const liveFetchedSnapshots = new Set();
+
 async function fetchWithFallback(url, snapshotFilename, timeoutMs = 12000) {
   try {
     const controller = new AbortController();
@@ -128,12 +131,15 @@ async function fetchWithFallback(url, snapshotFilename, timeoutMs = 12000) {
     clearTimeout(timer);
     if (res.ok) {
       const text = await res.text();
-      if (text && text.length > 100 && snapshotFilename) {
-        try {
-          fs.writeFileSync(path.join(SNAPSHOT_DIR, snapshotFilename), text);
-        } catch (_) {}
+      if (text && text.length > 100) {
+        if (snapshotFilename) {
+          liveFetchedSnapshots.add(snapshotFilename);
+          try {
+            fs.writeFileSync(path.join(SNAPSHOT_DIR, snapshotFilename), text);
+          } catch (_) {}
+        }
+        return text;
       }
-      return text;
     }
   } catch (_) {
     // Fallback to local snapshot if offline/sandboxed
@@ -259,33 +265,13 @@ async function parseUSEmbassyAlerts() {
  */
 async function parseUKFCDO() {
   const records = [];
-  const step68Path = '/Users/igorchumakov/.gemini/antigravity/brain/c695a89d-4f97-4ee7-a97f-139296d1c36d/.system_generated/steps/68/content.md';
-  const israelRaw = fs.existsSync(step68Path) ? fs.readFileSync(step68Path, 'utf8') : null;
-
-  const indexJsonText = await fetchWithFallback('https://www.gov.uk/api/content/foreign-travel-advice', null);
+  const indexJsonText = await fetchWithFallback('https://www.gov.uk/api/content/foreign-travel-advice', 'uk_fcdo.json');
   let children = [];
   if (indexJsonText) {
     try {
       const parsed = JSON.parse(indexJsonText);
       children = parsed.links?.children || [];
     } catch (_) {}
-  }
-
-  // Fallback extraction from step 42 if offline
-  if (children.length === 0) {
-    const step42 = '/Users/igorchumakov/.gemini/antigravity/brain/c695a89d-4f97-4ee7-a97f-139296d1c36d/.system_generated/steps/42/content.md';
-    if (fs.existsSync(step42)) {
-      const raw = fs.readFileSync(step42, 'utf8');
-      const matches = [...raw.matchAll(/\{"api_path":"\/api\/content\/foreign-travel-advice\/([^"]+)"[\s\S]*?"change_description":"([^"]+)"[\s\S]*?"country":\{"name":"([^"]+)"[\s\S]*?"public_updated_at":"([^"]+)"/g)];
-      for (const m of matches) {
-        children.push({
-          slug: m[1],
-          details: { change_description: m[2], country: { name: m[3] } },
-          public_updated_at: m[4],
-          web_url: `https://www.gov.uk/foreign-travel-advice/${m[1]}`
-        });
-      }
-    }
   }
 
   for (const item of children) {
@@ -315,33 +301,6 @@ async function parseUKFCDO() {
       redFlags,
       publishedAt: item.public_updated_at || new Date().toISOString()
     });
-  }
-
-  // Ensure Israel detailed FCDO history replaces any generic entry
-  if (israelRaw) {
-    const noteMatch = israelRaw.match(/"change_description":"([^"]+)"/);
-    const tsMatch = israelRaw.match(/"public_timestamp":"([^"]+)"/);
-    if (noteMatch) {
-      const desc = noteMatch[1];
-      const { level: normLevel, redFlags } = detectRedFlagsAndLevel(desc + ' withdrawal of dependents of UK staff from Tel Aviv', 4);
-      const existingIdx = records.findIndex(r => r.iso2 === 'IL' && r.sourceId === 'uk_fcdo');
-      const ilRec = {
-        iso2: 'IL',
-        sourceId: 'uk_fcdo',
-        sourceName: 'UK Foreign Travel Advice (FCDO)',
-        category: 'diplomatic',
-        rawLevel: 'Advise Against All Travel to Parts / Staff Dependents Withdrawn',
-        normalizedLevel: normLevel,
-        title: 'Israel & Palestine: FCDO High-Risk Escalation Advisory',
-        summary: desc,
-        fullText: `${desc} Precautionary withdrawal of dependents of UK Embassy staff in Tel Aviv has been enacted during regional escalations.`,
-        url: 'https://www.gov.uk/foreign-travel-advice/israel',
-        redFlags,
-        publishedAt: tsMatch ? tsMatch[1] : new Date().toISOString()
-      };
-      if (existingIdx !== -1) records[existingIdx] = ilRec;
-      else records.push(ilRec);
-    }
   }
 
   return records;
@@ -484,7 +443,7 @@ async function parseIsraelNSC() {
   return nscAdvisories.map(a => ({
     iso2: a.iso2,
     sourceId: 'il_nsc',
-    sourceName: 'Israel National Security Council (NSC)',
+    sourceName: 'Israel National Security Council (NSC — Baseline)',
     category: 'diplomatic',
     rawLevel: a.raw,
     normalizedLevel: a.level,
@@ -493,101 +452,119 @@ async function parseIsraelNSC() {
     fullText: a.summary,
     url: 'https://www.gov.il/en/departments/dynamiccollectors/travel-warnings-nsc',
     redFlags: a.flags,
-    publishedAt: new Date().toISOString()
+    publishedAt: '2026-10-25T00:00:00.000Z'
   }));
 }
 
 /**
  * 7. Aviation Conflict Zone Warnings (SafeAirspace + EASA CZIB)
+ * Deterministically aggregates multiple feed items per country so feed ordering
+ * changes (e.g., France AIC vs France NOTAM) never ping-pong hashes or waste OpenAI tokens.
  */
-async function parseAviationWarnings() {
-  const html = await fetchWithFallback('https://safeairspace.net/', 'safeairspace.html');
+function parseAviationHtml(html) {
   const records = [];
+  if (!html) return records;
+
+  const feedItemsByIso = new Map();
+  const itemRegex = /<div class="feed-item feed-item-level-(\d)" data-feed-item-country="([^"]+)" data-feed-item-warn-level="(\d)">[\s\S]*?<span class="feed-item-level">([^<]+)<\/span>[\s\S]*?<div class="feed-item-summary">([\s\S]*?)<div class="feed-item-summary-fade">[\s\S]*?<a href="([^"]+)"/g;
+  for (const m of html.matchAll(itemRegex)) {
+    const warnLevel = Number(m[3]) || Number(m[1]) || 2;
+    const countryName = m[2].trim();
+    const dateStr = m[4].trim();
+    const summaryText = stripHtml(m[5]);
+    const link = m[6].trim();
+
+    const iso2 = resolveCountryIso2(countryName);
+    if (!iso2) continue;
+    if (!feedItemsByIso.has(iso2)) feedItemsByIso.set(iso2, []);
+    feedItemsByIso.get(iso2).push({ warnLevel, countryName, dateStr, summaryText, link });
+  }
+
   const seenIso = new Set();
+  for (const [iso2, items] of feedItemsByIso.entries()) {
+    seenIso.add(iso2);
+    // Deterministic sort: highest severity (lowest warnLevel: 1=Do Not Fly) first, then canonical text sort
+    items.sort((a, b) => (a.warnLevel - b.warnLevel) || a.summaryText.localeCompare(b.summaryText));
+    const top = items[0];
+    const warnLevel = top.warnLevel;
 
-  if (html) {
-    // Parse feed items from SafeAirspace homepage
-    const itemRegex = /<div class="feed-item feed-item-level-(\d)" data-feed-item-country="([^"]+)" data-feed-item-warn-level="(\d)">[\s\S]*?<span class="feed-item-level">([^<]+)<\/span>[\s\S]*?<div class="feed-item-summary">([\s\S]*?)<div class="feed-item-summary-fade">[\s\S]*?<a href="([^"]+)"/g;
-    for (const m of html.matchAll(itemRegex)) {
-      const warnLevel = Number(m[3]) || Number(m[1]) || 2;
-      const countryName = m[2].trim();
-      const dateStr = m[4].trim();
-      const summaryText = stripHtml(m[5]);
-      const link = m[6].trim();
+    // Combine unique clean summaries in sorted order so swapped feed order produces the exact same hash
+    const uniqueSummaries = Array.from(new Set(items.map(i => i.summaryText).filter(Boolean))).sort();
+    const canonicalSummary = uniqueSummaries.slice(0, 2).join(' | ');
 
-      const iso2 = resolveCountryIso2(countryName);
-      if (!iso2 || seenIso.has(iso2)) continue;
-      seenIso.add(iso2);
-
-      // SafeAirspace levels: Level 1 = Do Not Fly, Level 2 = Danger Exists, Level 3 = Caution
-      let normLevel = 3;
-      let rawLabel = `SafeAirspace Level ${warnLevel}`;
-      const redFlags = [];
-      if (warnLevel === 1) {
-        normLevel = 5;
-        rawLabel = 'LEVEL 1: DO NOT FLY (Active Airspace Prohibition)';
-        redFlags.push('SafeAirspace Level 1: Do Not Fly (Active Conflict Airspace)');
-      } else if (warnLevel === 2) {
-        normLevel = 4;
-        rawLabel = 'LEVEL 2: DANGER EXISTS (Dedicated Airspace Warning)';
-        redFlags.push('SafeAirspace Level 2: Dedicated Conflict Zone Airspace Warning');
-      } else {
-        normLevel = 3;
-        rawLabel = 'LEVEL 3: CAUTION (Operational Airspace Risk)';
-      }
-
-      records.push({
-        iso2,
-        sourceId: 'aviation_safeairspace',
-        sourceName: 'SafeAirspace & EASA CZIB (Aviation)',
-        category: 'aviation',
-        rawLevel: rawLabel,
-        normalizedLevel: normLevel,
-        title: `${countriesData[iso2]?.name || countryName} Airspace (${dateStr}): ${rawLabel}`,
-        summary: `${summaryText} (Updated ${dateStr})`,
-        fullText: `${countryName} — ${rawLabel}. ${summaryText}`,
-        url: link || 'https://safeairspace.net/',
-        redFlags,
-        publishedAt: new Date().toISOString()
-      });
+    let normLevel = 3;
+    let rawLabel = `SafeAirspace Level ${warnLevel}`;
+    const redFlags = [];
+    if (warnLevel === 1) {
+      normLevel = 5;
+      rawLabel = 'LEVEL 1: DO NOT FLY (Active Airspace Prohibition)';
+      redFlags.push('SafeAirspace Level 1: Do Not Fly (Active Conflict Airspace)');
+    } else if (warnLevel === 2) {
+      normLevel = 4;
+      rawLabel = 'LEVEL 2: DANGER EXISTS (Dedicated Airspace Warning)';
+      redFlags.push('SafeAirspace Level 2: Dedicated Conflict Zone Airspace Warning');
+    } else {
+      normLevel = 3;
+      rawLabel = 'LEVEL 3: CAUTION (Operational Airspace Risk)';
     }
 
-    // Also parse window["CountryWarning"] active conflict airspace list from SafeAirspace script block
-    const scriptMatches = [...html.matchAll(/window\["([A-Za-z]+)Warning"\]/g)];
-    const DO_NOT_FLY_ISO = new Set(['UA', 'RU', 'IR', 'IQ', 'SY', 'YE', 'LB', 'IL', 'LY', 'SD', 'SS', 'SO', 'KP', 'AF', 'MM', 'HT', 'VE']);
-    const DANGER_ISO = new Set(['SA', 'JO', 'EG', 'BY', 'MD', 'PK', 'ET', 'CD', 'NE', 'ML', 'TD', 'CF', 'ER', 'AZ', 'AM']);
+    records.push({
+      iso2,
+      sourceId: 'aviation_safeairspace',
+      sourceName: 'SafeAirspace & EASA CZIB (Aviation)',
+      category: 'aviation',
+      rawLevel: rawLabel,
+      normalizedLevel: normLevel,
+      // Omit volatile dateStr from title so date-only label updates don't thrash hashes
+      title: `${countriesData[iso2]?.name || top.countryName} Airspace: ${rawLabel}`,
+      summary: `${canonicalSummary} (Latest: ${top.dateStr})`,
+      fullText: `${countriesData[iso2]?.name || top.countryName} — ${rawLabel}. ${canonicalSummary}`,
+      url: top.link || 'https://safeairspace.net/',
+      redFlags,
+      publishedAt: new Date().toISOString()
+    });
+  }
 
-    for (const sm of scriptMatches) {
-      const rawCountry = sm[1].replace(/([a-z])([A-Z])/g, '$1 $2');
-      const iso2 = resolveCountryIso2(rawCountry) || resolveCountryIso2(sm[1]);
-      if (!iso2 || seenIso.has(iso2)) continue;
-      seenIso.add(iso2);
+  // Also parse window["CountryWarning"] active conflict airspace list from SafeAirspace script block
+  const scriptMatches = [...html.matchAll(/window\["([A-Za-z]+)Warning"\]/g)];
+  const DO_NOT_FLY_ISO = new Set(['UA', 'RU', 'IR', 'IQ', 'SY', 'YE', 'LB', 'IL', 'LY', 'SD', 'SS', 'SO', 'KP', 'AF', 'MM', 'HT', 'VE']);
+  const DANGER_ISO = new Set(['SA', 'JO', 'EG', 'BY', 'MD', 'PK', 'ET', 'CD', 'NE', 'ML', 'TD', 'CF', 'ER', 'AZ', 'AM']);
 
-      const isDoNotFly = DO_NOT_FLY_ISO.has(iso2);
-      const isDanger = DANGER_ISO.has(iso2);
-      const normLevel = isDoNotFly ? 5 : (isDanger ? 4 : 3);
-      const rawLabel = isDoNotFly
-        ? 'LEVEL 1: DO NOT FLY (EASA CZIB / FAA Prohibition)'
-        : (isDanger ? 'LEVEL 2: DANGER EXISTS (Active NOTAM / Airspace Risk)' : 'LEVEL 3: CAUTION (Airspace Advisory)');
-      const redFlags = normLevel >= 4 ? [`Airspace Conflict Warning: ${rawLabel}`] : [];
+  for (const sm of scriptMatches) {
+    const rawCountry = sm[1].replace(/([a-z])([A-Z])/g, '$1 $2');
+    const iso2 = resolveCountryIso2(rawCountry) || resolveCountryIso2(sm[1]);
+    if (!iso2 || seenIso.has(iso2)) continue;
+    seenIso.add(iso2);
 
-      records.push({
-        iso2,
-        sourceId: 'aviation_safeairspace',
-        sourceName: 'SafeAirspace & EASA CZIB (Aviation)',
-        category: 'aviation',
-        rawLevel: rawLabel,
-        normalizedLevel: normLevel,
-        title: `${countriesData[iso2]?.name || rawCountry}: ${rawLabel}`,
-        summary: `Active Conflict Zone & Airspace Risk Warning monitored by OPSGROUP SafeAirspace and EASA CZIB for ${countriesData[iso2]?.name || rawCountry}.`,
-        fullText: `Active Conflict Zone & Airspace Risk Warning (${rawLabel}) due to anti-aircraft weaponry, missile transits, or military operations.`,
-        url: `https://safeairspace.net/${(countriesData[iso2]?.slug || rawCountry.toLowerCase().replace(/\s+/g, '-'))}/`,
-        redFlags,
-        publishedAt: new Date().toISOString()
-      });
-    }
+    const isDoNotFly = DO_NOT_FLY_ISO.has(iso2);
+    const isDanger = DANGER_ISO.has(iso2);
+    const normLevel = isDoNotFly ? 5 : (isDanger ? 4 : 3);
+    const rawLabel = isDoNotFly
+      ? 'LEVEL 1: DO NOT FLY (EASA CZIB / FAA Prohibition)'
+      : (isDanger ? 'LEVEL 2: DANGER EXISTS (Active NOTAM / Airspace Risk)' : 'LEVEL 3: CAUTION (Airspace Advisory)');
+    const redFlags = normLevel >= 4 ? [`Airspace Conflict Warning: ${rawLabel}`] : [];
+
+    records.push({
+      iso2,
+      sourceId: 'aviation_safeairspace',
+      sourceName: 'SafeAirspace & EASA CZIB (Aviation)',
+      category: 'aviation',
+      rawLevel: rawLabel,
+      normalizedLevel: normLevel,
+      title: `${countriesData[iso2]?.name || rawCountry}: ${rawLabel}`,
+      summary: `Active Conflict Zone & Airspace Risk Warning monitored by OPSGROUP SafeAirspace and EASA CZIB for ${countriesData[iso2]?.name || rawCountry}.`,
+      fullText: `Active Conflict Zone & Airspace Risk Warning (${rawLabel}) due to anti-aircraft weaponry, missile transits, or military operations.`,
+      url: `https://safeairspace.net/${(countriesData[iso2]?.slug || rawCountry.toLowerCase().replace(/\s+/g, '-'))}/`,
+      redFlags,
+      publishedAt: new Date().toISOString()
+    });
   }
   return records;
+}
+
+async function parseAviationWarnings() {
+  const html = await fetchWithFallback('https://safeairspace.net/', 'safeairspace.html');
+  return parseAviationHtml(html);
 }
 
 /**
@@ -703,6 +680,9 @@ async function parseMaritimeAndUN() {
  */
 async function runFullIngestion({ sendTelegramAlerts = true } = {}) {
   const startTime = Date.now();
+  liveFetchedSnapshots.clear();
+  resetAiCallBudget();
+
   const allRecords = [
     ...(await parseUSStateDept()),
     ...(await parseUSEmbassyAlerts()),
@@ -786,17 +766,33 @@ async function runFullIngestion({ sendTelegramAlerts = true } = {}) {
       diffBefore = diff.removedText || existing.raw_level;
       diffAfter = diff.addedText || rec.summary;
 
-      // Only invoke OpenAI gpt-4o-mini on genuine content changes
-      const aiResult = await analyzeChangeWithAI({
-        countryName: countriesData[rec.iso2].name,
-        sourceName: rec.sourceName,
-        oldLevel: existing.normalized_level,
-        newBaseLevel: rec.normalizedLevel,
-        title: rec.title,
-        diffBefore,
-        diffAfter,
-        fullText: rec.fullText
-      });
+      const isRoutineLevel1Edit =
+        Number(existing.normalized_level) === 1 &&
+        Number(rec.normalizedLevel) === 1 &&
+        (!rec.redFlags || rec.redFlags.length === 0);
+
+      let aiResult;
+      if (isRoutineLevel1Edit) {
+        // Save tokens: routine Level 1 -> Level 1 edits with zero red flags don't need an LLM call
+        aiResult = {
+          normalizedLevel: 1,
+          severityLabel: getSeverityLabel(1),
+          aiSummary: rec.summary || rec.title,
+          redFlags: [],
+          usedOpenAI: false
+        };
+      } else {
+        aiResult = await analyzeChangeWithAI({
+          countryName: countriesData[rec.iso2].name,
+          sourceName: rec.sourceName,
+          oldLevel: existing.normalized_level,
+          newBaseLevel: rec.normalizedLevel,
+          title: rec.title,
+          diffBefore,
+          diffAfter,
+          fullText: rec.fullText
+        });
+      }
 
       finalLevel = aiResult.normalizedLevel;
       finalSummary = aiResult.aiSummary;
@@ -884,6 +880,31 @@ async function runFullIngestion({ sendTelegramAlerts = true } = {}) {
       nowIso
     );
   }
+
+  // Expire stale dynamic warnings when live feeds succeeded (so lifted airspace/maritime bans clear cleanly)
+  const activeIdsBySource = new Map();
+  for (const rec of uniqueRecords) {
+    if (!activeIdsBySource.has(rec.sourceId)) activeIdsBySource.set(rec.sourceId, new Set());
+    activeIdsBySource.get(rec.sourceId).add(`${rec.iso2}:${rec.sourceId}`);
+  }
+  const expirableSources = [
+    { sourceId: 'aviation_safeairspace', snapshot: 'safeairspace.html', minRecords: 10 },
+    { sourceId: 'nga_maritime', snapshot: 'nga_maritime.json', minRecords: 3 }
+  ];
+  for (const cfg of expirableSources) {
+    const activeSet = activeIdsBySource.get(cfg.sourceId);
+    if (liveFetchedSnapshots.has(cfg.snapshot) && activeSet && activeSet.size >= cfg.minRecords) {
+      const existingRows = db.prepare(`SELECT id FROM source_statuses WHERE source_id = ?`).all(cfg.sourceId);
+      for (const row of existingRows) {
+        if (!activeSet.has(row.id)) {
+          db.prepare(`DELETE FROM source_statuses WHERE id = ?`).run(row.id);
+        }
+      }
+    }
+  }
+  // Expire UN ReliefWeb SitReps older than 14 days so historical conflict SitReps don't persist forever
+  const fourteenDaysAgoIso = new Date(Date.now() - 14 * 24 * 60 * 60 * 1000).toISOString();
+  db.prepare(`DELETE FROM source_statuses WHERE source_id = 'un_reliefweb' AND updated_at < ?`).run(fourteenDaysAgoIso);
 
   // Recompute Composite Country Threat Index & Resonance across all 203 countries
   recomputeCountryAggregates();
@@ -1053,5 +1074,6 @@ function recomputeCountryAggregates() {
 module.exports = {
   runFullIngestion,
   recomputeCountryAggregates,
-  resolveCountryIso2
+  resolveCountryIso2,
+  parseAviationHtml
 };

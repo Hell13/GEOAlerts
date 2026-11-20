@@ -113,9 +113,29 @@ function detectRedFlagsAndLevel(text, baseSourceLevel = 1) {
   };
 }
 
+const AI_TIMEOUT_MS = Number(process.env.AI_TIMEOUT_MS) || 20000;
+const MAX_AI_CALLS_PER_RUN = Number(process.env.MAX_AI_CALLS_PER_RUN) || 30;
+let aiCallsThisRun = 0;
+
+function resetAiCallBudget() {
+  aiCallsThisRun = 0;
+}
+
+async function fetchJsonWithTimeout(url, options, timeoutMs = AI_TIMEOUT_MS) {
+  const controller = new AbortController();
+  const timer = setTimeout(() => controller.abort(), timeoutMs);
+  try {
+    const res = await fetch(url, { ...options, signal: controller.signal });
+    if (!res.ok) throw new Error(`HTTP ${res.status}`);
+    return await res.json();
+  } finally {
+    clearTimeout(timer);
+  }
+}
+
 /**
- * Calls OpenAI gpt-4o-mini ONLY when a meaningful change occurs.
- * Falls back to deterministic intelligence analysis if OPENAI_API_KEY is not configured.
+ * Calls OpenAI (or Gemini) ONLY when a meaningful change occurs, with timeout & per-run cap.
+ * Falls back to deterministic intelligence analysis if keys are missing, timed out, or cap exceeded.
  */
 async function analyzeChangeWithAI({
   countryName,
@@ -137,24 +157,28 @@ async function analyzeChangeWithAI({
   const hasGemini = Boolean(geminiKey && geminiKey !== 'your_gemini_api_key_here');
   const hasOpenAI = Boolean(openaiKey && openaiKey !== 'your_openai_api_key_here');
 
-  if (!hasOpenAI && !hasGemini) {
+  const overBudget = aiCallsThisRun >= MAX_AI_CALLS_PER_RUN;
+  if ((!hasOpenAI && !hasGemini) || overBudget) {
     const summaryParts = [];
-    if (redFlags.length > 0) {
+    if (redFlags.length > 0 && deterministicLevel >= 4) {
       summaryParts.push(`Critical indicators detected: ${redFlags.join(', ')}.`);
     }
-    if (diffAfter) {
-      summaryParts.push(diffAfter.slice(0, 280) + (diffAfter.length > 280 ? '...' : ''));
-    } else if (fullText) {
-      summaryParts.push(stripHtml(fullText).slice(0, 280) + '...');
+    const cleanAfter = stripHtml(diffAfter || '');
+    const cleanFull = stripHtml(fullText || '');
+    if (cleanAfter) {
+      summaryParts.push(cleanAfter.slice(0, 280) + (cleanAfter.length > 280 ? '...' : ''));
+    } else if (cleanFull) {
+      summaryParts.push(cleanFull.slice(0, 280) + '...');
     }
     return {
       normalizedLevel: deterministicLevel,
       severityLabel: getSeverityLabel(deterministicLevel),
       aiSummary: summaryParts.join(' ') || title,
-      redFlags,
+      redFlags: deterministicLevel >= 4 ? redFlags : [],
       usedOpenAI: false
     };
   }
+  aiCallsThisRun++;
 
   const cleanDiffBefore = stripHtml(diffBefore || '');
   const cleanDiffAfter = stripHtml(diffAfter || '');
@@ -202,7 +226,7 @@ Respond ONLY in valid JSON with this exact structure:
       };
       if (!model.startsWith('gpt-5')) bodyPayload.temperature = 0.1;
 
-      const res = await fetch('https://api.openai.com/v1/chat/completions', {
+      const data = await fetchJsonWithTimeout('https://api.openai.com/v1/chat/completions', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -210,12 +234,10 @@ Respond ONLY in valid JSON with this exact structure:
         },
         body: JSON.stringify(bodyPayload)
       });
-      if (!res.ok) throw new Error(`OpenAI HTTP ${res.status}`);
-      const data = await res.json();
       parsed = JSON.parse(data.choices[0].message.content);
     } else if (hasGemini) {
       const geminiModel = process.env.GEMINI_MODEL || 'gemini-2.5-flash-lite';
-      const res = await fetch(
+      const data = await fetchJsonWithTimeout(
         `https://generativelanguage.googleapis.com/v1beta/models/${geminiModel}:generateContent?key=${geminiKey}`,
         {
           method: 'POST',
@@ -226,8 +248,6 @@ Respond ONLY in valid JSON with this exact structure:
           })
         }
       );
-      if (!res.ok) throw new Error(`Gemini HTTP ${res.status}`);
-      const data = await res.json();
       parsed = JSON.parse(data.candidates[0].content.parts[0].text);
     }
 
@@ -289,5 +309,6 @@ module.exports = {
   computeTextDiff,
   detectRedFlagsAndLevel,
   analyzeChangeWithAI,
-  getSeverityLabel
+  getSeverityLabel,
+  resetAiCallBudget
 };

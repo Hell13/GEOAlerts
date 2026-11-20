@@ -1,3 +1,4 @@
+const crypto = require('node:crypto');
 const fs = require('node:fs');
 const path = require('node:path');
 const { spawnSync } = require('node:child_process');
@@ -11,22 +12,25 @@ if (!match) {
 }
 const token = match[1].trim();
 const workerWebhookUrl = 'https://geoalerts-telegram-bot.geoalerts.workers.dev/webhook';
+const webhookSecret = process.env.TELEGRAM_WEBHOOK_SECRET ||
+  crypto.createHash('sha256').update(`geoalerts-webhook:${token}`).digest('hex').slice(0, 48);
 
 (async () => {
   console.log('1. Uploading TELEGRAM_BOT_TOKEN secret to Cloudflare Worker...');
-  const proc = spawnSync('/opt/homebrew/bin/npx', ['wrangler', 'secret', 'put', 'TELEGRAM_BOT_TOKEN'], {
+  const proc = spawnSync('/opt/homebrew/bin/npx', ['-y', 'wrangler', 'secret', 'put', 'TELEGRAM_BOT_TOKEN'], {
     input: token,
     encoding: 'utf8',
     env: { ...process.env, PATH: `/opt/homebrew/bin:/usr/bin:/bin:${process.env.PATH || ''}` }
   });
   console.log(proc.stdout || proc.stderr);
 
-  console.log('2. Registering Webhook URL with Telegram Bot API...');
+  console.log('2. Registering Webhook URL + Secret Token with Telegram Bot API...');
   const res = await fetch(`https://api.telegram.org/bot${token}/setWebhook`, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({
       url: workerWebhookUrl,
+      secret_token: webhookSecret,
       allowed_updates: ['message', 'callback_query'],
       drop_pending_updates: false
     })

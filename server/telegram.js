@@ -1,3 +1,4 @@
+const crypto = require('node:crypto');
 const { db } = require('./db');
 const { stripHtml, getSeverityLabel } = require('./analyzer');
 const fs = require('fs');
@@ -108,58 +109,70 @@ const SOURCE_ICONS = {
   'ca_global_affairs': '🇨🇦',
   'de_auswaertiges_amt': '🇩🇪',
   'aviation_safeairspace': '✈️',
-  'maritime_nga_un': '⚓️'
+  'nga_maritime': '⚓️',
+  'un_reliefweb': '🌐'
 };
+
+let cachedCloudSubscribers = [];
+
+function getSyncBearerSecret() {
+  if (process.env.CLOUDFLARE_SYNC_SECRET) return String(process.env.CLOUDFLARE_SYNC_SECRET).trim();
+  const token = process.env.TELEGRAM_BOT_TOKEN || '';
+  if (!token || token === 'your_telegram_bot_token_here') return '';
+  return crypto.createHash('sha256').update(`geoalerts-sync:${token}`).digest('hex');
+}
+
+function sanitizeHttpUrl(rawUrl, fallback = 'https://travel.state.gov') {
+  const str = String(rawUrl || '').trim();
+  if (/^https?:\/\/[^\s"'<>]+$/i.test(str)) {
+    return str.replace(/"/g, '%22');
+  }
+  return fallback;
+}
 
 function getSubscriberCount() {
   try {
+    if (cachedCloudSubscribers.length > 0) return cachedCloudSubscribers.length;
+    const meta = db.prepare(`SELECT value FROM system_meta WHERE key = 'telegram_subscriber_count'`).get();
     const row = db.prepare(`
       SELECT COUNT(*) as c FROM telegram_subscribers
       WHERE active = 1 AND chat_id NOT IN ('admin_profile', 'default_admin')
     `).get();
-    return Math.max(1, Number(row?.c || 0));
+    return Math.max(1, Number(meta?.value || 0), Number(row?.c || 0));
   } catch (_) {
     return 1;
   }
 }
 
+/**
+ * Fetches active subscribers from the authenticated Cloudflare Worker KV endpoint
+ * and keeps PII strictly in memory (never committing user chat_ids/usernames to Git SQLite),
+ * while persisting only the aggregate subscriber count to system_meta for static export.
+ */
 async function syncSubscribersFromCloudWorker() {
   try {
+    const bearer = getSyncBearerSecret();
     const controller = new AbortController();
-    const timer = setTimeout(() => controller.abort(), 5000);
+    const timer = setTimeout(() => controller.abort(), 6000);
+    const headers = bearer ? { Authorization: `Bearer ${bearer}` } : {};
     const res = await fetch('https://geoalerts-telegram-bot.geoalerts.workers.dev/subscribers', {
-      signal: controller.signal
+      signal: controller.signal,
+      headers
     });
     clearTimeout(timer);
-    if (!res.ok) return getSubscriberCount();
-    const data = await res.json();
-    if (Array.isArray(data.subscribers)) {
-      const upsert = db.prepare(`
-        INSERT INTO telegram_subscribers (
-          chat_id, username, first_name, mode, selected_countries_json, min_level, active, created_at, updated_at
-        ) VALUES (?, ?, ?, ?, ?, 1, 1, ?, ?)
-        ON CONFLICT(chat_id) DO UPDATE SET
-          username = COALESCE(NULLIF(excluded.username, ''), telegram_subscribers.username),
-          first_name = COALESCE(NULLIF(excluded.first_name, ''), telegram_subscribers.first_name),
-          mode = excluded.mode,
-          selected_countries_json = excluded.selected_countries_json,
-          active = excluded.active,
-          updated_at = excluded.updated_at
-      `);
-      const now = new Date().toISOString();
-      for (const s of data.subscribers) {
-        const cid = String(s.chat_id || '').trim();
-        if (!cid || cid === 'admin_profile' || cid === 'default_admin') continue;
-        const sel = Array.isArray(s.selectedCountries) ? s.selectedCountries : ['UA', 'IL', 'LB', 'IR', 'TW'];
-        upsert.run(
-          cid,
-          s.username || '',
-          s.first_name || 'Subscriber',
-          s.mode === 'selected' ? 'selected' : 'all',
-          JSON.stringify(sel),
-          s.created_at || now,
-          s.updated_at || now
-        );
+    if (res.ok) {
+      const data = await res.json();
+      if (Array.isArray(data.subscribers)) {
+        cachedCloudSubscribers = data.subscribers
+          .filter(s => s && s.active !== 0 && s.chat_id && s.chat_id !== 'admin_profile' && s.chat_id !== 'default_admin')
+          .map(s => ({
+            chat_id: String(s.chat_id),
+            mode: s.mode === 'selected' ? 'selected' : 'all',
+            selected_countries_json: JSON.stringify(Array.isArray(s.selectedCountries) ? s.selectedCountries : ['UA', 'IL', 'LB', 'IR', 'TW'])
+          }));
+        db.prepare(`INSERT OR REPLACE INTO system_meta (key, value) VALUES ('telegram_subscriber_count', ?)`)
+          .run(String(Math.max(1, cachedCloudSubscribers.length)));
+        return cachedCloudSubscribers.length;
       }
     }
   } catch (_) {
@@ -215,7 +228,7 @@ function formatAlertMessage(event) {
     `${flagsHtml}\n` +
     `🧠 <b>AI Crisis Intelligence Brief:</b>\n${escapeHtml(stripHtml(event.aiSummary || ''))}\n` +
     `${diffHtml}\n` +
-    `🔗 <a href="${event.sourceUrl || 'https://travel.state.gov'}">View Official Source Document</a>`
+    `🔗 <a href="${sanitizeHttpUrl(event.sourceUrl)}">View Official Source Document</a>`
   );
 }
 
@@ -327,7 +340,19 @@ async function broadcastCriticalEvents(events) {
   });
   if (statusChangedOnly.length === 0) return { sent: 0, eventsCount: 0 };
 
-  const subscribers = db.prepare(`SELECT * FROM telegram_subscribers WHERE active = 1`).all();
+  // Prefer live cloud subscribers from Cloudflare KV (kept in memory, zero PII in Git);
+  // merge any local DB subscribers for local dev compatibility
+  const localSubs = db.prepare(`SELECT * FROM telegram_subscribers WHERE active = 1`).all();
+  const subMap = new Map();
+  for (const s of localSubs) {
+    if (s.chat_id && s.chat_id !== 'admin_profile' && s.chat_id !== 'default_admin') {
+      subMap.set(String(s.chat_id), s);
+    }
+  }
+  for (const s of cachedCloudSubscribers) {
+    subMap.set(String(s.chat_id), s);
+  }
+  const subscribers = [...subMap.values()];
   let sentCount = 0;
 
   for (const event of statusChangedOnly) {
