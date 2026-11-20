@@ -767,8 +767,8 @@ async function runCrisisSimulation() {
           ? ['Airspace Risk / Conflict Zone Bulletin (CZIB)', 'Leave Immediately (Commercial Means)']
           : ['Authorized Departure (Voluntary Staff/Family Exit)', 'Shelter in Place / Bunker Readiness Alert'];
       const simSummary = scenario === 'ordered_departure'
-        ? `[gpt-4.1-mini] CRITICAL ESCALATION: U.S. Embassy in ${c?.name || iso2} shifted from routine guidance to mandatory Ordered Departure of non-emergency personnel and urged citizens to depart immediately via commercial flights.`
-        : `[gpt-4.1-mini] HIGH ESCALATION: Diplomatic security posture upgraded for ${c?.name || iso2} with pre-evacuation indicators (${flags[0]}).`;
+        ? `[gpt-4o-mini] CRITICAL ESCALATION: U.S. Embassy in ${c?.name || iso2} shifted from routine guidance to mandatory Ordered Departure of non-emergency personnel and urged citizens to depart immediately via commercial flights.`
+        : `[gpt-4o-mini] HIGH ESCALATION: Diplomatic security posture upgraded for ${c?.name || iso2} with pre-evacuation indicators (${flags[0]}).`;
 
       if (c) {
         c.overall_level = newLvl;

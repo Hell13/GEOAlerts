@@ -215,7 +215,7 @@ Respond ONLY in valid JSON with this exact structure:
   try {
     let parsed;
     if (hasOpenAI) {
-      const model = process.env.OPENAI_MODEL || 'gpt-4.1-mini';
+      const model = process.env.OPENAI_MODEL || 'gpt-4o-mini';
       const bodyPayload = {
         model,
         response_format: { type: 'json_object' },

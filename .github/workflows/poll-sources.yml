@@ -37,7 +37,7 @@ jobs:
       - name: Run Multi-Source Diplomatic & Airspace Poll
         env:
           OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
-          OPENAI_MODEL: gpt-4.1-mini
+          OPENAI_MODEL: gpt-4o-mini
           GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
           TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
           CLOUDFLARE_SYNC_SECRET: ${{ secrets.CLOUDFLARE_SYNC_SECRET }}
