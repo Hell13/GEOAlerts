@@ -1645,18 +1645,6 @@
       "situationWarning": false,
       "situationPartWarning": false
     },
-    "200382": {
-      "lastModified": 1793196255,
-      "effective": 1793196000,
-      "title": "Belgien: Reise- und Sicherheitshinweise",
-      "countryCode": "BE",
-      "iso3CountryCode": "BEL",
-      "countryName": "Belgien",
-      "warning": false,
-      "partialWarning": false,
-      "situationWarning": false,
-      "situationPartWarning": false
-    },
     "211084": {
       "lastModified": 1791881707,
       "effective": 1789128000,
@@ -2353,6 +2341,18 @@
       "situationWarning": false,
       "situationPartWarning": false
     },
+    "200382": {
+      "lastModified": 1795325123,
+      "effective": 1795325400,
+      "title": "Belgien: Reise- und Sicherheitshinweise",
+      "countryCode": "BE",
+      "iso3CountryCode": "BEL",
+      "countryName": "Belgien",
+      "warning": false,
+      "partialWarning": false,
+      "situationWarning": false,
+      "situationPartWarning": false
+    },
     "208752": {
       "lastModified": 1795181454,
       "effective": 1795181400,
@@ -2539,7 +2539,6 @@
       "202260",
       "209524",
       "201230",
-      "200382",
       "211084",
       "211724",
       "211938",
@@ -2598,6 +2597,7 @@
       "209504",
       "226176",
       "208058",
+      "200382",
       "208752",
       "202298",
       "210534",
