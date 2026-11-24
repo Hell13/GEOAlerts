@@ -1705,30 +1705,6 @@
       "situationWarning": false,
       "situationPartWarning": false
     },
-    "204160": {
-      "lastModified": 1793283028,
-      "effective": 1793282400,
-      "title": "Oman: Reise- und Sicherheitshinweise",
-      "countryCode": "OM",
-      "iso3CountryCode": "OMN",
-      "countryName": "Oman",
-      "warning": false,
-      "partialWarning": false,
-      "situationWarning": false,
-      "situationPartWarning": false
-    },
-    "206408": {
-      "lastModified": 1791881484,
-      "effective": 1783084500,
-      "title": "Vereinigtes Königreich: Reise- und Sicherheitshinweise",
-      "countryCode": "GB",
-      "iso3CountryCode": "GBR",
-      "countryName": "Vereinigtes Königreich",
-      "warning": false,
-      "partialWarning": false,
-      "situationWarning": false,
-      "situationPartWarning": false
-    },
     "208400": {
       "lastModified": 1794561298,
       "effective": 1794560400,
@@ -2353,18 +2329,6 @@
       "situationWarning": false,
       "situationPartWarning": false
     },
-    "200382": {
-      "lastModified": 1795422928,
-      "effective": 1795325400,
-      "title": "Belgien: Reise- und Sicherheitshinweise",
-      "countryCode": "BE",
-      "iso3CountryCode": "BEL",
-      "countryName": "Belgien",
-      "warning": false,
-      "partialWarning": false,
-      "situationWarning": false,
-      "situationPartWarning": false
-    },
     "210534": {
       "lastModified": 1795012643,
       "effective": 1795012200,
@@ -2396,6 +2360,42 @@
       "countryCode": "MX",
       "iso3CountryCode": "MEX",
       "countryName": "Mexiko",
+      "warning": false,
+      "partialWarning": false,
+      "situationWarning": false,
+      "situationPartWarning": false
+    },
+    "200382": {
+      "lastModified": 1795508836,
+      "effective": 1795508100,
+      "title": "Belgien: Reise- und Sicherheitshinweise",
+      "countryCode": "BE",
+      "iso3CountryCode": "BEL",
+      "countryName": "Belgien",
+      "warning": false,
+      "partialWarning": false,
+      "situationWarning": false,
+      "situationPartWarning": false
+    },
+    "204160": {
+      "lastModified": 1793283028,
+      "effective": 1793282400,
+      "title": "Oman: Reise- und Sicherheitshinweise",
+      "countryCode": "OM",
+      "iso3CountryCode": "OMN",
+      "countryName": "Oman",
+      "warning": false,
+      "partialWarning": false,
+      "situationWarning": false,
+      "situationPartWarning": false
+    },
+    "206408": {
+      "lastModified": 1791881484,
+      "effective": 1783084500,
+      "title": "Vereinigtes Königreich: Reise- und Sicherheitshinweise",
+      "countryCode": "GB",
+      "iso3CountryCode": "GBR",
+      "countryName": "Vereinigtes Königreich",
       "warning": false,
       "partialWarning": false,
       "situationWarning": false,
@@ -2544,8 +2544,6 @@
       "224816",
       "201946",
       "202332",
-      "204160",
-      "206408",
       "208400",
       "213920",
       "223232",
@@ -2598,10 +2596,12 @@
       "208058",
       "208752",
       "202298",
-      "200382",
       "210534",
       "212254",
-      "213648"
+      "213648",
+      "200382",
+      "204160",
+      "206408"
     ]
   }
 }
