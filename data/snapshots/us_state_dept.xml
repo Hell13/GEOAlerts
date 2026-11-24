@@ -4,8 +4,47 @@
     <title>travel.state.gov: Travel Advisories</title>
     <link>https://travel.state.gov/content/travel/en/traveladvisories/traveladvisories.html</link>
     <description>As a first step in planning any trip abroad, check the Travel Advisories for your intended destination.</description>
-    <pubDate>Mon, 23 Nov 2026 12:12:02 GMT</pubDate>
-    <dc:date>2026-11-23T12:12:02Z</dc:date>
+    <pubDate>Tue, 24 Nov 2026 00:10:01 GMT</pubDate>
+    <dc:date>2026-11-24T00:10:01Z</dc:date>
+    <item>
+      <title>Denmark - Level 2: Exercise Increased Caution</title>
+      <link>https://travel.state.gov/content/tsg_aem/us/en/home/international-travel/travel-advisories/destination.dnk.html</link>
+      <pubDate>Mon, 23 Nov 2026</pubDate>
+      <description><![CDATA[Exercise increased caution<p>in <b>Denmark </b>due to <b>terrorism</b>.</p>
+<p>Terrorist groups continue plotting possible attacks in the Kingdom of Denmark.&nbsp; Visit the U.S. Department of State's <a href='https://www.state.gov/country-reports-on-terrorism/' target='_blank' title='DOS Country reports on terrorism'>country reports on terrorism</a> to learn more.</p>
+<p>Terrorists may attack without warning and target:</p>
+<ul>
+<li>Tourist locations</li>
+<li>Transportation hubs (airports)</li>
+<li>Markets and shopping malls &nbsp;</li>
+<li>Local government facilities</li>
+<li>Hotels, clubs, and restaurants</li>
+<li>Places of religious significance</li>
+<li>Parks</li>
+<li>Major sporting and cultural events</li>
+<li>Educational institutions</li>
+<li>Other Public Areas</li>
+</ul>]]></description>
+      <category domain="Threat-Level">Level 2: Exercise Increased Caution</category>
+      <category domain="Country-Tag">DA</category>
+      <category domain="Keyword">advisory</category>
+      <guid>https://travel.state.gov/content/tsg_aem/us/en/home/international-travel/travel-advisories/destination.dnk.html</guid>
+      <dc:identifier>DA,advisory</dc:identifier>
+    </item>
+    <item>
+      <title>Greenland - Level 2: Exercise Increased Caution</title>
+      <link>https://travel.state.gov/content/tsg_aem/us/en/home/international-travel/travel-advisories/destination.grl.html</link>
+      <pubDate>Mon, 23 Nov 2026</pubDate>
+      <description><![CDATA[Exercise increased caution<p>in <b>Greenland </b>due to <b>environmental hazards posed by extreme weather conditions</b> and <b>limited emergency services</b>.</p>
+<p>The U.S. government’s ability to provide consular services to U.S. citizens in Greenland is extremely limited.</p>
+<p>Greenland’s landscape includes vast stretches of territory remote from cities and settlements.&nbsp; The weather can be harsh, and resources to provide emergency services in areas distant from cities and large settlements, including search and rescue, are scarce.&nbsp; In some areas, search and rescue efforts could take several days to reach the site of an incident.</p>
+<p>Review the <a href='https://travel.state.gov/en/international-travel/travel-advisories/greenland.html#requirements' title='Travel guidance for Greenland'>Travel Guidance</a> section for additional information on travel to Greenland.</p>]]></description>
+      <category domain="Threat-Level">Level 2: Exercise Increased Caution</category>
+      <category domain="Country-Tag">GL</category>
+      <category domain="Keyword">advisory</category>
+      <guid>https://travel.state.gov/content/tsg_aem/us/en/home/international-travel/travel-advisories/destination.grl.html</guid>
+      <dc:identifier>GL,advisory</dc:identifier>
+    </item>
     <item>
       <title>Iran - Level 4: Do Not Travel</title>
       <link>https://travel.state.gov/content/tsg_aem/us/en/home/international-travel/travel-advisories/destination.irn.html</link>
@@ -5636,20 +5675,6 @@ The Gambia’s health infrastructure is inadequate. Health services, hygiene, an
       <dc:identifier>TN,advisory</dc:identifier>
     </item>
     <item>
-      <title>Greenland - Level 2: Exercise Increased Caution</title>
-      <link>https://travel.state.gov/content/tsg_aem/us/en/home/international-travel/travel-advisories/destination.grl.html</link>
-      <pubDate>Tue, 29 Oct 2024</pubDate>
-      <description><![CDATA[Exercise increased caution<p>in <b>Greenland </b>due to <b>environmental hazards posed by extreme weather conditions</b> and <b>limited emergency services.</b></p>
-<p>The U.S. government’s ability to provide consular services to U.S. citizens in Greenland is extremely limited.</p>
-<p>Greenland’s landscape includes vast stretches of territory remote from cities and settlements. The weather can be harsh, and resources to provide emergency services in areas distant from cities and large settlements, including search and rescue, are scarce. In some areas, search and rescue efforts could take several days to reach the site of an incident.</p>
-<p>Review the <a href='#requirements'>Travel Guidance</a> section for additional information on travel to Greenland.</p>]]></description>
-      <category domain="Threat-Level">Level 2: Exercise Increased Caution</category>
-      <category domain="Country-Tag">GL</category>
-      <category domain="Keyword">advisory</category>
-      <guid>https://travel.state.gov/content/tsg_aem/us/en/home/international-travel/travel-advisories/destination.grl.html</guid>
-      <dc:identifier>GL,advisory</dc:identifier>
-    </item>
-    <item>
       <title>Republic of Congo - Level 2: Exercise Increased Caution</title>
       <link>https://travel.state.gov/content/tsg_aem/us/en/home/international-travel/travel-advisories/destination.cog.html</link>
       <pubDate>Wed, 02 Oct 2024</pubDate>
@@ -5663,19 +5688,6 @@ The Gambia’s health infrastructure is inadequate. Health services, hygiene, an
       <category domain="Keyword">advisory</category>
       <guid>https://travel.state.gov/content/tsg_aem/us/en/home/international-travel/travel-advisories/destination.cog.html</guid>
       <dc:identifier>CF,advisory</dc:identifier>
-    </item>
-    <item>
-      <title>Denmark - Level 2: Exercise Increased Caution</title>
-      <link>https://travel.state.gov/content/tsg_aem/us/en/home/international-travel/travel-advisories/destination.dnk.html</link>
-      <pubDate>Tue, 17 Sep 2024</pubDate>
-      <description><![CDATA[Exercise increased caution<p>&nbsp;in the <b>Kingdom of Denmark</b> due to <b>terrorism</b>.</p>
-<p>Terrorist groups continue plotting possible attacks in the Kingdom of Denmark.&nbsp; Terrorists can attack with little or no warning. They could target tourist spots, transport hubs, markets/shopping malls, local government facilities, hotels, clubs, restaurants, places of religious importance, parks, major sporting and cultural events, schools, airports, and other public areas.</p>
-<p>The Kingdom of Denmark consists of Denmark, the Faroe Islands, and Greenland.&nbsp; For additional information, please review the <a title='Travel guidance for Denmark' href='/en/international-travel/travel-advisories/denmark.html#requirements'>travel guidances for Denmark</a> and the Faroe Islands and for <a href='/en/international-travel/travel-advisories/greenland.html#requirements' title='Travel guidance for Greenland'>Greenland</a>.</p>]]></description>
-      <category domain="Threat-Level">Level 2: Exercise Increased Caution</category>
-      <category domain="Country-Tag">DA</category>
-      <category domain="Keyword">advisory</category>
-      <guid>https://travel.state.gov/content/tsg_aem/us/en/home/international-travel/travel-advisories/destination.dnk.html</guid>
-      <dc:identifier>DA,advisory</dc:identifier>
     </item>
     <item>
       <title>French West Indies - Level 1: Exercise Normal Precautions</title>

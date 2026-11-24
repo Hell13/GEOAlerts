@@ -1201,18 +1201,6 @@
       "situationWarning": false,
       "situationPartWarning": false
     },
-    "213648": {
-      "lastModified": 1792397472,
-      "effective": 1792396800,
-      "title": "Mexiko: Reise- und Sicherheitshinweise",
-      "countryCode": "MX",
-      "iso3CountryCode": "MEX",
-      "countryName": "Mexiko",
-      "warning": false,
-      "partialWarning": false,
-      "situationWarning": false,
-      "situationPartWarning": false
-    },
     "200896": {
       "lastModified": 1791886240,
       "effective": 1791206100,
@@ -2401,6 +2389,18 @@
       "situationWarning": false,
       "situationPartWarning": false
     },
+    "213648": {
+      "lastModified": 1795440244,
+      "effective": 1795439700,
+      "title": "Mexiko: Reise- und Sicherheitshinweise",
+      "countryCode": "MX",
+      "iso3CountryCode": "MEX",
+      "countryName": "Mexiko",
+      "warning": false,
+      "partialWarning": false,
+      "situationWarning": false,
+      "situationPartWarning": false
+    },
     "contentList": [
       "226268",
       "210708",
@@ -2502,7 +2502,6 @@
       "211624",
       "206146",
       "210258",
-      "213648",
       "200896",
       "201382",
       "212396",
@@ -2601,7 +2600,8 @@
       "202298",
       "200382",
       "210534",
-      "212254"
+      "212254",
+      "213648"
     ]
   }
 }
