@@ -1501,18 +1501,6 @@
       "situationWarning": false,
       "situationPartWarning": false
     },
-    "211834": {
-      "lastModified": 1791881399,
-      "effective": 1773396900,
-      "title": "Bulgarien: Reise- und Sicherheitshinweise",
-      "countryCode": "BG",
-      "iso3CountryCode": "BGR",
-      "countryName": "Bulgarien",
-      "warning": false,
-      "partialWarning": false,
-      "situationWarning": false,
-      "situationPartWarning": false
-    },
     "200466": {
       "lastModified": 1793098944,
       "effective": 1793097000,
@@ -2401,6 +2389,18 @@
       "situationWarning": false,
       "situationPartWarning": false
     },
+    "211834": {
+      "lastModified": 1795616102,
+      "effective": 1795616100,
+      "title": "Bulgarien: Reise- und Sicherheitshinweise",
+      "countryCode": "BG",
+      "iso3CountryCode": "BGR",
+      "countryName": "Bulgarien",
+      "warning": false,
+      "partialWarning": false,
+      "situationWarning": false,
+      "situationPartWarning": false
+    },
     "contentList": [
       "226268",
       "210708",
@@ -2527,7 +2527,6 @@
       "204692",
       "206994",
       "206738",
-      "211834",
       "200466",
       "212168",
       "206208",
@@ -2601,7 +2600,8 @@
       "212254",
       "206774",
       "208606",
-      "201382"
+      "201382",
+      "211834"
     ]
   }
 }
