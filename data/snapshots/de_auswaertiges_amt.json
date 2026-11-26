@@ -1201,18 +1201,6 @@
       "situationWarning": false,
       "situationPartWarning": false
     },
-    "208662": {
-      "lastModified": 1793364746,
-      "effective": 1793363400,
-      "title": "Tansania: Reise- und Sicherheitshinweise",
-      "countryCode": "TZ",
-      "iso3CountryCode": "TZA",
-      "countryName": "Tansania",
-      "warning": false,
-      "partialWarning": false,
-      "situationWarning": false,
-      "situationPartWarning": false
-    },
     "224526": {
       "lastModified": 1791882793,
       "effective": 1787060700,
@@ -1280,18 +1268,6 @@
       "countryCode": "GM",
       "iso3CountryCode": "GMB",
       "countryName": "Gambia",
-      "warning": false,
-      "partialWarning": false,
-      "situationWarning": false,
-      "situationPartWarning": false
-    },
-    "223616": {
-      "lastModified": 1792140664,
-      "effective": 1792124400,
-      "title": "Malaysia: Reise- und Sicherheitshinweise",
-      "countryCode": "MY",
-      "iso3CountryCode": "MYS",
-      "countryName": "Malaysia",
       "warning": false,
       "partialWarning": false,
       "situationWarning": false,
@@ -1448,18 +1424,6 @@
       "countryCode": "AR",
       "iso3CountryCode": "ARG",
       "countryName": "Argentinien",
-      "warning": false,
-      "partialWarning": false,
-      "situationWarning": false,
-      "situationPartWarning": false
-    },
-    "201092": {
-      "lastModified": 1793893474,
-      "effective": 1793893500,
-      "title": "Brasilien: Reise- und Sicherheitshinweise",
-      "countryCode": "BR",
-      "iso3CountryCode": "BRA",
-      "countryName": "Brasilien",
       "warning": false,
       "partialWarning": false,
       "situationWarning": false,
@@ -2401,6 +2365,42 @@
       "situationWarning": false,
       "situationPartWarning": false
     },
+    "201092": {
+      "lastModified": 1795685536,
+      "effective": 1795685400,
+      "title": "Brasilien: Reise- und Sicherheitshinweise",
+      "countryCode": "BR",
+      "iso3CountryCode": "BRA",
+      "countryName": "Brasilien",
+      "warning": false,
+      "partialWarning": false,
+      "situationWarning": false,
+      "situationPartWarning": false
+    },
+    "223616": {
+      "lastModified": 1795683520,
+      "effective": 1795683600,
+      "title": "Malaysia: Reise- und Sicherheitshinweise",
+      "countryCode": "MY",
+      "iso3CountryCode": "MYS",
+      "countryName": "Malaysia",
+      "warning": false,
+      "partialWarning": false,
+      "situationWarning": false,
+      "situationPartWarning": false
+    },
+    "208662": {
+      "lastModified": 1795691167,
+      "effective": 1795690800,
+      "title": "Tansania: Reise- und Sicherheitshinweise",
+      "countryCode": "TZ",
+      "iso3CountryCode": "TZA",
+      "countryName": "Tansania",
+      "warning": false,
+      "partialWarning": false,
+      "situationWarning": false,
+      "situationPartWarning": false
+    },
     "contentList": [
       "226268",
       "210708",
@@ -2502,14 +2502,12 @@
       "200896",
       "212396",
       "216248",
-      "208662",
       "224526",
       "208190",
       "224080",
       "206790",
       "201904",
       "213624",
-      "223616",
       "203814",
       "201962",
       "201536",
@@ -2523,7 +2521,6 @@
       "202280",
       "204278",
       "201326",
-      "201092",
       "204692",
       "206994",
       "206738",
@@ -2601,7 +2598,10 @@
       "206774",
       "208606",
       "201382",
-      "211834"
+      "211834",
+      "201092",
+      "223616",
+      "208662"
     ]
   }
 }
