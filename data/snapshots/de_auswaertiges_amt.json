@@ -805,18 +805,6 @@
       "situationWarning": false,
       "situationPartWarning": false
     },
-    "204130": {
-      "lastModified": 1793282940,
-      "effective": 1793282400,
-      "title": "Kuwait: Reise- und Sicherheitshinweise",
-      "countryCode": "KW",
-      "iso3CountryCode": "KWT",
-      "countryName": "Kuwait",
-      "warning": false,
-      "partialWarning": false,
-      "situationWarning": false,
-      "situationPartWarning": false
-    },
     "201932": {
       "lastModified": 1793804382,
       "effective": 1793800800,
@@ -848,18 +836,6 @@
       "countryCode": "NI",
       "iso3CountryCode": "NIC",
       "countryName": "Nicaragua",
-      "warning": false,
-      "partialWarning": false,
-      "situationWarning": false,
-      "situationPartWarning": false
-    },
-    "204874": {
-      "lastModified": 1791884542,
-      "effective": 1788274800,
-      "title": "Kanada: Reise- und Sicherheitshinweise",
-      "countryCode": "CA",
-      "iso3CountryCode": "CAN",
-      "countryName": "Kanada",
       "warning": false,
       "partialWarning": false,
       "situationWarning": false,
@@ -973,18 +949,6 @@
       "situationWarning": false,
       "situationPartWarning": false
     },
-    "216132": {
-      "lastModified": 1793783152,
-      "effective": 1793782800,
-      "title": "Republik Korea (Südkorea): Reise- und Sicherheitshinweise",
-      "countryCode": "KR",
-      "iso3CountryCode": "KOR",
-      "countryName": "Republik Korea (Südkorea)",
-      "warning": false,
-      "partialWarning": false,
-      "situationWarning": false,
-      "situationPartWarning": false
-    },
     "206342": {
       "lastModified": 1793879985,
       "effective": 1793880000,
@@ -1088,18 +1052,6 @@
       "countryCode": "BB",
       "iso3CountryCode": "BRB",
       "countryName": "Barbados",
-      "warning": false,
-      "partialWarning": false,
-      "situationWarning": false,
-      "situationPartWarning": false
-    },
-    "204112": {
-      "lastModified": 1793282675,
-      "effective": 1793282400,
-      "title": "Bahrain: Reise- und Sicherheitshinweise",
-      "countryCode": "BH",
-      "iso3CountryCode": "BHR",
-      "countryName": "Bahrain",
       "warning": false,
       "partialWarning": false,
       "situationWarning": false,
@@ -1353,18 +1305,6 @@
       "iso3CountryCode": "GEO",
       "countryName": "Georgien",
       "warning": false,
-      "partialWarning": false,
-      "situationWarning": false,
-      "situationPartWarning": false
-    },
-    "202738": {
-      "lastModified": 1793283672,
-      "effective": 1793283300,
-      "title": "Irak: Reise- und Sicherheitshinweise",
-      "countryCode": "IQ",
-      "iso3CountryCode": "IRQ",
-      "countryName": "Irak",
-      "warning": true,
       "partialWarning": false,
       "situationWarning": false,
       "situationPartWarning": false
@@ -2401,6 +2341,66 @@
       "situationWarning": false,
       "situationPartWarning": false
     },
+    "216132": {
+      "lastModified": 1795772350,
+      "effective": 1793782800,
+      "title": "Republik Korea (Südkorea): Reise- und Sicherheitshinweise",
+      "countryCode": "KR",
+      "iso3CountryCode": "KOR",
+      "countryName": "Republik Korea (Südkorea)",
+      "warning": false,
+      "partialWarning": false,
+      "situationWarning": false,
+      "situationPartWarning": false
+    },
+    "204874": {
+      "lastModified": 1795771452,
+      "effective": 1795770900,
+      "title": "Kanada: Reise- und Sicherheitshinweise",
+      "countryCode": "CA",
+      "iso3CountryCode": "CAN",
+      "countryName": "Kanada",
+      "warning": false,
+      "partialWarning": false,
+      "situationWarning": false,
+      "situationPartWarning": false
+    },
+    "202738": {
+      "lastModified": 1795790272,
+      "effective": 1795789800,
+      "title": "Irak: Reise- und Sicherheitshinweise",
+      "countryCode": "IQ",
+      "iso3CountryCode": "IRQ",
+      "countryName": "Irak",
+      "warning": true,
+      "partialWarning": false,
+      "situationWarning": false,
+      "situationPartWarning": false
+    },
+    "204130": {
+      "lastModified": 1795789655,
+      "effective": 1795788900,
+      "title": "Kuwait: Reise- und Sicherheitshinweise",
+      "countryCode": "KW",
+      "iso3CountryCode": "KWT",
+      "countryName": "Kuwait",
+      "warning": false,
+      "partialWarning": false,
+      "situationWarning": false,
+      "situationPartWarning": false
+    },
+    "204112": {
+      "lastModified": 1795789645,
+      "effective": 1795788900,
+      "title": "Bahrain: Reise- und Sicherheitshinweise",
+      "countryCode": "BH",
+      "iso3CountryCode": "BHR",
+      "countryName": "Bahrain",
+      "warning": false,
+      "partialWarning": false,
+      "situationWarning": false,
+      "situationPartWarning": false
+    },
     "contentList": [
       "226268",
       "210708",
@@ -2469,11 +2469,9 @@
       "220332",
       "226450",
       "203674",
-      "204130",
       "201932",
       "216104",
       "223316",
-      "204874",
       "213428",
       "221216",
       "226490",
@@ -2483,7 +2481,6 @@
       "208314",
       "210962",
       "212208",
-      "216132",
       "206342",
       "201048",
       "226912",
@@ -2493,7 +2490,6 @@
       "210900",
       "221864",
       "226424",
-      "204112",
       "221078",
       "208824",
       "211624",
@@ -2515,7 +2511,6 @@
       "200854",
       "218008",
       "201918",
-      "202738",
       "219024",
       "205878",
       "202280",
@@ -2601,7 +2596,12 @@
       "211834",
       "201092",
       "223616",
-      "208662"
+      "208662",
+      "216132",
+      "204874",
+      "202738",
+      "204130",
+      "204112"
     ]
   }
 }
